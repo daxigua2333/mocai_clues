@@ -67,7 +67,7 @@ public class ClueFinderItem extends Item {
             stack.set(current, data.success());
 
             if (!stack.getOrDefault(prev,false) && stack.getOrDefault(current, false)) {
-                player.level().playSound(player, player.getOnPos(), SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 1f, 1f);
+                player.level().playSound(player, player.getOnPos(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1f, 1f);
             }
         });
     };
