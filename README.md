@@ -1,25 +1,34 @@
 
-Installation information
-=======
+目前只搭好了主要框架, 还有很多东西没实现
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+# features
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+用于案发后, 查证环节前布置线索的框架. 
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+线索是留在各个方块中不可见的数据, 在游戏中玩家需要通过放大镜的提示来寻找到这些隐形的线索. 锁定到有线索的方块后, 使用放大镜右击打开容器界面
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+部分线索会在作案过程中自动留在方块中, 例如尸体 血迹 凶器划痕(目前还没实现). 
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+主持人与场务也可在案发后, 查证前的这一环节中根据剧情需要使用猫头鹰的法杖右击方块手动布置线索. 在使用法杖创建线索容器后, 用放大镜打开容器界面往里放入证物
+
+为了便于手动布置线索, 法杖也有将一定范围内的线索高亮显示的功能, 也因此玩家不应持有法杖
+
+- 猫头鹰的法杖: 能在任意方块上创建存储物品形式线索的容器
+  - 拿在手上: 能够高亮一定范围内(可配置)的线索容器方块
+  - 左键: 切换工作模式
+    - create: 右键方块能将其变为容器
+    - delete: 右键方块将这个方块上的线索容器删除
+- 放大镜: 能够打开线索容器的存储界面
+  - 拿在手上: 当鼠标准心对准容器方块的时候提示玩家
+  - 右键方块: 如果该方块是线索容器的话打开其存储界面
+
+
+
+# TODO
+
+- 自动生成线索: 尸体 血迹 划痕
+- 法杖delete模式 掉落
+- lang
+- config
+- 贴图
+
