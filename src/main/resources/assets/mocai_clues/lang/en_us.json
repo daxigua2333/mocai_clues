@@ -1,0 +1,13 @@
+{
+  "itemGroup.mocai_clues": "Mocai Clue System",
+  "item.mocai_clues.clue_wand": "Clue Wand",
+  "item.mocai_clues.clue_finder": "Clue Finder",
+
+  "mocai_clues.configuration.title": "MoCai_Clues Configs",
+  "mocai_clues.configuration.section.mocai_clues.common.toml": "MoCai_Clues Configs",
+  "mocai_clues.configuration.section.mocai_clues.common.toml.title": "MoCai_Clues Configs",
+  "mocai_clues.configuration.items": "Item List",
+  "mocai_clues.configuration.logDirtBlock": "Log Dirt Block",
+  "mocai_clues.configuration.magicNumberIntroduction": "Magic Number Text",
+  "mocai_clues.configuration.magicNumber": "Magic Number"
+}
