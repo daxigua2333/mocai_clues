@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.items.components;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.component.DataComponentType;
@@ -28,12 +29,21 @@ public class ModDataComponentsRegistry {
             .networkSynchronized(WAND_MODE_STREAM)      // sync to client
         );
 
-    public static final Supplier<DataComponentType<Boolean>> PREV_FINDER_HIT_RESULT =
-        DATA_COMPONENTS.registerComponentType("prev_finder_hit_result",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(StreamCodec.unit(false)));
-    public static final Supplier<DataComponentType<Boolean>> CURRENT_FINDER_HIT_RESULT =
-        DATA_COMPONENTS.registerComponentType("current_finder_hit_result",
-            builder -> builder.persistent(Codec.BOOL).networkSynchronized(StreamCodec.unit(false)));
+    public static final Codec<FinderHitResult> FINDER_HIT_RESULT_CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.BOOL.fieldOf("prev").forGetter(FinderHitResult::prev),
+                    Codec.BOOL.fieldOf("current").forGetter(FinderHitResult::current)
+            ).apply(instance, FinderHitResult::new));
+    public static final StreamCodec<ByteBuf, FinderHitResult> FINDER_HIT_RESULT_STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, FinderHitResult::prev,
+            ByteBufCodecs.BOOL, FinderHitResult::current,
+            FinderHitResult::new
+    );
+    public static final Supplier<DataComponentType<FinderHitResult>> FINDER_HIT_RESULT = DATA_COMPONENTS.registerComponentType(
+            "finder_hit_result", builder -> builder
+                    .persistent(FINDER_HIT_RESULT_CODEC)
+                    .networkSynchronized(FINDER_HIT_RESULT_STREAM_CODEC)
+    );
 
 
     public static void register(IEventBus bus) {

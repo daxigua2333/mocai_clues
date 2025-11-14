@@ -4,9 +4,8 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainerAttachmentHelper;
+import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
-import io.github.daxigua2333.mocai_clues.items.statics.ClueContainerSearchUtils;
-import io.github.daxigua2333.mocai_clues.networks.FinderHitResultPayload;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
@@ -46,28 +45,10 @@ public class ClueFinderItem extends Item {
         (ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int id) -> {
 //        (stack, level, entity, id) -> {
             if (entity != null) {
-                return stack.getOrDefault(ModDataComponentsRegistry.CURRENT_FINDER_HIT_RESULT.get(), false) ? 1.0F : 0.0F;
+                return stack.getOrDefault(ModDataComponentsRegistry.FINDER_HIT_RESULT.get(), new FinderHitResult(false, false)).current() ? 1.0F : 0.0F;
             } else {
                 // entity == null (e.g., in item frame/JEI/creative preview) – fall back to stack data
                 return 0.0F;
-            }
-        });
-    };
-    // sound reflection
-    public static void handleHitResult(FinderHitResultPayload data, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            ItemStack main = player.getMainHandItem();
-            ItemStack off = player.getOffhandItem();
-            ItemStack stack = main.getItem() == ModItemsRegistry.CLUE_FINDER_ITEM.get() ? main : off;
-            if (stack == ItemStack.EMPTY) return;
-            var prev = ModDataComponentsRegistry.PREV_FINDER_HIT_RESULT.get();
-            var current = ModDataComponentsRegistry.CURRENT_FINDER_HIT_RESULT.get();
-            stack.set(prev, stack.getOrDefault(current, false));
-            stack.set(current, data.success());
-
-            if (!stack.getOrDefault(prev,false) && stack.getOrDefault(current, false)) {
-                player.level().playSound(player, player.getOnPos(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1f, 1f);
             }
         });
     };

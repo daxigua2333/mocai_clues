@@ -30,12 +30,6 @@ public class ModPayloadRegistry {
                 ModPayloadRegistry::onWandLeftButtonPressed
         );
 
-        registrar.playToClient(
-                FinderHitResultPayload.TYPE,
-                FinderHitResultPayload.STREAM_CODEC,
-                ClueFinderItem::handleHitResult
-        );
-
     }
 
 
