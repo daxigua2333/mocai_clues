@@ -6,6 +6,7 @@ import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
+import io.github.daxigua2333.mocai_clues.items.statics.FinderHitResultTicker;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
@@ -17,6 +18,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -53,6 +55,15 @@ public class ClueFinderItem extends Item {
         });
     };
 
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, level, entity, slot, selected);
+        if (!level.isClientSide()) {
+            if (stack.getItem() == ModItemsRegistry.CLUE_FINDER_ITEM.get() && !selected) {
+                FinderHitResultTicker.handleHitResult((Player) entity, stack, false);
+            }
+        }
+    }
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
