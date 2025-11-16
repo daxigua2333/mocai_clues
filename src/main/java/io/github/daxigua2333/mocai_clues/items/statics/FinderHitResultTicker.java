@@ -6,7 +6,6 @@ import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -18,7 +17,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,10 +25,8 @@ public class FinderHitResultTicker {
 
     public static final Map<UUID, ItemStack> prevMainHoldFinderMap = new ConcurrentHashMap<>();
     public static final Map<ItemStack, List<ItemStack>> prevMainHoldFinderCopyMap = new IdentityHashMap<>();
-//    private static final Map<UUID, ItemStack> prevOffHoldMap = new ConcurrentHashMap<>();
-//    public static final Map<UUID, FinderHitResult> prevMainHoldFinderDataRecord = new ConcurrentHashMap<>();
-//    public static final Map<UUID, PatchedDataComponentMap> prevMainHoldFinderPatchedDataComponentMap = new ConcurrentHashMap<>();
-
+    public static final Map<UUID, ItemStack> prevOffHoldFinderMap = new ConcurrentHashMap<>();
+    public static final Map<ItemStack, List<ItemStack>> prevOffHoldFinderCopyMap = new IdentityHashMap<>();
 
 
     // ticker
@@ -43,23 +39,16 @@ public class FinderHitResultTicker {
         ItemStack off = player.getOffhandItem();
         Item finder = ModItemsRegistry.CLUE_FINDER_ITEM.get();
         // if neither hand holds finder
-//        ItemStack prevMainHold = prevMainHoldMap.getOrDefault(player.getUUID(), ItemStack.EMPTY);
-//        ItemStack prevOffHold = prevOffHoldMap.getOrDefault(player.getUUID(), ItemStack.EMPTY);
-//        if (prevMainHold.getItem() == finder && main.getItem() != finder) {handleHitResult(player, prevMainHold, false);}
-//        if (prevOffHold.getItem() == finder && off.getItem() != finder) {handleHitResult(player, prevOffHold, false);}
-//        if(prevMainHold.getItem() != main.getItem()) {MoCaiClues.LOGGER.debug("{} -> {}", prevMainHold, main);}
-//        prevMainHoldMap.put(player.getUUID(), main);
-//        prevOffHoldMap.put(player.getUUID(), off);
         boolean currentDoHold = main.getItem() == finder || off.getItem() == finder;
         if (!currentDoHold) {return;}
-//        if (main.getItem() == finder) {prevMainHoldFinderDataRecord.put(player.getUUID(), main.getOrDefault(ModDataComponentsRegistry.FINDER_HIT_RESULT.get(), new FinderHitResult(false, false)));}
+        // leave hand data
         if (main.getItem() == finder) {
-//            Field field = main.getClass().getDeclaredField("components");
-//            field.setAccessible(true);
-//            PatchedDataComponentMap map = (PatchedDataComponentMap) field.get(main);
-//            prevMainHoldFinderPatchedDataComponentMap.put(player.getUUID(), map);
             prevMainHoldFinderMap.put(player.getUUID(), main);
             prevMainHoldFinderCopyMap.clear();
+        }
+        if (off.getItem() == finder) {
+            prevOffHoldFinderMap.put(player.getUUID(), main);
+            prevOffHoldFinderCopyMap.clear();
         }
 
         // raytrace: player.pick(range, partialTicks, ClipContext.Fluid.NONE)

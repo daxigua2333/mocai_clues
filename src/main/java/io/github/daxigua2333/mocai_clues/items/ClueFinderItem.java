@@ -13,8 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
@@ -26,14 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nullable;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class ClueFinderItem extends Item {
     public ClueFinderItem(Properties props) {
@@ -59,8 +51,9 @@ public class ClueFinderItem extends Item {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, level, entity, slot, selected);
         if (!level.isClientSide()) {
-            if (stack.getItem() == ModItemsRegistry.CLUE_FINDER_ITEM.get() && !selected) {
-                FinderHitResultTicker.handleHitResult((Player) entity, stack, false);
+            Player player = (Player) entity;
+            if (stack.getItem() == ModItemsRegistry.CLUE_FINDER_ITEM.get() && !selected && stack != player.getOffhandItem()) {
+                FinderHitResultTicker.handleHitResult(player, stack, false);
             }
         }
     }

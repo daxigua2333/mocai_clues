@@ -3,12 +3,10 @@ package io.github.daxigua2333.mocai_clues.mixins;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
-import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.networks.FinderLeaveHandPayload;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,8 +23,8 @@ import java.util.UUID;
 
 @Mixin(ItemInHandRenderer.class)
 public class ItemInHandRendererMixin {
-    Map<UUID, Item> prevItemMap = new HashMap<>();
-    Map<UUID, Record> prevData = new HashMap<>();
+    Map<UUID, Item> prevMainItemMap = new HashMap<>();
+    Map<UUID, Item> prevOffItemMap = new HashMap<>();
 
     @Inject(method = "renderArmWithItem", at = @At("HEAD"))
     private void renderArmWithItem(
@@ -43,17 +41,24 @@ public class ItemInHandRendererMixin {
         CallbackInfo ci
     ) {
         if (hand == InteractionHand.MAIN_HAND) {
-            Item prevItem = prevItemMap.getOrDefault(player.getUUID(), Items.AIR.asItem());
+            Item prevItem = prevMainItemMap.getOrDefault(player.getUUID(), Items.AIR.asItem());
             var type = ModItemsRegistry.CLUE_FINDER_ITEM.get();
             if (prevItem != stack.getItem()) {
-//                var compo = stack.get(ModDataComponentsRegistry.FINDER_HIT_RESULT.get());
-                MoCaiClues.LOGGER.debug("renderer hook: {} -> {}", prevItem, stack );
                 if (prevItem == type){
-                    MoCaiClues.LOGGER.debug("renderer: payload sent");
                     PacketDistributor.sendToServer(new FinderLeaveHandPayload(true));
                 }
             }
-            prevItemMap.put(player.getUUID(), stack.getItem());
+            prevMainItemMap.put(player.getUUID(), stack.getItem());
+        }
+        if (hand == InteractionHand.OFF_HAND) {
+            Item prevItem = prevOffItemMap.getOrDefault(player.getUUID(), Items.AIR.asItem());
+            var type = ModItemsRegistry.CLUE_FINDER_ITEM.get();
+            if (prevItem != stack.getItem()) {
+                if (prevItem == type){
+                    PacketDistributor.sendToServer(new FinderLeaveHandPayload(false));
+                }
+            }
+            prevOffItemMap.put(player.getUUID(), stack.getItem());
         }
     }
 }

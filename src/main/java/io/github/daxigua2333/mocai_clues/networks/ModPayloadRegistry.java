@@ -70,20 +70,17 @@ public class ModPayloadRegistry {
 
     private static void onFinderLeaveHand(final FinderLeaveHandPayload data, final IPayloadContext context) {
         Player player = context.player();
-        ItemStack stack;
+        ItemStack prev;
+        List<ItemStack> copies;
         if (data.isMain()) {
-            stack = player.getMainHandItem();
+            prev = FinderHitResultTicker.prevMainHoldFinderMap.getOrDefault(player.getUUID(), ItemStack.EMPTY);
+            copies = FinderHitResultTicker.prevMainHoldFinderCopyMap.getOrDefault(prev, new ArrayList<>());
         }else {
-            stack = player.getOffhandItem();
+            prev = FinderHitResultTicker.prevOffHoldFinderMap.getOrDefault(player.getUUID(), ItemStack.EMPTY);
+            copies = FinderHitResultTicker.prevOffHoldFinderCopyMap.getOrDefault(prev, new ArrayList<>());
         }
-//        var prev = FinderHitResultTicker.prevMainHoldFinderDataRecord.getOrDefault(player.getUUID(), null);
-//        var prev = FinderHitResultTicker.prevMainHoldFinderPatchedDataComponentMap.getOrDefault(player.getUUID(), null);
-        ItemStack prev = FinderHitResultTicker.prevMainHoldFinderMap.getOrDefault(player.getUUID(), ItemStack.EMPTY);
-        List<ItemStack> copies = FinderHitResultTicker.prevMainHoldFinderCopyMap.getOrDefault(prev, new ArrayList<>());
-        MoCaiClues.LOGGER.debug("Payload handler: prev data:{}", prev);
-        MoCaiClues.LOGGER.debug("Payload handler: prev copies:{}", copies);
-        MoCaiClues.LOGGER.debug("Payload handler: full copies:{}", FinderHitResultTicker.prevMainHoldFinderCopyMap);
 
+        // turn prev + copies all into false
         var finder = ModItemsRegistry.CLUE_FINDER_ITEM.get();
         if (prev.getItem() == finder) {
             FinderHitResultTicker.handleHitResult(player, prev, false);
@@ -93,12 +90,5 @@ public class ModPayloadRegistry {
                 FinderHitResultTicker.handleHitResult(player, stackI, false);
             }
         }
-//        if (prev != null) {
-//            prev = new FinderHitResult(prev.current(), false);
-//            var type = ModDataComponentsRegistry.FINDER_HIT_RESULT.get();
-//            prev.set(type, new FinderHitResult(prev.getOrDefault(type, new FinderHitResult(false, false)).current(), false));
-//            MoCaiClues.LOGGER.debug("Payload handler: current data:{}", prev);
-//        }
-//        FinderHitResultTicker.handleHitResult(player, stack, false);
     }
 }

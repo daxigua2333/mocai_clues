@@ -24,7 +24,6 @@ public class ItemStackMixin {
                 map.put(newthis, new ArrayList<>());
             }
             map.get(newthis).add(cir.getReturnValue());
-            MoCaiClues.LOGGER.debug("get a new finder copy!: {} -> {}", newthis, map.get(newthis));
         }
     }
 }
