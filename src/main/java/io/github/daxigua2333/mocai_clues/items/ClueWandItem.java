@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues.items;
 
-import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainerAttachmentHelper;
+import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.core.BlockPos;
@@ -55,16 +55,15 @@ public class ClueWandItem extends Item {
                 if (!level.isClientSide()) {
                     ClueContainerAttachmentHelper.getOrCreate(level, clickedPos);
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("Attached data at " + clickedPos.toShortString()));
+                        player.sendSystemMessage(Component.literal("Attached data at " + clickedPos.toShortString()));  // TODO: lang
                     }
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());
             case DELETE:
                 if (!level.isClientSide()) {
-                    // TODO: loot table
                     ClueContainerAttachmentHelper.remove(level, clickedPos);
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("Removed data at " + clickedPos.toShortString()));
+                        player.sendSystemMessage(Component.literal("Removed data at " + clickedPos.toShortString()));  // TODO: lang
                     }
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());

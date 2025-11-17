@@ -1,6 +1,8 @@
-package io.github.daxigua2333.mocai_clues.data_attachments;
+package io.github.daxigua2333.mocai_clues.data_attachments.statics;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
+import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainerMap;
+import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -39,8 +41,10 @@ public final class ClueContainerAttachmentHelper {
     public static void remove(Level level, BlockPos pos){
         LevelChunk chunk = level.getChunkAt(pos);
         ClueContainerMap map = chunk.getData(ModDataAttachmentRegistry.CLUE_CONTAINER_MAP.get());
-        dropHandlerContents(level, pos, map.getExisting(pos).getInv(chunk));
-        map.remove(pos, chunk);
+        if (map.containsKey(pos)){
+            dropHandlerContents(level, pos, map.getExisting(pos).getInv(chunk));
+            map.remove(pos, chunk);
+        }
     }
 
     public static void dropHandlerContents(Level level, BlockPos pos, IItemHandler handler) {

@@ -27,8 +27,6 @@
 # TODO
 
 - 自动生成线索: 尸体 血迹 划痕
-- 法杖delete模式 掉落
 - lang
 - config
-- 贴图
 

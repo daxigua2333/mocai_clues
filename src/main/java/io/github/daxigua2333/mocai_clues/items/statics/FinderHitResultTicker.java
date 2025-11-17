@@ -1,7 +1,7 @@
 package io.github.daxigua2333.mocai_clues.items.statics;
 
 import io.github.daxigua2333.mocai_clues.Config;
-import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainerAttachmentHelper;
+import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
@@ -31,7 +31,7 @@ public class FinderHitResultTicker {
 
     // ticker
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event) throws NoSuchFieldException, IllegalAccessException {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
 

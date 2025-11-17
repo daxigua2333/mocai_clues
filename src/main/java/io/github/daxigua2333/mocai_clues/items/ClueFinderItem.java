@@ -3,7 +3,7 @@ package io.github.daxigua2333.mocai_clues.items;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
-import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainerAttachmentHelper;
+import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.statics.FinderHitResultTicker;
