@@ -6,6 +6,9 @@ import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -78,7 +81,14 @@ public class FinderHitResultTicker {
         stack.set(type, newResult);
 
         if (!newResult.prev() && newResult.current()) {
-            player.level().playSound(null, player.getOnPos(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1f, 1f);
+//            player.level().playSound(null, player.getOnPos(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1f, 1f);
+            // TODO: test
+            var pos = player.getOnPos();
+            var registry = player.level().registryAccess().registryOrThrow(Registries.SOUND_EVENT);
+            var holder = registry.getResourceKey(SoundEvents.EXPERIENCE_ORB_PICKUP).flatMap(registry::getHolder).orElseThrow(() -> new IllegalArgumentException("Sound not registered"));
+            ClientboundSoundPacket pkt = new ClientboundSoundPacket(holder, SoundSource.MASTER, pos.getX(), pos.getY(), pos.getZ(), 1f, 1f, player.level().getRandom().nextLong());
+            ServerPlayer serverPlayer = (ServerPlayer) player;
+            serverPlayer.connection.send(pkt);
         }
     }
 
