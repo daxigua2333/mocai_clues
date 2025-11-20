@@ -1,6 +1,10 @@
 package io.github.daxigua2333.mocai_clues.guis;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -11,17 +15,20 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class ClueInventoryMenu extends AbstractContainerMenu {
 
-    private final int containerRows;
+    private final int containerRows = 3;
+    public ItemStackHandler inventory;
+    public BlockPos pos;
+
 
     public ClueInventoryMenu(int id, Inventory playerInv) {
-        this(id, playerInv, new ItemStackHandler(27));   // TODO: rows config
+        this(id, playerInv, new ItemStackHandler(27), new BlockPos(0,0,0));   // TODO: rows config
     }
 
-    public ClueInventoryMenu(int id, Inventory playerInv, ItemStackHandler inventory) {
+    public ClueInventoryMenu(int id, Inventory playerInv, ItemStackHandler inventory, BlockPos pos) {
         super(ModMenuTypeRegistry.CLUE_INVENTORY_MENU.get(), id);
-        int rows = 3;
-        this.containerRows = rows;
-        int yOffset = (rows - 4) * 18;
+        this.inventory = inventory;
+        this.pos = pos;
+        int yOffset = (this.containerRows - 4) * 18;
         // container inventory
         for(int i = 0; i < this.containerRows; ++i) {
             for(int j = 0; j < 9; ++j) {
@@ -69,6 +76,23 @@ public class ClueInventoryMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {  // TODO
+        return true;
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (!player.level().isClientSide && player instanceof ServerPlayer sp && isHandlerEmpty(this.inventory)) {
+            ClueContainerAttachmentHelper.remove(sp.level(), this.pos);
+        }
+    }
+    private static boolean isHandlerEmpty(ItemStackHandler handler) {
+//        if (handler == null) return true;
+        for (int i = 0; i < handler.getSlots(); i++) {
+            if (!handler.getStackInSlot(i).isEmpty()) {
+                return false;
+            }
+        }
         return true;
     }
 

@@ -82,7 +82,7 @@ public class ClueFinderItem extends Item {
         LevelChunk chunk = level.getChunkAt(clickedPos);
         // Create a MenuProvider which will be used server-side to create the container
         MenuProvider provider = new SimpleMenuProvider(
-            (id, playerInv, p) -> new ClueInventoryMenu(id, playerInv, container.getInv(chunk)),
+            (id, playerInv, p) -> new ClueInventoryMenu(id, playerInv, container.getInv(chunk), clickedPos),
             Component.literal(container.getName().isEmpty() ? "Clue Inventory" : container.getName())
         );
         // Open screen for server player and write initial sync data to the buffer for the client constructor:
