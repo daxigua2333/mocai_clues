@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues;
 
+import io.github.daxigua2333.mocai_clues.blocks.ModBlocksRegistry;
 import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
 import io.github.daxigua2333.mocai_clues.guis.ModMenuTypeRegistry;
@@ -39,7 +40,7 @@ public class MoCaiClues {
     public static final Logger LOGGER = LogUtils.getLogger();
 
 
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
+//    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
 //    // Creates a new Block with the id "mocai_clues:example_block", combining the namespace and path
 //    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE));
 //    // Creates a new BlockItem with the id "mocai_clues:example_block", combining the namespace and path
@@ -51,8 +52,9 @@ public class MoCaiClues {
         modEventBus.addListener(this::commonSetup);
 
         // Register the Deferred Register to the mod event bus
-        BLOCKS.register(modEventBus);
+        ModBlocksRegistry.register(modEventBus);
         ModItemsRegistry.register(modEventBus);
+        ModCreativeTabRegistry.register(modEventBus);
         ModDataComponentsRegistry.register(modEventBus);
         ModDataAttachmentRegistry.register(modEventBus);
         ModMenuTypeRegistry.register(modEventBus);
