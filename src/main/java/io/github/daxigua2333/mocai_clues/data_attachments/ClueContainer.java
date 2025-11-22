@@ -14,6 +14,7 @@ public class ClueContainer implements INBTSerializable<CompoundTag> {
     private IAttachmentHolder holder;
     private final ItemStackHandler inv;
     private String name = "";
+    private boolean isInfinite = false;
 
 //    public ClueContainer(int slots){
 //        this.holder = null;
@@ -47,6 +48,8 @@ public class ClueContainer implements INBTSerializable<CompoundTag> {
         this.name = name == null ? "" : name;
         markDirty();
     }
+    public boolean isInfinite() { return isInfinite; }
+    public void setInfinite(boolean isInfinite) { this.isInfinite = isInfinite; }
 
     private void markDirty() {
         if (holder == null) return;  // no holder -> no marking; chunk wrapper(?) handles marking
@@ -66,6 +69,7 @@ public class ClueContainer implements INBTSerializable<CompoundTag> {
         CompoundTag tag = new CompoundTag();
         tag.put("inv", inv.serializeNBT(provider));
         tag.putString("name", name);
+        tag.putBoolean("isInfinite", isInfinite);
         // reserved fields
         return tag;
     }
@@ -79,6 +83,10 @@ public class ClueContainer implements INBTSerializable<CompoundTag> {
         if (nbt.contains("name", Tag.TAG_STRING)) {
             name = nbt.getString("name");
         } else name = "";
+        // 0.0.11
+        if (nbt.contains("isInfinite")) {
+            isInfinite = nbt.getBoolean("isInfinite");
+        } else isInfinite = false;
         // reserved read ignored for now
     }
 

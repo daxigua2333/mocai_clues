@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.items;
 
+import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
@@ -53,9 +54,15 @@ public class ClueWandItem extends Item {
         switch (mode) {
             case CREATE:
                 if (!level.isClientSide()) {
-                    ClueContainerAttachmentHelper.getOrCreate(level, clickedPos);
-                    if (player != null) {
-                        player.sendSystemMessage(Component.literal("Attached data at " + clickedPos.toShortString()));  // TODO: lang
+                    if (ClueContainerAttachmentHelper.containsKey(level, clickedPos)) {
+                        if (player != null) {
+                            player.sendSystemMessage(Component.literal(clickedPos.toShortString() + " already has data"));  // TODO: lang
+                        }
+                    } else {
+                        ClueContainerAttachmentHelper.getOrCreate(level, clickedPos);
+                        if (player != null) {
+                            player.sendSystemMessage(Component.literal("Attached data at " + clickedPos.toShortString()));
+                        }
                     }
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());
@@ -71,6 +78,21 @@ public class ClueWandItem extends Item {
 //                if (!level.isClientSide()) {
 //                    // TODO: the nomi gui
 //                }
+            case CREATE_INFINITY:
+                if (!level.isClientSide()) {
+                    if (ClueContainerAttachmentHelper.containsKey(level, clickedPos)) {
+                        if (player != null) {
+                            player.sendSystemMessage(Component.literal(clickedPos.toShortString() + " already has data"));  // TODO: lang
+                        }
+                    } else {
+                        ClueContainer container = ClueContainerAttachmentHelper.getOrCreate(level, clickedPos);
+                        container.setInfinite(true);
+                        if (player != null) {
+                            player.sendSystemMessage(Component.literal("Attached data at " + clickedPos.toShortString()));
+                        }
+                    }
+                }
+                return InteractionResult.sidedSuccess(level.isClientSide());
             case null, default:
                 return InteractionResult.PASS;
         }

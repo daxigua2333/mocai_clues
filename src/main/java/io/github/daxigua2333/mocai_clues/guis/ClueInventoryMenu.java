@@ -15,26 +15,45 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class ClueInventoryMenu extends AbstractContainerMenu {
 
-    private final int containerRows = 3;
+    protected final int containerRows = 3;
     public ItemStackHandler inventory;
     public BlockPos pos;
+    public boolean isCreative;
 
 
     public ClueInventoryMenu(int id, Inventory playerInv) {
-        this(id, playerInv, new ItemStackHandler(27), new BlockPos(0,0,0));   // TODO: rows config
+        this(id, playerInv, new ItemStackHandler(27), new BlockPos(0,0,0), true);   // TODO: rows config
     }
 
-    public ClueInventoryMenu(int id, Inventory playerInv, ItemStackHandler inventory, BlockPos pos) {
+    public ClueInventoryMenu(int id, Inventory playerInv, ItemStackHandler inventory, BlockPos pos, boolean creative) {
         super(ModMenuTypeRegistry.CLUE_INVENTORY_MENU.get(), id);
         this.inventory = inventory;
         this.pos = pos;
-        int yOffset = (this.containerRows - 4) * 18;
+        this.isCreative = creative;
+        makeContainerInventory(inventory);
+        makeInventoryAndHotbar(playerInv);
+    }
+
+    protected void makeContainerInventory(ItemStackHandler inventory) {
         // container inventory
         for(int i = 0; i < this.containerRows; ++i) {
             for(int j = 0; j < 9; ++j) {
-                this.addSlot(new SlotItemHandler(inventory, j + i * 9, 8 + j * 18, 18 + i * 18));
+                this.addSlot(new SlotItemHandler(inventory, j + i * 9, 8 + j * 18, 18 + i * 18){
+                    @Override
+                    public boolean mayPlace(ItemStack stack) {
+                        if (isCreative) {
+                            return super.mayPlace(stack);
+                        }else {
+                            return false;
+                        }
+                    }
+                });
             }
         }
+    }
+
+    protected void makeInventoryAndHotbar(Inventory playerInv) {
+        int yOffset = (this.containerRows - 4) * 18;
         // Player inventory
         for (int i = 0; i < this.containerRows; ++i) {
             for (int j = 0; j < 9; ++j) {
@@ -50,28 +69,29 @@ public class ClueInventoryMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = (Slot)this.slots.get(index);
-        if (slot != null && slot.hasItem()) {
-            ItemStack itemstack1 = slot.getItem();
-            itemstack = itemstack1.copy();
-            if (index < this.containerRows * 9) {
-                if (!this.moveItemStackTo(itemstack1, this.containerRows * 9, this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.moveItemStackTo(itemstack1, 0, this.containerRows * 9, false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (itemstack1.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
+        Slot slot = this.slots.get(index);
+        if (slot == null || !slot.hasItem()) {
+            return ItemStack.EMPTY;
         }
 
-        return itemstack;
+        ItemStack itemstack1 = slot.getItem();
+        ItemStack itemstack = itemstack1.copy();
 
+        int containerSlots = this.containerRows * 9;
+        if (index < containerSlots) {
+            if (!this.moveItemStackTo(itemstack1, containerSlots, this.slots.size(), true)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (!this.moveItemStackTo(itemstack1, 0, containerSlots, false)) {
+            return ItemStack.EMPTY;
+        }
+
+        if (itemstack1.isEmpty()) {
+            slot.setByPlayer(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+        return itemstack;
     }
 
     @Override

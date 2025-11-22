@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.guis.ClueInventoryInfiniteMenu;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
@@ -73,7 +74,7 @@ public class ClueFinderItem extends Item {
         // server side
         // Make sure container exists
         if (!ClueContainerAttachmentHelper.containsKey(level, clickedPos)) {
-            player.displayClientMessage(Component.literal("No inventory attachment at this block."), true);
+            player.displayClientMessage(Component.literal("No inventory attachment at this block."), true);  // TODO: lang
             return InteractionResult.SUCCESS;
         }
 
@@ -81,10 +82,19 @@ public class ClueFinderItem extends Item {
         ClueContainer container = ClueContainerAttachmentHelper.getOrCreate(level, clickedPos);
         LevelChunk chunk = level.getChunkAt(clickedPos);
         // Create a MenuProvider which will be used server-side to create the container
-        MenuProvider provider = new SimpleMenuProvider(
-            (id, playerInv, p) -> new ClueInventoryMenu(id, playerInv, container.getInv(chunk), clickedPos),
-            Component.literal(container.getName().isEmpty() ? "Clue Inventory" : container.getName())
-        );
+        MenuProvider provider;
+        if (container.isInfinite()) {
+            provider = new SimpleMenuProvider(
+                (id, playerInv, p) -> new ClueInventoryInfiniteMenu(id, playerInv, container.getInv(chunk), clickedPos, player.isCreative()),
+                Component.literal(container.getName().isEmpty() ? "Clue Inventory (Infinite)" : container.getName())  // TODO: lang
+            );
+        } else {
+            provider = new SimpleMenuProvider(
+                (id, playerInv, p) -> new ClueInventoryMenu(id, playerInv, container.getInv(chunk), clickedPos, player.isCreative()),
+                Component.literal(container.getName().isEmpty() ? "Clue Inventory" : container.getName())
+            );
+        }
+
         // Open screen for server player and write initial sync data to the buffer for the client constructor:
         ServerPlayer serverPlayer = (ServerPlayer) player;
         serverPlayer.openMenu(provider);
