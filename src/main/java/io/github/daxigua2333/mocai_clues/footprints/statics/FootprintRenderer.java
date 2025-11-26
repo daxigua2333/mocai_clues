@@ -28,16 +28,6 @@ import java.util.List;
 public class FootprintRenderer {
     @SubscribeEvent
     public static void render(RenderLevelStageEvent event) {
-//        // Example input data (replace with your actual values)
-//        double x = 0;
-//        double y = -60;
-//        double z = -0;
-//        float yawDegrees = 30f;       // horizontal rotation (degrees)
-//        float longSide = 4.0f;        // long side length
-//        float shortSide = 2.0f;       // short side length
-//        float alpha = 0.7f;           // 0.0..1.0
-
-//        renderRectangle(event.getPoseStack(),new Vec3(x, y, z), yawDegrees, longSide, shortSide, alpha);
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
             renderFootprints(event);  // TODO: event.getPartialTick()
         }
@@ -48,16 +38,7 @@ public class FootprintRenderer {
 //        Matrix4f modelView = evt.getModelViewMatrix();
         MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
-//        FootprintManager manager = YourMod.getInstance().getFootprintManager();
-//        List<Footprint> list = manager.getFootprints();
-//        if (list.isEmpty()) {
-//            return;
-//        }
-//        List<Footprint> list = new ArrayList<>();
-//        list.add(new Footprint(0, -60, 0, 30, 4, 2, 0.7f));
-//        MoCaiClues.LOGGER.debug("list:{}", list);
         Iterable<Footprint> list = collectVisibleChunkData(evt);
-//        MoCaiClues.LOGGER.debug("render list: {}", list);
 
         // Push a matrix to translate to camera space
         poseStack.pushPose();
@@ -201,34 +182,4 @@ public class FootprintRenderer {
         return result;
     }
 
-//    public static void renderRectangle(PoseStack poseStack, Vec3 position, float rotationY, float longSide, float shortSide, float alpha) {
-//        // Calculate vertices based on the position and size
-//        float halfLongSide = longSide / 2;
-//        float halfShortSide = shortSide / 2;
-//        // Define the corners of the rectangle
-//        double[][] corners = {
-//            {position.x() - halfLongSide, position.y(), position.z() - halfShortSide},
-//            {position.x() + halfLongSide, position.y(), position.z() - halfShortSide},
-//            {position.x() + halfLongSide, position.y(), position.z() + halfShortSide},
-//            {position.x() - halfLongSide, position.y(), position.z() + halfShortSide}
-//        };
-//        // Apply rotation to the corners based on the given rotation angle
-//        for (int i = 0; i < corners.length; i++) {
-//            double x = corners[i][0];
-//            double z = corners[i][2];
-//            corners[i][0] = (float) (x * Math.cos(rotationY) - z * Math.sin(rotationY));
-//            corners[i][2] = (float) (x * Math.sin(rotationY) + z * Math.cos(rotationY));
-//        }
-//        // Create a PoseStack for rendering
-//        poseStack.pushPose();
-//        // Set up the color with alpha transparency
-//        int color = (int) (alpha * 255) << 24 | 0x000000FF; // black color with alpha
-//        // Render the rectangle (this part would use Minecraft's vertex system)
-//        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
-////        buffer.getBuffer(RenderType.entitySolid(ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "textures/misc/footprint.png")));
-//        VertexConsumer vc = buffer.getBuffer(ModFootprintRegistry.FOOTPRINT_RENDER_TYPE);
-//
-//        // Define the rendering logic (skipping detailed OpenGL calls for brevity)
-//        poseStack.popPose();
-//    }
 }

@@ -13,23 +13,6 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import java.util.function.Supplier;
 
 public class ModFootprintRegistry {
-//    public static final RenderType FOOTPRINT_RENDER_TYPE = RenderType
-//            .text(ResourceLocation.withDefaultNamespace("textures/misc/footprint.png"));
-
-//    public static final RenderType FOOTPRINT = RenderType.create(
-//            "footprint",
-//            DefaultVertexFormat.NEW_ENTITY, // or POSITION_COLOR_TEX_LIGHTMAP
-//            VertexFormat.Mode.QUADS, 256, false, true,
-//            RenderType.CompositeState.builder()
-//                    .setShaderState(RenderType.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-//                    .setTextureState(new RenderStateShard.TextureStateShard(
-//                            ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "textures/misc/footprint.png"), false, false))
-//                    .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
-//                    .setDepthTestState(RenderType.LEQUAL_DEPTH_TEST)
-//                    .setWriteMaskState(RenderType.COLOR_WRITE) // no depth write if you want
-//                    .setCullState(RenderType.NO_CULL)
-//                    .createCompositeState(true)
-//    );
 
     public static final RenderType FOOTPRINT_RENDER_TYPE = RenderType.create(
             "footprint_render_type",

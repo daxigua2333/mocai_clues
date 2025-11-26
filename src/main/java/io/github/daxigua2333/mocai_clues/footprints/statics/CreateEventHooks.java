@@ -1,7 +1,7 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.footprints.Footprint;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -10,11 +10,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = MoCaiClues.MODID)
 public final class CreateEventHooks {
+    private static final double d = 0.01D;  // TODO: config
 
 //    @SubscribeEvent
 //    public static void onLivingTicking(EntityTickEvent.Post event) {
@@ -51,7 +51,9 @@ public final class CreateEventHooks {
         // === Feet position (bottom center of hitbox) ===
         AABB box = entity.getBoundingBox();
         // Bottom center of the bounding box, nudged slightly up to avoid z-fighting
-        Vec3 feet = box.getBottomCenter().add(0.0D, 0.01D, 0.0D);
+        BlockPos blockBelow = entity.getOnPos();
+        Vec3 rawFeet = box.getBottomCenter();
+        Vec3 feet = new Vec3(adjustXZOffset(blockBelow.getX(), rawFeet.x), rawFeet.y + d, adjustXZOffset(blockBelow.getZ(), rawFeet.z));
 
         // === Horizontal rotation ===
         // Simple: use the entity's yaw. (You could also derive from motion if you prefer.)
@@ -68,7 +70,7 @@ public final class CreateEventHooks {
 
         // === Spawn your footprint ===
 //        Footprint footprint = new Footprint(feet.x, feet.y, feet.z, yaw, longSide, shortSide, 1);
-        FootprintServerHelper.create(level, feet.x, feet.y , feet.z, yaw, longSide, shortSide, 1);
+        FootprintServerHelper.create(level, blockBelow, feet.x, feet.y , feet.z, yaw, longSide, shortSide, 1);
 
     }
 
@@ -77,6 +79,16 @@ public final class CreateEventHooks {
         double dy = e.getY() - e.yo;
         double dz = e.getZ() - e.zo;
         return dx * dx + dy * dy + dz * dz > 1.0E-6;
+    }
+
+    private static double adjustXZOffset(int blockPos, double coordinate) {
+        if (Math.floor(coordinate) < blockPos) {
+            return blockPos;
+        }
+        if (Math.floor(coordinate) > blockPos) {
+            return blockPos + 1 - d;
+        }
+        return coordinate;
     }
 
 }

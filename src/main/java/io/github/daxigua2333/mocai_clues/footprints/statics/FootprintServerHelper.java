@@ -33,20 +33,21 @@ public class FootprintServerHelper {
 //        }
 //    }
 
-    public static void create(Level level, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha) {
+    public static void create(Level level, BlockPos blockBelow, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha) {
         AttachmentType<FootprintBlockPosMap> type = ModFootprintRegistry.FOOTPRINT_MAP.get();
-        Vec3 coordinate = new Vec3(x, y, z);
-        BlockPos pos = new BlockPos((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
-        LevelChunk chunk = level.getChunkAt(pos);
+        LevelChunk chunk = level.getChunkAt(blockBelow);
         FootprintBlockPosMap map = chunk.getData(type);
+        FootprintCoordinateMap coordinateMap = map.getOrCreate(blockBelow);
+
         Footprint footprint = new Footprint(x, y, z, rotation, longSide, shortSide, alpha);
         Runnable markDirty = () -> chunk.setUnsaved(true);
+        coordinateMap.put(new Vec3(x, y, z), footprint, markDirty);
 
-        FootprintCoordinateMap coordinateMap = map.getOrCreate(pos);
-        coordinateMap.put(coordinate, footprint, markDirty);
         chunk.setData(type, map);
 
         // life cycle part(index)
+
+
     }
 
     public static void deleteByBlockPos(Level level, BlockPos pos) {

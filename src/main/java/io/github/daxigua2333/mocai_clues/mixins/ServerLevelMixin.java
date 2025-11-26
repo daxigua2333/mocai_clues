@@ -1,6 +1,5 @@
 package io.github.daxigua2333.mocai_clues.mixins;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.Events.BlockBecameAirEvent;
 import io.github.daxigua2333.mocai_clues.footprints.Events.BlockBecameNonAirEvent;
 import net.minecraft.core.BlockPos;
