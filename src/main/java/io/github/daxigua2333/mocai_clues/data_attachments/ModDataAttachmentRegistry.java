@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public class ModDataAttachmentRegistry {
 
-    private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS_TYPES =
+    public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS_TYPES =
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MoCaiClues.MODID);
     public static final Supplier<AttachmentType<ClueContainerMap>> CLUE_CONTAINER_MAP =
         ATTACHMENTS_TYPES.register("clue_container_map", () ->

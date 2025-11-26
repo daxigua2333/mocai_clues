@@ -61,6 +61,7 @@ public class ClueFinderItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
+//        RectOverlayRenderer.ACTIVE_RECTS = Arrays.asList(new RectOverlay(0f, -60f, 0f, 30, 2, 1, 0.8f));
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
         Player player = context.getPlayer();

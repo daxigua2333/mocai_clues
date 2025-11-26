@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues;
 
 import io.github.daxigua2333.mocai_clues.blocks.ModBlocksRegistry;
 import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
+import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
 import io.github.daxigua2333.mocai_clues.guis.ModMenuTypeRegistry;
 import io.github.daxigua2333.mocai_clues.items.ClueFinderItem;
@@ -58,6 +59,7 @@ public class MoCaiClues {
         ModDataComponentsRegistry.register(modEventBus);
         ModDataAttachmentRegistry.register(modEventBus);
         ModMenuTypeRegistry.register(modEventBus);
+        ModFootprintRegistry.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (MoCaiClues) to respond directly to events.

@@ -3,7 +3,8 @@
   "package": "io.github.daxigua2333.mocai_clues.mixins",
   "mixins": [
     "ItemInHandRendererMixin",
-    "ItemStackMixin"
+    "ItemStackMixin",
+    "ServerLevelMixin"
   ],
   "client": [
   ],
