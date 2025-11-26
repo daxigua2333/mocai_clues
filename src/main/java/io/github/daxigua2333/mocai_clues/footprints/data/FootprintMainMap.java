@@ -1,18 +1,16 @@
-package io.github.daxigua2333.mocai_clues.footprints;
+package io.github.daxigua2333.mocai_clues.footprints.data;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public class FootprintCoordinateMap {
+public class FootprintMainMap {
     private final Map<Vec3, Footprint> map;
 
     // codec
@@ -36,7 +34,7 @@ public class FootprintCoordinateMap {
                 .toList()
         );
 //    private static final Codec<Map<Vec3, Footprint>> MAP_CODEC = Codec.unboundedMap(Vec3.CODEC, Footprint.CODEC);
-    public static final Codec<FootprintCoordinateMap> CODEC = MAP_CODEC.xmap(FootprintCoordinateMap::new, FootprintCoordinateMap::getMap);
+    public static final Codec<FootprintMainMap> CODEC = MAP_CODEC.xmap(FootprintMainMap::new, FootprintMainMap::getMap);
     // stream codec
     public static final StreamCodec<ByteBuf, Vec3> VEC3_STREAM_CODEC =
             StreamCodec.of(
@@ -60,13 +58,13 @@ public class FootprintCoordinateMap {
             Footprint.STREAM_CODEC,
             256 // The map can only have up to 256 elements
     );
-    public static final StreamCodec<ByteBuf, FootprintCoordinateMap> STREAM_CODEC = MAP_STREAM_CODEC.map(FootprintCoordinateMap::new, FootprintCoordinateMap::getMap);
+    public static final StreamCodec<ByteBuf, FootprintMainMap> STREAM_CODEC = MAP_STREAM_CODEC.map(FootprintMainMap::new, FootprintMainMap::getMap);
 
-    public FootprintCoordinateMap() {
+    public FootprintMainMap() {
         this(new HashMap<>());
     }
 
-    public FootprintCoordinateMap(Map<Vec3, Footprint> map) {
+    public FootprintMainMap(Map<Vec3, Footprint> map) {
 //        this.map = map;  TODO
         this.map = new HashMap<>(map);
     }
@@ -88,7 +86,6 @@ public class FootprintCoordinateMap {
         return map.values();
     }
     public void put(Vec3 pos, Footprint footprint, Runnable markDirty) {
-//        MoCaiClues.LOGGER.debug("map entries: {}", map.entrySet());
         map.put(pos, footprint);
         markDirty.run();
     }

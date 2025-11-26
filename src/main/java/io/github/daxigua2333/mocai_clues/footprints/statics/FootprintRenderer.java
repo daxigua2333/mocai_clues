@@ -2,7 +2,7 @@ package io.github.daxigua2333.mocai_clues.footprints.statics;
 
 import com.mojang.blaze3d.vertex.*;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.footprints.Footprint;
+import io.github.daxigua2333.mocai_clues.footprints.data.Footprint;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
@@ -17,10 +17,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -125,7 +125,7 @@ public class FootprintRenderer {
         int minY = level.getMinBuildHeight();
         int maxY = level.getMaxBuildHeight();
 
-        List<Footprint> result = new ArrayList<>();
+        Collection<Footprint> result = new ArrayList<>();
         // Optional: avoid double-processing chunks if you ever change the loop layout
 //        LongOpenHashSet seen = new LongOpenHashSet();
 
@@ -167,18 +167,10 @@ public class FootprintRenderer {
                 }
 
                 // Finally, get your attachment (using getExistingData to avoid instantiating defaults)
-                List<Footprint> data = FootprintClientHelper.getAllByChunk(chunk);
-                result = merge(result, data);
+                result.addAll(FootprintClientHelper.getAllByChunk(chunk));
             }
         }
 
-        return result;
-    }
-
-    public static <T> List<T> merge(List<? extends T> a, List<? extends T> b) {
-        List<T> result = new ArrayList<>(a.size() + b.size());
-        result.addAll(a);
-        result.addAll(b);
         return result;
     }
 

@@ -3,7 +3,8 @@ package io.github.daxigua2333.mocai_clues.footprints;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
+import io.github.daxigua2333.mocai_clues.footprints.data.FootprintAttachedPosIndexMap;
+import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
 import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -44,11 +45,17 @@ public class ModFootprintRegistry {
 
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS_TYPES =
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MoCaiClues.MODID);
-    public static final Supplier<AttachmentType<FootprintBlockPosMap>> FOOTPRINT_MAP = ATTACHMENTS_TYPES.register(
-            "footprint_map",
-            () -> AttachmentType.builder( () -> new FootprintBlockPosMap())
-                    .serialize(FootprintBlockPosMap.CODEC)
-                    .sync(FootprintBlockPosMap.STREAM_CODEC)
+    public static final Supplier<AttachmentType<FootprintMainMap>> FOOTPRINT_MAIN_MAP = ATTACHMENTS_TYPES.register(
+            "footprint_main_map",
+            () -> AttachmentType.builder( () -> new FootprintMainMap())
+                    .serialize(FootprintMainMap.CODEC)
+                    .sync(FootprintMainMap.STREAM_CODEC)
+                    .build()
+    );
+    public static final Supplier<AttachmentType<FootprintAttachedPosIndexMap>> FOOTPRINT_ATTACHED_POS_INDEX_MAP = ATTACHMENTS_TYPES.register(
+            "footprint_attached_pos_index_map",
+            () -> AttachmentType.builder( () -> new FootprintAttachedPosIndexMap())
+                    .serialize(FootprintAttachedPosIndexMap.CODEC)
                     .build()
     );
 

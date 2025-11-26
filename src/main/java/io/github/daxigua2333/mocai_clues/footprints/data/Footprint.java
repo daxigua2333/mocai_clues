@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.footprints;
+package io.github.daxigua2333.mocai_clues.footprints.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
