@@ -13,7 +13,8 @@ public record Footprint (
         float rotation,
         float longSide,
         float shortSide,
-        float alpha
+        float alpha,
+        int lifetime
 ) {
 
     public static final Codec<Footprint> CODEC = RecordCodecBuilder.create(instance ->
@@ -24,7 +25,8 @@ public record Footprint (
                 Codec.FLOAT.fieldOf("rotation").forGetter(Footprint::rotation),
                 Codec.FLOAT.fieldOf("longSide").forGetter(Footprint::longSide),
                 Codec.FLOAT.fieldOf("shortSide").forGetter(Footprint::shortSide),
-                Codec.FLOAT.fieldOf("alpha").forGetter(Footprint::alpha)
+                Codec.FLOAT.fieldOf("alpha").forGetter(Footprint::alpha),
+                Codec.INT.fieldOf("lifetime").forGetter(Footprint::lifetime)
         ).apply(instance, Footprint::new)
     );
 
@@ -38,7 +40,8 @@ public record Footprint (
                 buf.readFloat(),
                 buf.readFloat(),
                 buf.readFloat(),
-                buf.readFloat()
+                buf.readFloat(),
+                buf.readInt()
         );
     }
     public void encode(ByteBuf buf) {
@@ -49,6 +52,7 @@ public record Footprint (
         buf.writeFloat(this.longSide);
         buf.writeFloat(this.shortSide);
         buf.writeFloat(this.alpha);
+        buf.writeInt(this.lifetime);
     }
     public static final StreamCodec<ByteBuf, Footprint> STREAM_CODEC =
             StreamCodec.ofMember(Footprint::encode, Footprint::new);

@@ -32,7 +32,7 @@ public final class CreateEventHooks {
 
     private static void handleMovingEntity(LivingEntity entity) {
         // TODO: config
-        if (entity.tickCount % 20 != 0) {
+        if (entity.tickCount % 10 != 0) {
             return;
         }
 
