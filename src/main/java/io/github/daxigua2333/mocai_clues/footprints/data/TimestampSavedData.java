@@ -101,8 +101,8 @@ public class TimestampSavedData extends SavedData {
                     this.deleteCurrent(vec);
                 }
                 // dirty
-                chunk.setData(type, map);
-
+//                chunk.setData(type, map);
+                chunk.syncData(type);
             }
 
             this.map.remove(timestamp);  // true delete part

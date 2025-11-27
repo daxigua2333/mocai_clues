@@ -103,7 +103,7 @@ public final class ModCommands {
 
         ServerLevel level = player.serverLevel();
         LevelChunk chunk = level.getChunkAt(player.getOnPos());
-        chunk.setData(ModFootprintRegistry.FOOTPRINT_MAIN_MAP.get(), new FootprintMainMap());
+        FootprintServerHelper.deleteByChunk(chunk);
 
         return 1;
 

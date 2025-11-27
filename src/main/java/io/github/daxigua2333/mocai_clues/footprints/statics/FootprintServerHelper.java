@@ -67,7 +67,8 @@ public class FootprintServerHelper {
         Footprint footprint = new Footprint(x, y, z, rotation, longSide, shortSide, alpha, lifetime);
         map.put(new Vec3(x, y, z), footprint, () -> chunk.setUnsaved(true));
 
-        chunk.setData(type, map);
+//        chunk.setData(type, map);
+        chunk.syncData(type);
     }
 
     private static void createAttachedPosIndex(LevelChunk chunk, BlockPos pos, double x, double y, double z) {
@@ -76,7 +77,7 @@ public class FootprintServerHelper {
 
         map.addToSet(pos, new Vec3(x,y,z), () -> chunk.setUnsaved(true));
 
-        chunk.setData(type, map);
+//        chunk.setData(type, map);
     }
 
     private static void createTimestampIndex(ServerLevel level, long expireOffset, Vec3 vec) {
@@ -100,8 +101,16 @@ public class FootprintServerHelper {
         }
         map.remove(pos, () -> chunk.setUnsaved(true));
 
-        chunk.setData(mainType, mainMap);
-        chunk.setData(type, map);
+//        chunk.setData(mainType, mainMap);
+        chunk.syncData(mainType);
+//        chunk.setData(type, map);
+    }
+
+    public static void deleteByChunk(LevelChunk chunk) {
+        AttachmentType<FootprintMainMap> type = ModFootprintRegistry.FOOTPRINT_MAIN_MAP.get();
+        FootprintMainMap map = chunk.getData(type);
+        map.clear(() -> chunk.setUnsaved(true));
+        chunk.syncData(type);
     }
 
     public static void deleteByCoordinate(LevelChunk chunk, Vec3 coordinate) {
@@ -109,7 +118,8 @@ public class FootprintServerHelper {
         FootprintMainMap map = chunk.getData(type);
 
         map.remove(coordinate, () -> chunk.setUnsaved(true));
-        chunk.setData(type, map);
+//        chunk.setData(type, map);
+        chunk.syncData(type);
     }
 
     public static void deleteByCoordinate(Level level, Vec3 coordinate) {

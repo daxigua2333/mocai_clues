@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintAttachedPosIndexMap;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
+import io.github.daxigua2333.mocai_clues.footprints.data.FootprintSyncHandler;
 import net.minecraft.client.renderer.RenderType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -49,7 +50,8 @@ public class ModFootprintRegistry {
             "footprint_main_map",
             () -> AttachmentType.builder( () -> new FootprintMainMap())
                     .serialize(FootprintMainMap.CODEC)
-                    .sync(FootprintMainMap.STREAM_CODEC)
+//                    .sync(FootprintMainMap.STREAM_CODEC)
+                    .sync(new FootprintSyncHandler())
                     .build()
     );
     public static final Supplier<AttachmentType<FootprintAttachedPosIndexMap>> FOOTPRINT_ATTACHED_POS_INDEX_MAP = ATTACHMENTS_TYPES.register(
