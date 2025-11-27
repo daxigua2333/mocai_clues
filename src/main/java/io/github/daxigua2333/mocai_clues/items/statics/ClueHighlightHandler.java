@@ -1,9 +1,7 @@
 package io.github.daxigua2333.mocai_clues.items.statics;
 
-import io.github.daxigua2333.mocai_clues.Config;
+import io.github.daxigua2333.mocai_clues.Configs.Config;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainerMap;
-import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -11,8 +9,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -28,7 +24,7 @@ public class ClueHighlightHandler {  // TODO: performance issues
         if (!shouldShowHighlights(player)) return;
         // get block positions from chunk data you already attach
         ServerLevel serverLevel = (ServerLevel) player.level();
-        List<BlockPos> highlights = ClueContainerSearchUtils.findAttachmentsInRadius(serverLevel, player.position(), Config.WAND_HIGHLIGHT_RADIUS.get());
+        List<BlockPos> highlights = ClueContainerSearchUtils.findAttachmentsInRadius(serverLevel, player.position(), Config.COMMON.WAND_HIGHLIGHT_RADIUS.get());
         for (BlockPos pos : highlights) {
             highlightBlockOutline(serverLevel, (ServerPlayer) player, pos);
         }

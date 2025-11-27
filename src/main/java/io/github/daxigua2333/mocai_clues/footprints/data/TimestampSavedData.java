@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.footprints.data;
 
+import io.github.daxigua2333.mocai_clues.Configs.Config;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.mocai_clues.footprints.statics.FootprintServerHelper;
 import net.minecraft.core.BlockPos;
@@ -56,6 +57,12 @@ public class TimestampSavedData extends SavedData {
         return tag;
     }
 
+    /*
+    * query ALL the level chunks and execute DELETE
+    * which means there are *loaded* and *unloaded* chunks
+    * TODO: I think here we should use lazy delete for unloaded ones,
+    * but idk whether it is reliable..... like generating new chunk / loading chunk from disk seems to be 2 events
+    * */
     public void tick(ServerLevel level) {
         boolean daylightOn = level.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT); // doDaylightCycle
         if (daylightOn) {
@@ -69,7 +76,9 @@ public class TimestampSavedData extends SavedData {
                 FootprintMainMap map = chunk.getData(type);
                 Runnable markDirty = () -> chunk.setUnsaved(true);
 
-                float expireRate = 0.2f;  // TODO: config
+                float expireRate = (float) Config.SERVER.FOOTPRINT_EXPIRE_RATE.getAsDouble();
+//                float expireRate = 0.2f;
+                if (!map.containsKey(vec)) continue;
                 Footprint oldPrint = map.getExisting(vec);
                 float newAlpha = oldPrint.alpha() - expireRate;
                 if (newAlpha <= 0) {
@@ -103,9 +112,10 @@ public class TimestampSavedData extends SavedData {
         }
     }
 
-    // helper TODO: config
+    // helper
     public static long getExpireTimeOffset(int lifetime){
-        float expireRate = 0.2f;
+        float expireRate = (float) Config.SERVER.FOOTPRINT_EXPIRE_RATE.getAsDouble();
+//        float expireRate = 0.2f;
         return (long) Math.round(lifetime * expireRate);
     }
 

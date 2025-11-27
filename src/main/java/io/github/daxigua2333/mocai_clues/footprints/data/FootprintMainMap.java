@@ -55,8 +55,8 @@ public class FootprintMainMap {
             HashMap::new, // Constructs a map with the specified capacity
 //            Vec3.STREAM_CODEC,
             VEC3_STREAM_CODEC,
-            Footprint.STREAM_CODEC,
-            256 // The map can only have up to 256 elements
+            Footprint.STREAM_CODEC
+//            256 // The map can only have up to 256 elements
     );
     public static final StreamCodec<ByteBuf, FootprintMainMap> STREAM_CODEC = MAP_STREAM_CODEC.map(FootprintMainMap::new, FootprintMainMap::getMap);
 
@@ -65,7 +65,7 @@ public class FootprintMainMap {
     }
 
     public FootprintMainMap(Map<Vec3, Footprint> map) {
-//        this.map = map;  TODO
+//        this.map = map;  TODO: performance
         this.map = new HashMap<>(map);
     }
     private Map<Vec3, Footprint> getMap() {

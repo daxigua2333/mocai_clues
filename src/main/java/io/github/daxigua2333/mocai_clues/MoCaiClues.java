@@ -1,38 +1,31 @@
 package io.github.daxigua2333.mocai_clues;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import io.github.daxigua2333.mocai_clues.Configs.Config;
 import io.github.daxigua2333.mocai_clues.blocks.ModBlocksRegistry;
 import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
-import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
 import io.github.daxigua2333.mocai_clues.guis.ModMenuTypeRegistry;
-import io.github.daxigua2333.mocai_clues.items.ClueFinderItem;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(MoCaiClues.MODID)
@@ -70,7 +63,15 @@ public class MoCaiClues {
         modEventBus.addListener(this::addCreative);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+//        modContainer.registerConfig(ModConfig.Type.STARTUP, Config.STARTUP_SPEC);
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        ModCommands.register(event);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
+import io.github.daxigua2333.mocai_clues.Configs.Config;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -14,7 +15,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = MoCaiClues.MODID)
 public final class CreateEventHooks {
-    private static final double d = 0.01D;  // TODO: config
+    private static final double d = 0.01D;
 
 //    @SubscribeEvent
 //    public static void onLivingTicking(EntityTickEvent.Post event) {
@@ -26,13 +27,14 @@ public final class CreateEventHooks {
 
     @SubscribeEvent
     private static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (!Config.SERVER.FOOTPRINT_DO_CREATE.getAsBoolean()) {return;}
         Player player = event.getEntity();
         handleMovingEntity(player);
     }
 
-    private static void handleMovingEntity(LivingEntity entity) {
-        // TODO: config
-        if (entity.tickCount % 10 != 0) {
+    public static void handleMovingEntity(LivingEntity entity) {
+        int partialTick = Config.SERVER.FOOTPRINT_CREATE_FREQUENCY.getAsInt();
+        if (entity.tickCount % partialTick != 0) {
             return;
         }
 

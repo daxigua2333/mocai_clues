@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
+import io.github.daxigua2333.mocai_clues.Configs.Config;
 import io.github.daxigua2333.mocai_clues.footprints.data.Footprint;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintAttachedPosIndexMap;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
@@ -55,8 +56,8 @@ public class FootprintServerHelper {
     }
 
     private static int createLifetime(BlockState blockState) {
-        // TODO: config
-        return 10;
+        // TODO: hardness
+        return Config.SERVER.FOOTPRINT_LIFETIME.getAsInt();
     }
 
     private static void createMainFootprint(LevelChunk chunk, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha, int lifetime) {
@@ -115,48 +116,4 @@ public class FootprintServerHelper {
 
     }
 
-    /*
-    * query ALL the level chunks and execute DELETE
-    * which means there are *loaded* and *unloaded* chunks
-    * TODO: I think here we should use lazy delete for unloaded ones,
-    * but idk whether it is reliable..... like generating new chunk / loading chunk from disk seems to be 2 events
-    * */
-//    public static void updateExpiration(ServerLevel level, Set<Vec3> set, BiConsumer<Long, Vec3> createIndex, Consumer<Vec3> deleteIndex) {
-//        AttachmentType<FootprintMainMap> type = ModFootprintRegistry.FOOTPRINT_MAIN_MAP.get();
-//        TimestampSavedData timeDataMap = TimestampSavedData.getInstance(level);
-//
-//        for (Vec3 vec : set) {
-//            ChunkPos chunkPos = new ChunkPos(BlockPos.containing(vec));
-//            ChunkAccess chunk = level.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, true);
-//            FootprintMainMap map = chunk.getData(type);
-//            Runnable markDirty = () -> chunk.setUnsaved(true);
-//
-//            float expireRate = 0.2f;  // TODO: config
-//            Footprint oldPrint = map.getExisting(vec);
-//            float newAlpha = oldPrint.alpha() - expireRate;
-//            if (newAlpha <= 0) {
-//                // then only delete
-//                map.remove(vec, markDirty);
-//                deleteIndex.accept(vec);
-//            } else {
-//                // delete and create
-//
-//                // update MainMap
-//                Footprint newPrint = new Footprint(
-//                        oldPrint.x(), oldPrint.y(), oldPrint.z(), oldPrint.rotation(), oldPrint.longSide(), oldPrint.shortSide(),
-//                        newAlpha,
-//                        oldPrint.lifetime()
-//                );
-//                map.remove(vec, markDirty);
-//                map.put(vec, newPrint, markDirty);
-//                // update IndexMap
-//                timeDataMap.create
-//                createIndex.accept((long) Math.round(oldPrint.lifetime() * expireRate), vec);
-//                deleteIndex.accept(vec);
-//            }
-//
-//            chunk.setData(type, map);
-//            // index map set dirty is not here ;)
-//        }
-//    }
 }

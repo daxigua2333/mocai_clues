@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues.items.statics;
 
-import io.github.daxigua2333.mocai_clues.Config;
+import io.github.daxigua2333.mocai_clues.Configs.Config;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
@@ -55,7 +55,7 @@ public class FinderHitResultTicker {
         }
 
         // raytrace: player.pick(range, partialTicks, ClipContext.Fluid.NONE)
-        HitResult hr = player.pick(Config.FINDER_HIT_DISTANCE.get(), 0.0F, false);  // TODO: config
+        HitResult hr = player.pick(Config.COMMON.FINDER_HIT_DISTANCE.get(), 0.0F, false);  // TODO: config
         if (hr.getType() != HitResult.Type.BLOCK) return;
 
         // optional: check which face was hit: bhr.getDirection()

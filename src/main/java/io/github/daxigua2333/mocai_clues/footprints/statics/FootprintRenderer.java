@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
 import com.mojang.blaze3d.vertex.*;
+import io.github.daxigua2333.mocai_clues.Configs.Config;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.data.Footprint;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
@@ -28,6 +29,7 @@ import java.util.List;
 public class FootprintRenderer {
     @SubscribeEvent
     public static void render(RenderLevelStageEvent event) {
+        if (!Config.CLIENT.FOOTPRINT_DO_RENDER.getAsBoolean()) {return;}
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
             renderFootprints(event);  // TODO: event.getPartialTick()
         }
