@@ -29,6 +29,7 @@ public class Config {
 
     public static class Client{
         public final ModConfigSpec.BooleanValue FOOTPRINT_DO_RENDER;
+        public final ModConfigSpec.IntValue FOOTPRINT_RENDER_DISTANCE;
         public final ModConfigSpec.IntValue FOOTPRINT_R;
         public final ModConfigSpec.IntValue FOOTPRINT_G;
         public final ModConfigSpec.IntValue FOOTPRINT_B;
@@ -38,6 +39,9 @@ public class Config {
             FOOTPRINT_DO_RENDER = builder
                     .comment("whether client rendering all the footprints")
                     .define("footprintDoRender", true);
+            FOOTPRINT_RENDER_DISTANCE = builder
+                    .comment("render distance of footprints")
+                    .defineInRange("footprintRenderDistance", 64, 1, 256);
             FOOTPRINT_R = builder
                     .comment("footprint color: R")
                     .defineInRange("footprintR", 0, 0, 255);

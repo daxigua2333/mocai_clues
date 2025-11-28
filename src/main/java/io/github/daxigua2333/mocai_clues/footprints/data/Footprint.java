@@ -16,7 +16,7 @@ public record Footprint (
         float rotation,
         float longSide,
         float shortSide,
-        float alpha,
+        float alpha,  // only "mutable" field, compared to the next 2 fields, it decreases in its lifecycle by create new(alpha-n...)
         long createdTime,
         int lifetime,
         UUID ownerUUID

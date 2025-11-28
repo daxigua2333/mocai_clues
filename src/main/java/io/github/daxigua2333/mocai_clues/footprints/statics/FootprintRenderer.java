@@ -58,7 +58,8 @@ public class FootprintRenderer {
             // Cull based on distance (optional)
             double dx = fp.x() - cameraPos.x();
             double dz = fp.z() - cameraPos.z();
-            if (dx * dx + dz * dz > 256 * 256) { // e.g., only within 256 blocks
+            int renderDis = Config.CLIENT.FOOTPRINT_RENDER_DISTANCE.getAsInt();
+            if (dx * dx + dz * dz > renderDis * renderDis) { // e.g., only within 256 blocks
                 continue;
             }
 
