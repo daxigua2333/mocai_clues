@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.footprints.data;
 
 import io.github.daxigua2333.mocai_clues.Config;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -54,6 +55,11 @@ public class TimestampSavedData extends SavedData {
         return tag;
     }
 
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
     /*
     * query ALL the level chunks and execute DELETE
     * which means there are *loaded* and *unloaded* chunks
@@ -77,8 +83,8 @@ public class TimestampSavedData extends SavedData {
 //                float expireRate = 0.2f;
                 if (!map.containsKey(vec)) continue;
                 Footprint oldPrint = map.getExisting(vec);
-                float newAlpha = oldPrint.alpha() - expireRate;
-                if (newAlpha <= 0) {
+                float newAlpha = oldPrint.alpha() - expireRate * (float) Config.SERVER.FOOTPRINT_INIT_ALPHA.getAsDouble();
+                if (newAlpha <= 0 || oldPrint.createdTime() + oldPrint.lifetime() <= this.timestamp) {
                     // then only delete
                     map.remove(vec, markDirty);
                     this.deleteCurrent(vec);
@@ -89,7 +95,8 @@ public class TimestampSavedData extends SavedData {
                     Footprint newPrint = new Footprint(
                             oldPrint.x(), oldPrint.y(), oldPrint.z(), oldPrint.rotation(), oldPrint.longSide(), oldPrint.shortSide(),
                             newAlpha,
-                            oldPrint.lifetime()
+                            oldPrint.createdTime(), oldPrint.lifetime(),
+                            oldPrint.ownerUUID()
                     );
                     map.remove(vec, markDirty);
                     map.put(vec, newPrint, markDirty);
@@ -113,7 +120,7 @@ public class TimestampSavedData extends SavedData {
     public static long getExpireTimeOffset(int lifetime){
         float expireRate = (float) Config.SERVER.FOOTPRINT_EXPIRE_RATE.getAsDouble();
 //        float expireRate = 0.2f;
-        return (long) Math.round(lifetime * expireRate);
+        return (long) Math.round(lifetime * expireRate);  // round, and I think there should be no problem
     }
 
     private Set<Vec3> getOrCreate(long timestamp) {

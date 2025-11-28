@@ -15,6 +15,8 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.attachment.AttachmentType;
 
+import java.util.UUID;
+
 public class FootprintServerHelper {
 
 
@@ -37,32 +39,31 @@ public class FootprintServerHelper {
 
     // ==== CREATE ====
     // insert into main DB map, and update all index maps
-    public static void create(Level level, BlockPos blockBelow, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha) {
+    public static void create(Level level, BlockPos blockBelow, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha, long createdTime, int lifetime, UUID ownerUUID) {
         LevelChunk chunk = level.getChunkAt(blockBelow);
 
-        int lifetime = createLifetime(level, blockBelow);
-        createMainFootprint(chunk, x, y, z, rotation, longSide, shortSide, alpha, lifetime);
+        createMainFootprint(chunk, x, y, z, rotation, longSide, shortSide, alpha, createdTime, lifetime, ownerUUID);
         createAttachedPosIndex(chunk, blockBelow, x, y, z);
         createTimestampIndex((ServerLevel) level, TimestampSavedData.getExpireTimeOffset(lifetime), new Vec3(x,y,z));
     }
 
-    private static int createLifetime(Level level, BlockPos pos) {
+    public static int createLifetime(Level level, BlockPos pos) {
         BlockState blockState = level.getBlockState(pos);
         float hardness = blockState.getDestroySpeed(level, pos);
 
         // hardness table: https://minecraft.fandom.com/zh/wiki/Module:Hardness_values#L-755
         if (hardness > 0.7) {
-            return 10;
+            return 20;
         } else {
             return Config.SERVER.FOOTPRINT_LIFETIME.getAsInt();
         }
     }
 
-    private static void createMainFootprint(LevelChunk chunk, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha, int lifetime) {
+    private static void createMainFootprint(LevelChunk chunk, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha, long createdTime, int lifetime, UUID ownerUUID) {
         AttachmentType<FootprintMainMap> type = ModFootprintRegistry.FOOTPRINT_MAIN_MAP.get();
         FootprintMainMap map = chunk.getData(type);
 
-        Footprint footprint = new Footprint(x, y, z, rotation, longSide, shortSide, alpha, lifetime);
+        Footprint footprint = new Footprint(x, y, z, rotation, longSide, shortSide, alpha, createdTime, lifetime, ownerUUID);
         map.put(new Vec3(x, y, z), footprint, () -> chunk.setUnsaved(true));
 
 //        chunk.setData(type, map);

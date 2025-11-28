@@ -3,7 +3,9 @@ package io.github.daxigua2333.mocai_clues.footprints.statics;
 import com.mojang.datafixers.types.templates.Hook;
 import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.footprints.data.TimestampSavedData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +30,7 @@ public final class CreateEventHooks {
 //    }
 
     @SubscribeEvent
-    private static void onPlayerTick(PlayerTickEvent.Post event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         if (!HookToggle.isEnabled()) {return;}
 //        player.level().getProfiler().push("mocai_clues:create_events");
@@ -36,7 +38,7 @@ public final class CreateEventHooks {
 //        player.level().getProfiler().pop();
     }
 
-    public static void handleMovingEntity(LivingEntity entity) {
+    private static void handleMovingEntity(LivingEntity entity) {
         int partialTick = Config.SERVER.FOOTPRINT_CREATE_FREQUENCY.getAsInt();
         if (entity.tickCount % partialTick != 0) {
             return;
@@ -76,7 +78,12 @@ public final class CreateEventHooks {
 
         // === Spawn your footprint ===
 //        Footprint footprint = new Footprint(feet.x, feet.y, feet.z, yaw, longSide, shortSide, 1);
-        FootprintServerHelper.create(level, blockBelow, feet.x, feet.y , feet.z, yaw, longSide, shortSide, 1);
+        FootprintServerHelper.create(level, blockBelow, feet.x, feet.y , feet.z, yaw,
+                longSide * 1.25f, shortSide, (float) Config.SERVER.FOOTPRINT_INIT_ALPHA.getAsDouble(),
+                TimestampSavedData.getInstance((ServerLevel) level).getTimestamp(),
+                FootprintServerHelper.createLifetime(level, blockBelow),
+                entity.getUUID()
+        );
 
     }
 

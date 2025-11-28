@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
+import io.github.daxigua2333.mocai_clues.footprints.data.TimestampSavedData;
 import io.github.daxigua2333.mocai_clues.footprints.statics.CreateEventHooks;
 import io.github.daxigua2333.mocai_clues.footprints.statics.FootprintServerHelper;
 import io.github.daxigua2333.mocai_clues.footprints.statics.HookToggle;
@@ -76,27 +77,31 @@ public final class ModCommands {
         player.sendSystemMessage(
             Component.literal(count + " footprints created."));
 
+        // ==== this part maps to CreateEventHook.java, so don't forget to copy it ====
+        Level level = player.level();
+        AABB box = player.getBoundingBox();
+        // Bottom center of the bounding box, nudged slightly up to avoid z-fighting
+        BlockPos blockBelow = player.getOnPos();
+        Vec3 feet = box.getBottomCenter();
+        // === Horizontal rotation ===
+        float yaw = player.getYRot();
+        // === Size-based footprint long/short side ===
+        double xSize = box.getXsize();
+        double zSize = box.getZsize();
+        double max = Math.max(xSize, zSize);
+        double min = Math.min(xSize, zSize);
+        // Scale however you like; these are just sane defaults.
+        float longSide  = (float) (max * 0.6D); // along facing/move direction
+        float shortSide = (float) (min * 0.6D); // across the foot
+
         for(int i=0; i<count; i++) {
-            Level level = player.level();
-            AABB box = player.getBoundingBox();
-            // Bottom center of the bounding box, nudged slightly up to avoid z-fighting
-            BlockPos blockBelow = player.getOnPos();
-            Vec3 feet = box.getBottomCenter();
-
-            // === Horizontal rotation ===
-            float yaw = player.getYRot();
-
-            // === Size-based footprint long/short side ===
-            double xSize = box.getXsize();
-            double zSize = box.getZsize();
-            double max = Math.max(xSize, zSize);
-            double min = Math.min(xSize, zSize);
-            // Scale however you like; these are just sane defaults.
-            float longSide  = (float) (max * 0.6D); // along facing/move direction
-            float shortSide = (float) (min * 0.6D); // across the foot
-
             double offset = (double) i / (double) count;
-            FootprintServerHelper.create(level, blockBelow, feet.x+offset, feet.y , feet.z, yaw, longSide, shortSide, 1);
+            FootprintServerHelper.create(level, blockBelow, feet.x+offset, feet.y , feet.z,
+                    yaw, longSide*1.25f, shortSide, (float) Config.SERVER.FOOTPRINT_INIT_ALPHA.getAsDouble(),
+                    TimestampSavedData.getInstance((ServerLevel) level).getTimestamp(),
+                    FootprintServerHelper.createLifetime(level, blockBelow),
+                    player.getUUID()
+            );
         }
 
         return 1;

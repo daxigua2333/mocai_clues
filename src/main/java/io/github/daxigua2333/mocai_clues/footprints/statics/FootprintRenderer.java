@@ -72,10 +72,10 @@ public class FootprintRenderer {
             double sin = Math.sin(rad);
 
             // Local axes
-            double lx = cos * halfLong;
-            double lz = sin * halfLong;
-            double sx = -sin * halfShort;
-            double sz = cos * halfShort;
+            double lx = cos * halfShort;
+            double lz = sin * halfShort;
+            double sx = -sin * halfLong;
+            double sz = cos * halfLong;
 
             // Four corners (world)
             double x0 = fp.x() - lx - sx;

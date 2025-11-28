@@ -3,7 +3,10 @@ package io.github.daxigua2333.mocai_clues.footprints.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
+
+import java.util.UUID;
 
 
 public record Footprint (
@@ -14,7 +17,9 @@ public record Footprint (
         float longSide,
         float shortSide,
         float alpha,
-        int lifetime
+        long createdTime,
+        int lifetime,
+        UUID ownerUUID
 ) {
 
     public static final Codec<Footprint> CODEC = RecordCodecBuilder.create(instance ->
@@ -26,7 +31,9 @@ public record Footprint (
                 Codec.FLOAT.fieldOf("longSide").forGetter(Footprint::longSide),
                 Codec.FLOAT.fieldOf("shortSide").forGetter(Footprint::shortSide),
                 Codec.FLOAT.fieldOf("alpha").forGetter(Footprint::alpha),
-                Codec.INT.fieldOf("lifetime").forGetter(Footprint::lifetime)
+                Codec.LONG.fieldOf("createdTime").forGetter(Footprint::createdTime),
+                Codec.INT.fieldOf("lifetime").forGetter(Footprint::lifetime),
+                UUIDUtil.CODEC.fieldOf("ownerUUID").forGetter(Footprint::ownerUUID)
         ).apply(instance, Footprint::new)
     );
 
@@ -41,7 +48,9 @@ public record Footprint (
                 buf.readFloat(),
                 buf.readFloat(),
                 buf.readFloat(),
-                buf.readInt()
+                buf.readLong(),
+                buf.readInt(),
+                UUIDUtil.STREAM_CODEC.decode(buf)
         );
     }
     public void encode(ByteBuf buf) {
@@ -52,7 +61,9 @@ public record Footprint (
         buf.writeFloat(this.longSide);
         buf.writeFloat(this.shortSide);
         buf.writeFloat(this.alpha);
+        buf.writeLong(this.createdTime);
         buf.writeInt(this.lifetime);
+        UUIDUtil.STREAM_CODEC.encode(buf, this.ownerUUID);
     }
     public static final StreamCodec<ByteBuf, Footprint> STREAM_CODEC =
             StreamCodec.ofMember(Footprint::encode, Footprint::new);

@@ -55,6 +55,7 @@ public class Config {
         public final ModConfigSpec.DoubleValue FOOTPRINT_EXPIRE_RATE;
         public final ModConfigSpec.IntValue FOOTPRINT_CREATE_FREQUENCY;
         public final ModConfigSpec.IntValue FOOTPRINT_LIFETIME;
+        public final ModConfigSpec.DoubleValue FOOTPRINT_INIT_ALPHA;
 //        public final ModConfigSpec.DoubleValue FOOTPRINT_TINY_DISTANCE;
 
         Server(ModConfigSpec.Builder builder) {
@@ -68,7 +69,10 @@ public class Config {
                     .defineInRange("footprintLifetime", 20, 5, 20*3600*2);
             FOOTPRINT_EXPIRE_RATE = builder
                     .comment("Footprints' alpha will decrease with this rate in its lifetime")
-                    .defineInRange("footprintExpireRate", 0.2, 0, 1);
+                    .defineInRange("footprintExpireRate", 0.1, 0, 1);
+            FOOTPRINT_INIT_ALPHA = builder
+                    .comment("Footprints' alpha will decrease from this initial value in its lifetime")
+                            .defineInRange("footprintInitAlpha", 0.9, 0, 1);
 //            FOOTPRINT_TINY_DISTANCE = builder
 //                    .comment("The tiny distance when rendering footprints")
 //                    .defineInRange("footprintTinyDistance", 0.01, 1e-4, 0.1);
