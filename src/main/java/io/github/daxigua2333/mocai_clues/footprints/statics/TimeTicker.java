@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.footprints.statics;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.data.TimestampSavedData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -15,6 +16,7 @@ public class TimeTicker {
         Level level = event.getLevel();
         if (level.isClientSide()) return;
         if (!(level instanceof ServerLevel serverLevel)) return;
+        if (!HookToggle.isEnabled()) {return;}
 
 //        level.getProfiler().push("mocai_clues:time+part");
         TimestampSavedData.getInstance(serverLevel).tick(serverLevel);

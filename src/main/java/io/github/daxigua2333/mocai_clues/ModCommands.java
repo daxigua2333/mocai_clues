@@ -7,6 +7,7 @@ import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
 import io.github.daxigua2333.mocai_clues.footprints.statics.CreateEventHooks;
 import io.github.daxigua2333.mocai_clues.footprints.statics.FootprintServerHelper;
+import io.github.daxigua2333.mocai_clues.footprints.statics.HookToggle;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -26,14 +27,14 @@ public final class ModCommands {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
         dispatcher.register(
-            Commands.literal("footprint")
-                    // who can use it? permission level 0 = everyone, 2 = operator
-                    .requires(source -> source.hasPermission(2))
-                    .then(Commands.literal("create")
-                            .then(Commands.argument("count", IntegerArgumentType.integer())
-                                    .executes(ModCommands::createFootprints)
-                            )
-                    )
+                Commands.literal("footprint")
+                        // who can use it? permission level 0 = everyone, 2 = operator
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("create")
+                                .then(Commands.argument("count", IntegerArgumentType.integer())
+                                        .executes(ModCommands::createFootprints)
+                                )
+                        )
         );
 
         dispatcher.register(
@@ -41,6 +42,19 @@ public final class ModCommands {
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.literal("delete")
                                 .executes(ModCommands::deleteFootprints))
+        );
+
+        dispatcher.register(
+                Commands.literal("footprint")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("start")
+                                .executes( ctx -> {HookToggle.set(true); return 1;}))
+        );
+        dispatcher.register(
+                Commands.literal("footprint")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("stop")
+                                .executes( ctx -> {HookToggle.set(false); return 1;}))
         );
 
     }
