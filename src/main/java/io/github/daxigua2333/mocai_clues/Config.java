@@ -55,7 +55,6 @@ public class Config {
         public final ModConfigSpec.DoubleValue FOOTPRINT_EXPIRE_RATE;
         public final ModConfigSpec.IntValue FOOTPRINT_CREATE_FREQUENCY;
         public final ModConfigSpec.IntValue FOOTPRINT_LIFETIME;
-        public final ModConfigSpec.BooleanValue FOOTPRINT_DO_CREATE;
 //        public final ModConfigSpec.DoubleValue FOOTPRINT_TINY_DISTANCE;
 
         Server(ModConfigSpec.Builder builder) {
@@ -65,11 +64,8 @@ public class Config {
                     .comment("Each N ticks generates a footprint")
                     .defineInRange("footprintCreateFrequency", 10, 1,20);
             FOOTPRINT_LIFETIME = builder
-                    .comment("lifetime of footprints")
-                    .defineInRange("footprintLifetime", 20, 5, 20*60*3);
-            FOOTPRINT_DO_CREATE = builder
-                    .comment("whether creating footprint for each player")
-                    .define("footprintDoCreate", true);
+                    .comment("lifetime of footprints (ticks)")
+                    .defineInRange("footprintLifetime", 20, 5, 20*3600*2);
             FOOTPRINT_EXPIRE_RATE = builder
                     .comment("Footprints' alpha will decrease with this rate in its lifetime")
                     .defineInRange("footprintExpireRate", 0.2, 0, 1);

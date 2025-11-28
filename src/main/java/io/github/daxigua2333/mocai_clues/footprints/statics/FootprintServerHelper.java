@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
 import io.github.daxigua2333.mocai_clues.Config;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.data.Footprint;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintAttachedPosIndexMap;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
@@ -39,15 +40,22 @@ public class FootprintServerHelper {
     public static void create(Level level, BlockPos blockBelow, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha) {
         LevelChunk chunk = level.getChunkAt(blockBelow);
 
-        int lifetime = createLifetime(level.getBlockState(blockBelow));
+        int lifetime = createLifetime(level, blockBelow);
         createMainFootprint(chunk, x, y, z, rotation, longSide, shortSide, alpha, lifetime);
         createAttachedPosIndex(chunk, blockBelow, x, y, z);
         createTimestampIndex((ServerLevel) level, TimestampSavedData.getExpireTimeOffset(lifetime), new Vec3(x,y,z));
     }
 
-    private static int createLifetime(BlockState blockState) {
-        // TODO: hardness
-        return Config.SERVER.FOOTPRINT_LIFETIME.getAsInt();
+    private static int createLifetime(Level level, BlockPos pos) {
+        BlockState blockState = level.getBlockState(pos);
+        float hardness = blockState.getDestroySpeed(level, pos);
+
+        // hardness table: https://minecraft.fandom.com/zh/wiki/Module:Hardness_values#L-755
+        if (hardness > 0.7) {
+            return 10;
+        } else {
+            return Config.SERVER.FOOTPRINT_LIFETIME.getAsInt();
+        }
     }
 
     private static void createMainFootprint(LevelChunk chunk, double x, double y, double z, float rotation, float longSide, float shortSide, float alpha, int lifetime) {

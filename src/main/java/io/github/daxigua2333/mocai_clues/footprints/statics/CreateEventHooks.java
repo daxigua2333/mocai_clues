@@ -29,7 +29,6 @@ public final class CreateEventHooks {
 
     @SubscribeEvent
     private static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!Config.SERVER.FOOTPRINT_DO_CREATE.getAsBoolean()) {return;}
         Player player = event.getEntity();
         if (!HookToggle.isEnabled()) {return;}
 //        player.level().getProfiler().push("mocai_clues:create_events");
