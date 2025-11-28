@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues.items.statics;
 
-import io.github.daxigua2333.mocai_clues.Configs.Config;
+import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.core.BlockPos;

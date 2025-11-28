@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
-import io.github.daxigua2333.mocai_clues.Configs.Config;
+import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.footprints.data.Footprint;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintAttachedPosIndexMap;
 import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
@@ -8,24 +8,14 @@ import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.mocai_clues.footprints.data.TimestampSavedData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.attachment.AttachmentType;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 public class FootprintServerHelper {
 
-    // TODO: network performance
-    // AttachmentHolder #getData #setData #removeData #sync
 
 //    public static Boolean containsKey(Level level, BlockPos pos) {
 //        LevelChunk chunk = level.getChunkAt(pos);

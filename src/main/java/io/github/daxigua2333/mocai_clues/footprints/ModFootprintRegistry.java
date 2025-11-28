@@ -18,13 +18,13 @@ public class ModFootprintRegistry {
 
     public static final RenderType FOOTPRINT_RENDER_TYPE = RenderType.create(
             "footprint_render_type",
-                DefaultVertexFormat.POSITION_COLOR,  // smaller vertex format, no UVs, no lightmap :contentReference[oaicite:1]{index=1}
+                DefaultVertexFormat.POSITION_COLOR,  // smaller vertex format, no UVs, no lightmap
                 VertexFormat.Mode.QUADS,
-                RenderType.SMALL_BUFFER_SIZE,  // plenty for footprints :contentReference[oaicite:2]{index=2}
+                RenderType.SMALL_BUFFER_SIZE,  // plenty for footprints
                 false, // affectsCrumbling – no
                 false, // sortOnUpload – we don’t care about strict translucency order
                 RenderType.CompositeState.builder()
-                        // Simple position+color shader (no UV, no normals) :contentReference[oaicite:0]{index=0}
+                        // Simple position+color shader (no UV, no normals)
                         .setShaderState(RenderType.POSITION_COLOR_SHADER)
                         // No texture sampling at all
                         .setTextureState(RenderType.NO_TEXTURE)

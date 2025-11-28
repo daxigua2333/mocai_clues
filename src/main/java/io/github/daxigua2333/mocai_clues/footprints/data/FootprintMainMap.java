@@ -69,7 +69,6 @@ public class FootprintMainMap {
     }
 
     public FootprintMainMap(Map<Vec3, Footprint> map) {
-//        this.map = map;  TODO: performance
         this.map = new HashMap<>(map);
     }
     private Map<Vec3, Footprint> getMap() {

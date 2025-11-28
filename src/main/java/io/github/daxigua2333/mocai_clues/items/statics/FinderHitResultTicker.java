@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues.items.statics;
 
-import io.github.daxigua2333.mocai_clues.Configs.Config;
+import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;

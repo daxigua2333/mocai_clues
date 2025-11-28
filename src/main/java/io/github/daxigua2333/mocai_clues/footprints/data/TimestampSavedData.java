@@ -1,8 +1,7 @@
 package io.github.daxigua2333.mocai_clues.footprints.data;
 
-import io.github.daxigua2333.mocai_clues.Configs.Config;
+import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
-import io.github.daxigua2333.mocai_clues.footprints.statics.FootprintServerHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -21,8 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class TimestampSavedData extends SavedData {
 

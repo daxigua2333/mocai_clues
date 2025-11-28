@@ -1,7 +1,7 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
 import com.mojang.blaze3d.vertex.*;
-import io.github.daxigua2333.mocai_clues.Configs.Config;
+import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.data.Footprint;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
@@ -23,7 +23,6 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public class FootprintRenderer {
@@ -31,7 +30,10 @@ public class FootprintRenderer {
     public static void render(RenderLevelStageEvent event) {
         if (!Config.CLIENT.FOOTPRINT_DO_RENDER.getAsBoolean()) {return;}
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+//            Minecraft mc = Minecraft.getInstance();
+//            mc.getProfiler().push("mocai_clues:render");
             renderFootprints(event);  // TODO: event.getPartialTick()
+//            mc.getProfiler().pop();
         }
     }
 
@@ -88,7 +90,7 @@ public class FootprintRenderer {
             float y = (float) fp.y();
 
             int alphaInt = (int)(fp.alpha() * 255f);
-            int r = 0, g = 0, b = 0;
+            int r = Config.CLIENT.FOOTPRINT_R.getAsInt(), g = Config.CLIENT.FOOTPRINT_G.getAsInt(), b = Config.CLIENT.FOOTPRINT_B.getAsInt();
 
             vc.addVertex(modelView, (float)x0, y, (float)z0).setColor(r, g, b, alphaInt);
             vc.addVertex(modelView, (float)x1, y, (float)z1).setColor(r, g, b, alphaInt);

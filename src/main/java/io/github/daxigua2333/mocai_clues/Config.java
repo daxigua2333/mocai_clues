@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.Configs;
+package io.github.daxigua2333.mocai_clues;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,12 +29,25 @@ public class Config {
 
     public static class Client{
         public final ModConfigSpec.BooleanValue FOOTPRINT_DO_RENDER;
+        public final ModConfigSpec.IntValue FOOTPRINT_R;
+        public final ModConfigSpec.IntValue FOOTPRINT_G;
+        public final ModConfigSpec.IntValue FOOTPRINT_B;
 
         Client(ModConfigSpec.Builder builder) {
             builder.push("footprint");
             FOOTPRINT_DO_RENDER = builder
                     .comment("whether client rendering all the footprints")
                     .define("footprintDoRender", true);
+            FOOTPRINT_R = builder
+                    .comment("footprint color: R")
+                    .defineInRange("footprintR", 0, 0, 255);
+            FOOTPRINT_G = builder
+                    .comment("footprint color: G")
+                    .defineInRange("footprintG", 0, 0, 255);
+            FOOTPRINT_B = builder
+                    .comment("footprint color: B")
+                    .defineInRange("footprintB", 0, 0, 255);
+
             builder.pop();
         }
     }

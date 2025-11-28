@@ -16,6 +16,8 @@ public class TimeTicker {
         if (level.isClientSide()) return;
         if (!(level instanceof ServerLevel serverLevel)) return;
 
+//        level.getProfiler().push("mocai_clues:time+part");
         TimestampSavedData.getInstance(serverLevel).tick(serverLevel);
+//        level.getProfiler().pop();
     }
 }

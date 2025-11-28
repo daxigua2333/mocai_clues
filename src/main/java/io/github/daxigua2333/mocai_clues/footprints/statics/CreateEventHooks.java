@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues.footprints.statics;
 
-import io.github.daxigua2333.mocai_clues.Configs.Config;
+import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +29,9 @@ public final class CreateEventHooks {
     private static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!Config.SERVER.FOOTPRINT_DO_CREATE.getAsBoolean()) {return;}
         Player player = event.getEntity();
+//        player.level().getProfiler().push("mocai_clues:create_events");
         handleMovingEntity(player);
+//        player.level().getProfiler().pop();
     }
 
     public static void handleMovingEntity(LivingEntity entity) {

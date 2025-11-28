@@ -45,7 +45,6 @@ public class FootprintAttachedPosIndexMap {
         this(new HashMap<>());
     }
     public FootprintAttachedPosIndexMap(Map<BlockPos, Set<Vec3>> map) {
-//        this.map = map;  TODO: performance
         this.map = new HashMap<>(map);
     }
     private Map<BlockPos, Set<Vec3>> getMap() {
