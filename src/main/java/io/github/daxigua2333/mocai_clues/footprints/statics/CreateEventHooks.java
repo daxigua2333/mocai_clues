@@ -6,6 +6,7 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.footprints.data.TimestampSavedData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +16,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = MoCaiClues.MODID)
@@ -33,17 +36,27 @@ public final class CreateEventHooks {
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         if (!HookToggle.isEnabled()) {return;}
+
+        int partialTick = Config.SERVER.FOOTPRINT_CREATE_FREQUENCY.getAsInt();
+        if (player.tickCount % partialTick != 0) {
+            return;
+        }
+
 //        player.level().getProfiler().push("mocai_clues:create_events");
         handleMovingEntity(player);
 //        player.level().getProfiler().pop();
     }
 
-    private static void handleMovingEntity(LivingEntity entity) {
-        int partialTick = Config.SERVER.FOOTPRINT_CREATE_FREQUENCY.getAsInt();
-        if (entity.tickCount % partialTick != 0) {
-            return;
-        }
+    @SubscribeEvent
+    public static void onPlayerJump(LivingEvent.LivingJumpEvent event) {
+        LivingEntity living = event.getEntity();
+        if (!(living instanceof ServerPlayer player)) return;
+        if (player.level().isClientSide()) return;
 
+        handleMovingEntity(player);
+    }
+
+    private static void handleMovingEntity(LivingEntity entity) {
         Level level = entity.level();
         if (level.isClientSide) {
             return;
