@@ -4,7 +4,8 @@ public enum WandMode {
     CREATE,
     DELETE,
 //    QUERY;  // TODO
-    CREATE_INFINITY;
+    CREATE_INFINITY,
+    EDITOR;
     public WandMode next() {
         WandMode[] vals = values();
         return vals[(this.ordinal() + 1) % vals.length];

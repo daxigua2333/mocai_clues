@@ -2,8 +2,10 @@ package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
+import io.github.daxigua2333.mocai_clues.guis.DataSelectionScreen;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -12,6 +14,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClueWandItem extends Item {
     public ClueWandItem(Properties props) {
@@ -93,6 +98,23 @@ public class ClueWandItem extends Item {
                     }
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());
+            case EDITOR:
+                if (level.isClientSide) {
+//                    Minecraft.getInstance().setScreen(new ExampleListScreen());
+                    List<DataSelectionScreen.ListEntryData> list = new ArrayList<>();
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("地下室1"), Component.literal("subtitle"), Component.literal("details\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("诺亚的尸体"), Component.literal("subtitle2"), Component.literal("details2\n1\n1"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+                    DataSelectionScreen.open(list);
+                }
             case null, default:
                 return InteractionResult.PASS;
         }
