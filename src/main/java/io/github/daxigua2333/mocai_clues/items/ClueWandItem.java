@@ -1,8 +1,10 @@
 package io.github.daxigua2333.mocai_clues.items;
 
+import io.github.daxigua2333.mocai_clues.component.ClueType;
+import io.github.daxigua2333.mocai_clues.data.client.ClientClueObjectMainMapSavedData;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
-import io.github.daxigua2333.mocai_clues.guis.DataSelectionScreen;
+import io.github.daxigua2333.mocai_clues.guis.WandScreen;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.client.Minecraft;
@@ -101,19 +103,23 @@ public class ClueWandItem extends Item {
             case EDITOR:
                 if (level.isClientSide) {
 //                    Minecraft.getInstance().setScreen(new ExampleListScreen());
-                    List<DataSelectionScreen.ListEntryData> list = new ArrayList<>();
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("地下室1"), Component.literal("subtitle"), Component.literal("details\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("诺亚的尸体"), Component.literal("subtitle2"), Component.literal("details2\n1\n1"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-                    DataSelectionScreen.open(list);
+//                    List<DataSelectionScreen.ListEntryData> list = new ArrayList<>();
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("地下室1"), Component.literal("subtitle"), Component.literal("details\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("诺亚的尸体"), Component.literal("subtitle2"), Component.literal("details2\n1\n1"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
+//                    DataSelectionScreen.open(list);
+                    WandScreen.open(  // TODO
+                            () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT, ClueType.FOOTPRINT1, ClueType.FOOTPRINT2, ClueType.FOOTPRINT3, ClueType.FOOTPRINT4, ClueType.FOOTPRINT6, ClueType.FOOTPRINT7),
+                            () -> new ArrayList<>(ClientClueObjectMainMapSavedData.getInstance().getMap().values())
+                    );
                 }
             case null, default:
                 return InteractionResult.PASS;

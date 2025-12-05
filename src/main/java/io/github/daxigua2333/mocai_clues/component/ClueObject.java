@@ -1,0 +1,137 @@
+package io.github.daxigua2333.mocai_clues.component;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.daxigua2333.mocai_clues.component.data.DetailData;
+import io.github.daxigua2333.mocai_clues.component.data.MetaData;
+import io.github.daxigua2333.mocai_clues.component.network.ManualClueServerHandler;
+import io.github.daxigua2333.mocai_clues.component.storage.SavedDataHolder;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class ClueObject {
+    private final UUID id;
+    private final ClueType type;
+    private final Map<ComponentType, ClueComponent> components;
+
+    // ==== constructor(codec part) ====
+    private ClueObject(UUID id, ClueType type, Map<ComponentType, ClueComponent> map) {
+        this.id = id;
+        this.type =type;
+        this.components = new EnumMap<>(map);
+    }
+    public ClueObject(ClueType type) {
+        this(
+                UUID.randomUUID(),
+                type,
+                new EnumMap<>(ComponentType.class)
+        );
+    }
+
+
+    // ===== getter setter ====
+    public UUID getId() {
+        return id;
+    }
+    public ClueType type() {
+        return type;
+    }
+    // for codec
+    private Map<ComponentType, ClueComponent> getMap() {return components;}
+
+
+    // ==== map CRUD ====
+    public void addComponent(ClueComponent component) {
+        component.setOwner(this);
+        components.put(component.type(), component);
+//        component.onAdded(this);
+    }
+
+    public void removeComponent(ComponentType type) {
+        components.remove(type);
+    }
+
+    public boolean hasComponent(ComponentType type) {
+        return components.containsKey(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends ClueComponent> T getComponent(ComponentType type) {
+        return (T) components.get(type);
+    }
+
+    public Collection<ClueComponent> getComponents() {
+        return components.values();
+    }
+
+    // ==== Codec ====
+    private static final Codec<Map<ComponentType, ClueComponent>> MAP_CODEC =
+            Codec.dispatchedMap(
+                    ComponentType.CODEC,
+                    key -> switch (key) {  // TODO
+                        case META_DATA -> MetaData.CODEC;
+                        case DETAIL_DATA -> DetailData.CODEC;
+                        case MANUAL_CLUE_SERVER_HANDLER -> ManualClueServerHandler.CODEC;
+                        case SAVED_DATA_HOLDER -> SavedDataHolder.CODEC;
+                    }
+            );
+//    public static final Codec<ClueObject> CODEC = MAP_CODEC.xmap(ClueObject::new, ClueObject::getMap);
+    public static final Codec<ClueObject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            UUIDUtil.CODEC.fieldOf("id").forGetter(ClueObject::getId),
+            ClueType.CODEC.fieldOf("type").forGetter(ClueObject::type),
+            MAP_CODEC.fieldOf("components").forGetter(ClueObject::getMap)
+    ).apply(instance, ClueObject::new));
+
+    // NBT
+    public CompoundTag toNbt() {
+        DynamicOps<Tag> ops = NbtOps.INSTANCE;
+        DataResult<Tag> result = CODEC.encodeStart(ops, this);
+        return result.result()
+                .map(tag -> (CompoundTag) tag) // assuming your codec encodes to a CompoundTag
+                .orElseGet(() -> {
+                    // handle errors however you like
+                    throw new IllegalStateException("Failed to encode MyData to NBT: " +
+                            result.error().map(e -> e.message()).orElse("unknown"));
+                });
+    }
+    public static ClueObject fromNbt(CompoundTag tag) {
+        DynamicOps<Tag> ops = NbtOps.INSTANCE;
+        DataResult<ClueObject> result = CODEC.parse(ops, tag);
+        return result.getOrThrow(msg -> {
+            throw new IllegalStateException("Failed to decode MyData from NBT: " + msg);
+        });
+    }
+
+    // stream codec: reuse codec  TODO: optimize packet size
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClueObject> STREAM_CODEC =
+        ByteBufCodecs.fromCodecWithRegistries(ClueObject.CODEC);
+
+
+//    public void update(float deltaTime) {
+//        if (!active) return;
+//        for (Component c : components.values()) {
+//            c.update(deltaTime);
+//        }
+//    }
+//    private boolean active = true;
+//    public boolean isActive() {
+//        return active;
+//    }
+//    public void setActive(boolean active) {
+//        this.active = active;
+//    }
+
+
+}
