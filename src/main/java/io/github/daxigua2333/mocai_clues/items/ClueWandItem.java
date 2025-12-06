@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.data.client.ClientClueObjectMainMapSavedData;
+import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.guis.WandScreen;
@@ -118,7 +119,7 @@ public class ClueWandItem extends Item {
 //                    DataSelectionScreen.open(list);
                     WandScreen.open(  // TODO
                             () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT, ClueType.FOOTPRINT1, ClueType.FOOTPRINT2, ClueType.FOOTPRINT3, ClueType.FOOTPRINT4, ClueType.FOOTPRINT6, ClueType.FOOTPRINT7),
-                            () -> new ArrayList<>(ClientClueObjectMainMapSavedData.getInstance().getMap().values())
+                            (type) -> new ArrayList<>(ClientObjectHolderInSavedData.getInstance().getHolder().values())
                     );
                 }
             case null, default:

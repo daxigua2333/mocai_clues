@@ -1,16 +1,12 @@
 package io.github.daxigua2333.mocai_clues.guis.widget;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -18,6 +14,7 @@ import java.util.function.Supplier;
 public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<AutoUpdatedScrollableListWidget<T>.Entry> {
 
     private final Supplier<List<T>> dataSupplier;
+    private final Function<T, UUID> idGetter;
     private final Function<T, Component> labelMapper;
     private final Consumer<T> clickHandler;
     private final int z;
@@ -41,11 +38,13 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
                                            int width, int height,
                                            int itemHeight,
                                            Supplier<List<T>> dataSupplier,
+                                           Function<T, UUID> idGetter,
                                            Function<T, Component> labelMapper,
                                            Consumer<T> clickHandler) {
         super(minecraft, width, height, y, itemHeight);
 
         this.dataSupplier = dataSupplier;
+        this.idGetter = idGetter;
         this.labelMapper = labelMapper;
         this.clickHandler = clickHandler;
         this.z = z;
@@ -59,17 +58,32 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
 
 
     // ========= sync part =======
+    // each tick check once. if changed, **rebuild** the Entries
+    // TODO: performance..
     private void syncIfNeeded() {
         List<T> current = List.copyOf(dataSupplier.get());
         if (!current.equals(lastSnapshot)) {
             lastSnapshot = current;
 
+            Entry selectedEntry = null;
+            UUID selectedId = null;
+            if (this.getSelected() != null) {
+                selectedId = this.idGetter.apply(this.getSelected().value);
+            }
+
             List<Entry> entries = new ArrayList<>(current.size());
             for (T element : current) {
-                entries.add(new Entry(element));
+                var newEntry = new Entry(element);
+                if (this.idGetter.apply(element) == selectedId) {
+                    selectedEntry = newEntry;
+                }
+                entries.add(newEntry);
             }
             // This is the "hot update" bit: swap entries in-place.
             this.replaceEntries(entries);  // from AbstractSelectionList
+            if (selectedEntry != null) {
+                this.setSelected(selectedEntry);
+            }
         }
     }
 

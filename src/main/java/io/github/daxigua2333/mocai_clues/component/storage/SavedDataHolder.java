@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.component.storage;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectMainMapInSavedData;
 import net.minecraft.server.level.ServerLevel;
 
@@ -21,7 +22,8 @@ public class SavedDataHolder extends BaseDataHolder{
     @Override
     public void onCreate() {
         var obj = this.owner;
-        ClueObjectMainMapInSavedData.getInstance(level).put(obj.getId(), obj);
+//        ClueObjectMainMapInSavedData.getInstance(level).put(obj.getId(), obj);
+        ClueObjectHolderInSavedData.getInstance(level.getServer()).put(obj);
     }
 
     @Override

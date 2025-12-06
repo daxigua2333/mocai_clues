@@ -3,10 +3,13 @@ package io.github.daxigua2333.mocai_clues.data.client;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.networks.ClientActivelySyncSavedDataPayload;
 import io.github.daxigua2333.mocai_clues.networks.ClueObjectHolderDeltaSyncPayload;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.*;
 
+@OnlyIn(Dist.CLIENT)
 public class ClientClueObjectMainMapSavedData {
     private static Map<UUID, ClueObject> map = new LinkedHashMap<>();
     private static final ClientClueObjectMainMapSavedData INSTANCE = new ClientClueObjectMainMapSavedData();

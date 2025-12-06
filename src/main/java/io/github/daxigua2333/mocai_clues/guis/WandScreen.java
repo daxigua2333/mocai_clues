@@ -4,7 +4,6 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableMapWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
 import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
 import net.minecraft.client.Minecraft;
@@ -25,7 +24,7 @@ import java.util.function.Supplier;
 public class WandScreen extends Screen {
 //    private final List<ListEntryData> entries;
     private Supplier<List<ClueType>> typeSupplier;
-    private Supplier<List<ClueObject>> clueSupplier;
+    private Function<ClueType, List<ClueObject>> clueSupplier;
 
     private DropdownWidget<ClueType> tab;
     private AutoUpdatedScrollableListWidget<ClueObject> list;
@@ -51,7 +50,7 @@ public class WandScreen extends Screen {
     // ====== constructor, and open static =======
     public static void open(
             Supplier<List<ClueType>> typeSupplier,
-            Function<ClueType, Map<UUID, ClueObject>> holderSupplier
+            Function<ClueType, List<ClueObject>> clueSupplier
     ) {
 //        List<ClueObject> list = List.of(new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL));
         Minecraft.getInstance().setScreen(new WandScreen(
@@ -63,7 +62,7 @@ public class WandScreen extends Screen {
     }
     public WandScreen(
             Supplier<List<ClueType>> typeSupplier,
-            Supplier<List<ClueObject>> clueSupplier
+            Function<ClueType, List<ClueObject>> clueSupplier
     ) {
         super(Component.translatable("screen." + MoCaiClues.MODID + ".data_selection"));
         this.typeSupplier = typeSupplier;
@@ -77,15 +76,15 @@ public class WandScreen extends Screen {
 
         this.clearWidgets();
         // build and add widgets
-        this.list = new AutoUpdatedScrollableMapWidget(
+        this.list = new AutoUpdatedScrollableListWidget<ClueObject>(
                 this.minecraft,
                 (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET,
                 (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET,
                 1,
                 LIST_WIDTH, LIST_HEIGHT,
                 ENTRY_HEIGHT,
-                this.clueInitMap,
-                this.clueSupplier,
+                () -> this.clueSupplier.apply(ClueType.MANUAL),  // TODO
+                (obj) -> obj.getId(),
 //                Component::literal,
                 (clue) -> Component.literal(clue.getId().toString()),  // TODO
                 (clueObject) -> {  /// TODO
