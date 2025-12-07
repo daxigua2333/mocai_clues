@@ -1,10 +1,8 @@
 package io.github.daxigua2333.mocai_clues.component.storage;
 
 import com.mojang.serialization.Codec;
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
-import io.github.daxigua2333.mocai_clues.data.server.ClueObjectMainMapInSavedData;
 import net.minecraft.server.level.ServerLevel;
 
 public class SavedDataHolder extends BaseDataHolder{

@@ -5,8 +5,6 @@ import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.network.BaseSyncHandler;
-import io.github.daxigua2333.mocai_clues.data.client.ClientClueObjectMainMapSavedData;
-import io.github.daxigua2333.mocai_clues.data.server.ClueObjectMainMapInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.api.SavedDataCreator;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
@@ -14,7 +12,6 @@ import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegis
 import io.github.daxigua2333.mocai_clues.items.statics.FinderHitResultTicker;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -50,9 +47,9 @@ public class ModPayloadRegistry {
 
         // ====== ClueObject =====
         registrar.playToServer(
-                ClueObjectHolderInitialSyncPayload.TYPE,
-                ClueObjectHolderInitialSyncPayload.STREAM_CODEC,
-                (final ClueObjectHolderInitialSyncPayload payload, final IPayloadContext context) -> {
+                ClueObjectSyncPayload.TYPE,
+                ClueObjectSyncPayload.STREAM_CODEC,
+                (final ClueObjectSyncPayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
                         ClueObject object = payload.object();
                         // iterate all SyncHandler, invoke handleSync
@@ -66,20 +63,6 @@ public class ModPayloadRegistry {
         );
 
         // ===== manual =====
-        // client initial sync request
-        registrar.playToServer(
-                ClientActivelySyncSavedDataPayload.TYPE,
-                ClientActivelySyncSavedDataPayload.STREAM_CODEC,
-                (final ClientActivelySyncSavedDataPayload payload, final IPayloadContext context) -> {
-                    context.enqueueWork(() -> {
-                        ServerPlayer player = (ServerPlayer) context.player();
-                        ClueObjectMainMapInSavedData.getInstance(player.serverLevel()).syncAllToOne(player);
-                        // TODO: test
-                        ClueObjectMainMapInSavedData.getInstance(player.serverLevel()).clear();
-                        // maybe other SavedData syncs
-                    });
-                }
-        );
         // client create new one
         registrar.playToServer(
                 ManualClueCreatePayload.TYPE,
@@ -87,27 +70,6 @@ public class ModPayloadRegistry {
                 (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
                         SavedDataCreator.createDefault(ClueType.MANUAL, (ServerLevel) context.player().level());
-                    });
-                }
-        );
-        // server initial sync
-        registrar.playToClient(
-                ClueObjectMainMapSyncPayload.TYPE,
-                ClueObjectMainMapSyncPayload.STREAM_CODEC,
-                (final ClueObjectMainMapSyncPayload payload, final IPayloadContext context) -> {
-                    context.enqueueWork(() -> {
-                        ClientClueObjectMainMapSavedData.getInstance().setMap(payload.map());
-                    });
-                }
-        );
-        // server sync delta
-        registrar.playToClient(
-                ClueObjectHolderDeltaSyncPayload.TYPE,
-                ClueObjectHolderDeltaSyncPayload.STREAM_CODEC,
-                (final ClueObjectHolderDeltaSyncPayload payload, final IPayloadContext context) -> {
-                    context.enqueueWork(() -> {
-                        ClientClueObjectMainMapSavedData.getInstance().addToDeltas(payload);
-                        ClientClueObjectMainMapSavedData.getInstance().applyDelta(payload);
                     });
                 }
         );

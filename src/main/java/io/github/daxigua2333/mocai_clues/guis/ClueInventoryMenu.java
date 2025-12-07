@@ -1,9 +1,7 @@
 package io.github.daxigua2333.mocai_clues.guis;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;

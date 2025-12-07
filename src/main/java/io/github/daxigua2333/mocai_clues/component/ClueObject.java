@@ -5,7 +5,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
-import io.github.daxigua2333.mocai_clues.component.data.MetaData;
 import io.github.daxigua2333.mocai_clues.component.network.ManualClueServerHandler;
 import io.github.daxigua2333.mocai_clues.component.storage.SavedDataHolder;
 import net.minecraft.core.UUIDUtil;
@@ -81,7 +80,6 @@ public class ClueObject {
             Codec.dispatchedMap(
                     ComponentType.CODEC,
                     key -> switch (key) {  // TODO
-                        case META_DATA -> MetaData.CODEC;
                         case DETAIL_DATA -> DetailData.CODEC;
                         case MANUAL_CLUE_SERVER_HANDLER -> ManualClueServerHandler.CODEC;
                         case SAVED_DATA_HOLDER -> SavedDataHolder.CODEC;

@@ -1,10 +1,5 @@
 package io.github.daxigua2333.mocai_clues.component;
 
-import com.mojang.serialization.Codec;
-import io.github.daxigua2333.mocai_clues.component.data.MetaData;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-
 public abstract class ClueComponent {
     public abstract ComponentType type();
 

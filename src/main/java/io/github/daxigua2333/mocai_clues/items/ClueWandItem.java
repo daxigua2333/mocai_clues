@@ -1,14 +1,12 @@
 package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.data.client.ClientClueObjectMainMapSavedData;
 import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.guis.WandScreen;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;

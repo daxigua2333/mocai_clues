@@ -1,13 +1,11 @@
 package io.github.daxigua2333.mocai_clues.guis;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class ClueInventoryInfiniteMenu extends ClueInventoryMenu{
 

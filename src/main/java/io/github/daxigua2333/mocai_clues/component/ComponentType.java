@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 public enum ComponentType {
     // TODO
     // data
-    META_DATA,
     DETAIL_DATA,
     // network
     MANUAL_CLUE_SERVER_HANDLER,
