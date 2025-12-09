@@ -4,7 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -13,7 +15,7 @@ import java.util.function.Supplier;
 
 public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<AutoUpdatedScrollableListWidget<T>.Entry> {
 
-    private final Supplier<List<T>> dataSupplier;
+    private Supplier<List<T>> dataSupplier;
     private final Function<T, UUID> idGetter;
     private final Function<T, Component> labelMapper;
     private final Consumer<T> clickHandler;
@@ -54,6 +56,10 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
         this.setY(y); // TODO: ?
 //        this.updateSizeAndPosition(x, y, width, height);
 //        this.updateSizeAndPosition(width, height, y);
+    }
+
+    public void updateDataSupplier(Supplier<List<T>> dataSupplier) {
+        this.dataSupplier = dataSupplier;
     }
 
 
@@ -104,9 +110,8 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
     // ====== appearance ======
     @Override
     public int getRowWidth() {
-        return this.getWidth();
 //        Make rows slightly narrower than the full width so the scrollbar has space
-//        return this.width - 8;
+        return this.width - 10;
     }
     @Override
     protected int getScrollbarPosition() {
@@ -188,6 +193,11 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (button == 0) { // left click
+                // play sound
+                Minecraft mc = Minecraft.getInstance();
+                mc.getSoundManager().play(
+                        SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+                );
                 // Visually select the row
                 AutoUpdatedScrollableListWidget.this.setSelected(this);
                 // Fire your callback

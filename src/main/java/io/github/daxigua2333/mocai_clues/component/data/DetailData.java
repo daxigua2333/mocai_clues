@@ -4,9 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import net.minecraft.core.UUIDUtil;
+import net.minecraft.client.gui.components.AbstractWidget;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class DetailData extends ClueComponent {
@@ -32,6 +33,17 @@ public class DetailData extends ClueComponent {
             Codec.STRING.fieldOf("name").forGetter(DetailData::getName),
             Codec.STRING.listOf().fieldOf("details").forGetter(DetailData::getDetails)
     ).apply(instance, DetailData::new));
+
+    // ======= editable ===========
+    @Override
+    public LinkedHashMap<String, AbstractWidget> getEditable() {
+        return null;   // TODO
+    }
+    @Override
+    public LinkedHashMap<String, AbstractWidget> getUneditable() {
+        return null;   // TODO
+    }
+
 
     // ==== getter ====
     private String getName() {

@@ -1,7 +1,7 @@
 package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
+import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.guis.WandScreen;
@@ -16,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClueWandItem extends Item {
@@ -117,7 +116,7 @@ public class ClueWandItem extends Item {
 //                    DataSelectionScreen.open(list);
                     WandScreen.open(  // TODO
                             () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT, ClueType.FOOTPRINT1, ClueType.FOOTPRINT2, ClueType.FOOTPRINT3, ClueType.FOOTPRINT4, ClueType.FOOTPRINT6, ClueType.FOOTPRINT7),
-                            (type) -> new ArrayList<>(ClientObjectHolderInSavedData.getInstance().getHolder().values())
+                            (type) -> ClientAccessor.queryClueObjectByClueType(type)
                     );
                 }
             case null, default:

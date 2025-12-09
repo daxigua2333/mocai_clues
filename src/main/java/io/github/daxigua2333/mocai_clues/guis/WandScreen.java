@@ -3,7 +3,12 @@ package io.github.daxigua2333.mocai_clues.guis;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ReadOnlyDetailWidget;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanel;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
 import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
 import net.minecraft.client.Minecraft;
@@ -25,6 +30,7 @@ public class WandScreen extends Screen {
 
     private DropdownWidget<ClueType> tab;
     private AutoUpdatedScrollableListWidget<ClueObject> list;
+    private DetailPanel details;
 //    private DataSelectionScreen.ListEntryData selected;
 
     private static final ResourceLocation BOOK_TEXTURE =
@@ -36,12 +42,14 @@ public class WandScreen extends Screen {
     private static final int PANEL_Y_OFFSET = 43;
     private static final int PANEL_WIDTH = 243 - PANEL_X_OFFSET;
     private static final int PANEL_HEIGHT = 222 - PANEL_Y_OFFSET;
-    private static final int LIST_X_OFFSET = 28;
+    private static final int LIST_X_OFFSET = 22;
     private static final int LIST_Y_OFFSET = 56;
     private static final int LIST_WIDTH = 89 - LIST_X_OFFSET;
     private static final int LIST_HEIGHT = 214 - LIST_Y_OFFSET;
-    private static final int SPLIT_X_OFFSET = 97;
     private static final int ENTRY_HEIGHT = 20;
+    private static final int SPLIT_X_OFFSET = 97;
+    private static final int DETAIL_X_OFFSET = SPLIT_X_OFFSET + 18;
+    private static final int DETAIL_WIDTH = 120;
 
 
     // ====== constructor, and open static =======
@@ -80,7 +88,7 @@ public class WandScreen extends Screen {
                 1,
                 LIST_WIDTH, LIST_HEIGHT,
                 ENTRY_HEIGHT,
-                () -> this.clueSupplier.apply(ClueType.MANUAL),  // TODO
+                () -> this.clueSupplier.apply(this.typeSupplier.get().getFirst()),
                 (obj) -> obj.getId(),
 //                Component::literal,
                 (clue) -> Component.literal(clue.getId().toString()),  // TODO
@@ -99,8 +107,12 @@ public class WandScreen extends Screen {
                 this.typeSupplier,
 //                Component::literal,
                 (type) -> Component.literal(type.toString()),  // TODO
-                (clueType) -> {   //// TODO
-                    this.typeSupplier = () -> List.of(ClueType.MANUAL, ClueType.MANUAL, ClueType.MANUAL);
+                (clueType) -> {   //// TODO: test hot update... or maybe delete the feature
+//                    this.typeSupplier = () -> List.of(ClueType.MANUAL, ClueType.MANUAL, ClueType.MANUAL);
+                    this.list.updateDataSupplier(
+                            () -> clueSupplier.apply(clueType)
+                    );
+                    // TODO: whether show CREATE button
                 }
         );
 
@@ -108,14 +120,41 @@ public class WandScreen extends Screen {
             PacketDistributor.sendToServer(new ManualClueCreatePayload());
         }).bounds(
                 (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET + 20,
-                (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET - 16,
+                (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET - 16 -10,
                 60, 16
         ).build();
+
+//        this.details = new ScrollableConfigPanel(
+//                Minecraft.getInstance(),
+//                100,
+//                100,
+//                0,
+//                0
+//        );
+        this.details = new DetailPanel(
+                Minecraft.getInstance(),
+                DETAIL_WIDTH,
+                LIST_HEIGHT - 4,
+                (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET,
+                (this.width - TEXTURE_WIDTH) / 2 + DETAIL_X_OFFSET,
+                List.of(
+                        new ReadOnlyDetailWidget(0, 0, 100, 100,
+                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333")),
+                        new ReadOnlyDetailWidget(0, 0, 100, 100,
+                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333")),
+                        new ScaledTextRow(0, 0, 100, 100, 2, 2, "0.7 scale aaaaaaaaaaaa", 0.7f),
+                        new ScaledTextRow(0, 0, 100, 100, 2, 2, "1.2 scale aaaaaaaaaaaa", 1.2f),
+                        new SplitLineRow(0, 0, 100, 100, 2, 2),
+                        new TextListWithIndexRow(0, 0, 100, 100, 2, 2,
+                                List.of("sentence 1", "sentence 2: 一句很长长长长长长长长长长长的中文"), 2)
+                        )
+        );
 
         // click event order
         this.addRenderableWidget(this.tab);
         this.addRenderableWidget(this.list);
         this.addRenderableWidget(createButton);
+        this.addRenderableWidget(details);
 
     }
 

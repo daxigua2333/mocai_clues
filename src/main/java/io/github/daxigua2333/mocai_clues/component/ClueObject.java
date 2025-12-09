@@ -20,6 +20,10 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * should contain fields: UUID, type
+ * component should implement: type() constructor codec(Codec.unit if empty) editable
+ * */
 public class ClueObject {
     private final UUID id;
     private final ClueType type;
@@ -51,7 +55,7 @@ public class ClueObject {
     private Map<ComponentType, ClueComponent> getMap() {return components;}
 
 
-    // ==== map CRUD ====
+    // ==== map apis ====
     public void addComponent(ClueComponent component) {
         component.setOwner(this);
         components.put(component.type(), component);

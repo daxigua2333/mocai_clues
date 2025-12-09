@@ -3,7 +3,12 @@ package io.github.daxigua2333.mocai_clues.component.storage;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.server.level.ServerLevel;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class SavedDataHolder extends BaseDataHolder{
     private final ServerLevel level;
@@ -30,4 +35,16 @@ public class SavedDataHolder extends BaseDataHolder{
     }
 
     public static final Codec<SavedDataHolder> CODEC = Codec.unit(new SavedDataHolder());
+
+    @Nullable
+    @Override
+    public LinkedHashMap<String, AbstractWidget> getEditable() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public LinkedHashMap<String, AbstractWidget> getUneditable() {
+        return null;
+    }
 }

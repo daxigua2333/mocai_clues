@@ -1,5 +1,11 @@
 package io.github.daxigua2333.mocai_clues.component;
 
+import net.minecraft.client.gui.components.AbstractWidget;
+
+import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 public abstract class ClueComponent {
     public abstract ComponentType type();
 
@@ -9,6 +15,14 @@ public abstract class ClueComponent {
     }
 
     public ClueComponent(){}
+
+
+    // ======= gui part ========
+    @Nullable
+    public abstract LinkedHashMap<String, AbstractWidget> getEditable();
+    @Nullable
+    public abstract LinkedHashMap<String, AbstractWidget> getUneditable();
+
 
 //    void tick();
 //    public abstract void onAdded(ClueObject owner);
