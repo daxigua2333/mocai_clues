@@ -31,13 +31,13 @@ public class ManualClueServerHandler extends BaseSyncHandler {
 
     @Nullable
     @Override
-    public LinkedHashMap<String, AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable() {
         return null;
     }
 
     @Nullable
     @Override
-    public LinkedHashMap<String, AbstractWidget> getUneditable() {
+    public List<AbstractWidget> getUneditable() {
         return null;
     }
 

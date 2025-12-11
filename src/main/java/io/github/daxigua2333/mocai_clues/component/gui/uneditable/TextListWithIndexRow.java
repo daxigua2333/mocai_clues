@@ -26,7 +26,7 @@ public class TextListWithIndexRow extends BaseDetailRow {
         int y = getY() + vPadding;
         for (int i=0; i<texts.size(); i++) {
             String text = texts.get(i);
-            Component component = Component.literal(i+1 + ". " + text);
+            Component component = Component.literal(i+1 + ". " + text);  // TODO: lazy with Component
             guiGraphics.drawWordWrap(
                     font,
                     component,

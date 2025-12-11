@@ -8,10 +8,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 
 public class ScaledTextRow extends BaseDetailRow {
-    private final String text;
+    private final Component text;
     private final float scale;
 
-    public ScaledTextRow(int x, int y, int width, int height, int vPadding, int hPadding, String text, float scale) {
+    public ScaledTextRow(int x, int y, int width, int height, int vPadding, int hPadding, Component text, float scale) {
         super(x, y, width, height, vPadding, hPadding);
         this.text = text;
         this.scale = scale;
@@ -23,13 +23,12 @@ public class ScaledTextRow extends BaseDetailRow {
             return;
         }
 
-        Component component = Component.literal(text);
         // desired position/size
         int x = getX() + hPadding;
         int y = getY() + vPadding;
         int w = this.width - 2* hPadding;
         int newWidth = (int) (w / scale);
-        int newHeight = font.wordWrapHeight(component, newWidth);
+        int newHeight = font.wordWrapHeight(text, newWidth);
         int h = (int) (newHeight * scale) + 2*vPadding;
 
 //        // TEST: box background
@@ -48,8 +47,8 @@ public class ScaledTextRow extends BaseDetailRow {
 
         int newX = (int) (x/scale);
         int newY = (int) (y/scale);
-        for (FormattedCharSequence line : font.split(component, newWidth)) {
-            guiGraphics.drawString(font, line, newX, newY, 0xFFFFFF);
+        for (FormattedCharSequence line : font.split(text, newWidth)) {
+            guiGraphics.drawString(font, line, newX, newY, 0x000000);
             newY += font.lineHeight;
         }
 
@@ -71,7 +70,7 @@ public class ScaledTextRow extends BaseDetailRow {
         this.defaultButtonNarrationText(output);
         output.add(
                 net.minecraft.client.gui.narration.NarratedElementType.HINT,
-                Component.literal(text)
+                text
         );
     }
 

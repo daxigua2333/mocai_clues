@@ -38,13 +38,13 @@ public class SavedDataHolder extends BaseDataHolder{
 
     @Nullable
     @Override
-    public LinkedHashMap<String, AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable() {
         return null;
     }
 
     @Nullable
     @Override
-    public LinkedHashMap<String, AbstractWidget> getUneditable() {
+    public List<AbstractWidget> getUneditable() {
         return null;
     }
 }

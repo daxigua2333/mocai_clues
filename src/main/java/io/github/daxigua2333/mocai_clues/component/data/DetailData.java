@@ -4,15 +4,22 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.gui.editable.EditBoxRow;
+import io.github.daxigua2333.mocai_clues.component.gui.editable.StringListWidget;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 public class DetailData extends ClueComponent {
-    private final String name;
-    private final List<String> details;  // TODO: info merge
+    private String name;
+    private List<String> details;  // TODO: info merge
 
     @Override
     public ComponentType type() {
@@ -36,12 +43,28 @@ public class DetailData extends ClueComponent {
 
     // ======= editable ===========
     @Override
-    public LinkedHashMap<String, AbstractWidget> getEditable() {
-        return null;   // TODO
+    public List<AbstractWidget> getEditable() {
+        var stringList = new StringListWidget(Minecraft.getInstance().font, 0, 0, 100, 100, this.details);
+        stringList.setChangeListener(list -> this.details = list);
+
+        return List.of(   // TODO
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("name:"), 1.1f),
+                EditBoxRow.stringBox(0, 0, 100, 20, 2, 2,
+//                        EditBoxRow.MutableValue.of(this.name),
+                        () -> this.name, (str) -> this.name = str,
+                        v -> true,
+                        Component.literal("String")),
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("details:"), 1.1f),
+                stringList
+        );
     }
     @Override
-    public LinkedHashMap<String, AbstractWidget> getUneditable() {
-        return null;   // TODO
+    public List<AbstractWidget> getUneditable() {
+        return List.of(
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal(name), 1.2f),
+                new SplitLineRow(0, 0, 100, 100, 2, 2),
+                new TextListWithIndexRow(0, 0, 100, 100, 2, 2, details, 2)
+        );
     }
 
 

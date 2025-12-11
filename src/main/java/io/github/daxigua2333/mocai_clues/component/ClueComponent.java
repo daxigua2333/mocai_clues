@@ -19,9 +19,9 @@ public abstract class ClueComponent {
 
     // ======= gui part ========
     @Nullable
-    public abstract LinkedHashMap<String, AbstractWidget> getEditable();
+    public abstract List<AbstractWidget> getEditable();
     @Nullable
-    public abstract LinkedHashMap<String, AbstractWidget> getUneditable();
+    public abstract List<AbstractWidget> getUneditable();
 
 
 //    void tick();

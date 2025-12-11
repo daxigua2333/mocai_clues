@@ -1,8 +1,11 @@
 package io.github.daxigua2333.mocai_clues.guis;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.gui.editable.EditBoxRow;
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ReadOnlyDetailWidget;
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
@@ -10,15 +13,18 @@ import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIn
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanel;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
+import io.github.daxigua2333.mocai_clues.networks.ClueObjectSyncPayload;
 import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -80,7 +86,32 @@ public class WandScreen extends Screen {
         super.init();
 
         this.clearWidgets();
+
+        Button applyButton = Button.builder(Component.literal("apply"), btn -> {
+            if (this.list.getSelected() == null) {return;}
+            ClueObject object = this.list.getSelected().getValue();
+            PacketDistributor.sendToServer(new ClueObjectSyncPayload(object));
+        }).bounds(20, 0, 50, 20).build();
+
+        Button editButton = Button.builder(Component.literal("edit"), btn -> {
+            if (this.list.getSelected() == null) {return;}
+            ClueObject object = this.list.getSelected().getValue();
+
+            List<AbstractWidget> details = new ArrayList<>();
+
+            details.add(applyButton);  // TODO: cancel button
+
+            for (ClueComponent component : object.getComponents()) {
+                List<AbstractWidget> editables = component.getEditable();
+                if (editables != null) {
+                    details.addAll(editables);
+                }
+            }
+            this.details.updateChildren(details);
+        }).bounds(0, 0, 50, 20).build();
+
         // build and add widgets
+
         this.list = new AutoUpdatedScrollableListWidget<ClueObject>(
                 this.minecraft,
                 (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET,
@@ -93,7 +124,17 @@ public class WandScreen extends Screen {
 //                Component::literal,
                 (clue) -> Component.literal(clue.getId().toString()),  // TODO
                 (clueObject) -> {  /// TODO
+                    List<AbstractWidget> details = new ArrayList<>();
 
+                    details.add(editButton);
+
+                    for (ClueComponent component : clueObject.getComponents()) {
+                        List<AbstractWidget> uneditables = component.getUneditable();
+                        if (uneditables != null) {
+                            details.addAll(uneditables);
+                        }
+                    }
+                    this.details.updateChildren(clueObject, details);
                 }
         );
 
@@ -139,14 +180,14 @@ public class WandScreen extends Screen {
                 (this.width - TEXTURE_WIDTH) / 2 + DETAIL_X_OFFSET,
                 List.of(
                         new ReadOnlyDetailWidget(0, 0, 100, 100,
-                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333")),
-                        new ReadOnlyDetailWidget(0, 0, 100, 100,
-                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333")),
-                        new ScaledTextRow(0, 0, 100, 100, 2, 2, "0.7 scale aaaaaaaaaaaa", 0.7f),
-                        new ScaledTextRow(0, 0, 100, 100, 2, 2, "1.2 scale aaaaaaaaaaaa", 1.2f),
-                        new SplitLineRow(0, 0, 100, 100, 2, 2),
-                        new TextListWithIndexRow(0, 0, 100, 100, 2, 2,
-                                List.of("sentence 1", "sentence 2: 一句很长长长长长长长长长长长的中文"), 2)
+                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333"))
+//                        new ReadOnlyDetailWidget(0, 0, 100, 100,
+//                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333")),
+//                        new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal("0.7 scale aaaaaaaaaaaa"), 0.7f),
+//                        new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal("1.2 scale aaaaaaaaaaaa"), 1.2f),
+//                        new SplitLineRow(0, 0, 100, 100, 2, 2),
+//                        new TextListWithIndexRow(0, 0, 100, 100, 2, 2,
+//                                List.of("sentence 1", "sentence 2: 一句很长长长长长长长长长长长的中文"), 2)
                         )
         );
 

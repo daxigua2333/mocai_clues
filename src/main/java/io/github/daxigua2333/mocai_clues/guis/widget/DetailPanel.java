@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues.guis.widget;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -22,6 +23,7 @@ import java.util.List;
  * */
 public class DetailPanel extends ScrollPanel {
 
+    private ClueObject content;
     private List<AbstractWidget> children = new ArrayList<>();
     private final int spacing;  // spacing between each widgets
 
@@ -31,11 +33,18 @@ public class DetailPanel extends ScrollPanel {
         super(mc, width, height, top, left, 0, 6 , -16777216, -8355712, -4144960);  // TODO: bg...etc
 
         Font font = Minecraft.getInstance().font;
-        // TODO: hot update
         this.children = children;
         this.spacing = 6;
     }
 
+    /** hot update*/
+    public void updateChildren(ClueObject content, List<AbstractWidget> children) {
+        this.content = content;
+        this.children = children;
+    }
+    public void updateChildren(List<AbstractWidget> children) {
+        this.children = children;
+    }
 
     /** the entire content height (which means can exceed the screen height) */
     @Override
@@ -43,6 +52,9 @@ public class DetailPanel extends ScrollPanel {
         int result = 0;
         for (var widget : this.children) {
             result += widget.getHeight() + this.spacing;
+        }
+        if (result < this.height) {  // disable the default behavior when ContentHeight is smaller than panel height
+            result = height;
         }
         return result;
     }
@@ -60,6 +72,7 @@ public class DetailPanel extends ScrollPanel {
         for (var w : this.children) {
             w.setX(x);
             w.setY(y);
+            w.setWidth(this.width);
             w.render(guiGraphics, mouseX, mouseY, this.lastPartialTick);
             y += w.getHeight() + this.spacing;
         }

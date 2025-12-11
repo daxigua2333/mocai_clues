@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.guis.widget;
 
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -69,18 +70,18 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
     private void syncIfNeeded() {
         List<T> current = List.copyOf(dataSupplier.get());
         if (!current.equals(lastSnapshot)) {
-            lastSnapshot = current;
-
             Entry selectedEntry = null;
             UUID selectedId = null;
             if (this.getSelected() != null) {
                 selectedId = this.idGetter.apply(this.getSelected().value);
             }
 
+            lastSnapshot = current;
+
             List<Entry> entries = new ArrayList<>(current.size());
             for (T element : current) {
                 var newEntry = new Entry(element);
-                if (this.idGetter.apply(element) == selectedId) {
+                if (this.idGetter.apply(element).equals(selectedId)) {
                     selectedEntry = newEntry;
                 }
                 entries.add(newEntry);
@@ -89,6 +90,7 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
             this.replaceEntries(entries);  // from AbstractSelectionList
             if (selectedEntry != null) {
                 this.setSelected(selectedEntry);
+                clickHandler.accept(selectedEntry.value);
             }
         }
     }
@@ -139,6 +141,8 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
             this.value = value;
             this.label = labelMapper.apply(value);
         }
+
+        public T getValue() {return value;}
 
         @Override
         public void render(GuiGraphics gfx,

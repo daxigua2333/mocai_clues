@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.data;
 
 import com.mojang.serialization.Codec;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

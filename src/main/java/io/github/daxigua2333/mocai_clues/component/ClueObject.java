@@ -34,6 +34,9 @@ public class ClueObject {
         this.id = id;
         this.type =type;
         this.components = new EnumMap<>(map);
+        for (var compo : components.values()) {
+            compo.setOwner(this);
+        }
     }
     public ClueObject(ClueType type) {
         this(
