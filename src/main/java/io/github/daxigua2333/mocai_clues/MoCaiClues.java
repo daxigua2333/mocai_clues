@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues;
 
 import io.github.daxigua2333.mocai_clues.blocks.ModBlocksRegistry;
+import io.github.daxigua2333.mocai_clues.data.server.ServerDatabase;
 import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.mocai_clues.guis.ModMenuTypeRegistry;
@@ -11,6 +12,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -72,13 +74,6 @@ public class MoCaiClues {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
 
-//        if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
-//            LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
-//        }
-//
-//        LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
-//
-//        Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
     }
 
     // Add the example block item to the building blocks tab
@@ -88,11 +83,16 @@ public class MoCaiClues {
 //        }
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+        LOGGER.info("========== server starting ============");
+        ServerDatabase.init(event.getServer());
+    }
+
+    @SubscribeEvent
+    private void onServerStopping(ServerStoppingEvent event) {
+        LOGGER.info("========== server shutting down ============");
+        ServerDatabase.shutdown();
     }
 
 }
