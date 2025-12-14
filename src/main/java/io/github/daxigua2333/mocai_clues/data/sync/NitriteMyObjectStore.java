@@ -12,8 +12,10 @@ import org.dizitart.no2.index.IndexType;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -80,10 +82,41 @@ public final class NitriteMyObjectStore {
 
 
             ensureMetaDefaults();
+//
+//            // Migrate older DBs that stored values as compressed byte[] so that value fields become indexable.
+//            migrateLegacyBinaryValuesLocked();
         } finally {
             lock.writeLock().unlock();
         }
     }
+
+//    /**
+//     * Converts legacy byte[] values to nested Nitrite documents.
+//     *
+//     * <p>This enables indexing/querying on value fields (e.g. "v.someField") instead of treating values as
+//     * an opaque blob.
+//     */
+//    private void migrateLegacyBinaryValuesLocked() {
+//        migrateCollectionLegacyValuesLocked(data);
+//        migrateCollectionLegacyValuesLocked(oplog);
+//    }
+//
+//    private void migrateCollectionLegacyValuesLocked(NitriteCollection col) {
+//        for (Document d : col.find()) {
+//            Object raw = d.get(F_VAL);
+//            if (!(raw instanceof byte[] bytes)) continue;
+//
+//            try {
+//                Document newVal = NbtCodecIO.decodeDocumentFromLegacyBytes(bytes);
+//                d.put(F_VAL, newVal);
+//                col.update(Filter.byId(d.getId()), d);
+//            } catch (Exception e) {
+//                // Do not fail startup for a single bad record; leave it as-is.
+//                MoCaiClues.LOGGER.warn("Failed to migrate legacy value in collection {} (id={}): {}",
+//                        col.getName(), d.getId(), e.toString());
+//            }
+//        }
+//    }
 
     private Filter metaFilter() {
         return FluentFilter.where(F_KEY).eq(META_KEY);
@@ -153,6 +186,39 @@ public final class NitriteMyObjectStore {
         listeners.remove(listener);
     }
 
+    /**
+     * Creates an index on one or more {@link ClueObject} fields.
+     *
+     * <p>Since {@link ClueObject} is stored under the nested field {@code "v"}, indexing a field named
+     * {@code "foo"} is done by creating an index on {@code "v.foo"}. Nested fields can be specified using
+     * Nitrite's field separator (default {@code '.'}).
+     */
+    public void createClueFieldIndex(IndexOptions options, String... clueFieldPaths) {
+        Objects.requireNonNull(options);
+        Objects.requireNonNull(clueFieldPaths);
+        if (clueFieldPaths.length == 0) return;
+
+        String[] nitriteFields = new String[clueFieldPaths.length];
+        for (int i = 0; i < clueFieldPaths.length; i++) {
+            String p = Objects.requireNonNull(clueFieldPaths[i], "clueFieldPaths[" + i + "]");
+            nitriteFields[i] = F_VAL + "." + p;
+        }
+
+        lock.writeLock().lock();
+        try {
+            data.createIndex(options, nitriteFields);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Convenience overload: creates a unique index on the specified {@link ClueObject} field path(s).
+     */
+    public void createClueFieldIndex(String... clueFieldPaths) {
+        createClueFieldIndex(IndexOptions.indexOptions(IndexType.UNIQUE), clueFieldPaths);
+    }
+
     public long serverCurrentSeq() {
         requireMode(Mode.SERVER);
         lock.readLock().lock();
@@ -204,13 +270,13 @@ public final class NitriteMyObjectStore {
     public void serverUpsert(ClueObject obj) {
         requireMode(Mode.SERVER);
         String key = keyProvider.keyOf(obj);
-        byte[] bytes = NbtCodecIO.encodeToBytes(ClueObject.CODEC, obj);
+        Document valueDoc = NbtCodecIO.encodeToDocument(ClueObject.CODEC, obj);
 
         lock.writeLock().lock();
         try {
             long seq = nextSeqLocked();
-            upsertBytesLocked(key, bytes);
-            appendOpLocked(MyObjectOpRecord.upsert(seq, key, obj), bytes);
+            upsertValueLocked(key, valueDoc);
+            appendOpLocked(MyObjectOpRecord.upsert(seq, key, obj), valueDoc);
         } finally {
             lock.writeLock().unlock();
         }
@@ -233,17 +299,16 @@ public final class NitriteMyObjectStore {
         List<ClueObject> result = new ArrayList<>();
         var cursor = data.find();
         for (Document doc : cursor) {
-            byte[] bytes = (byte[]) doc.get(F_VAL);
-            result.add(NbtCodecIO.decodeFromBytes(ClueObject.CODEC, bytes));
+            result.add(decodeValueOrThrow(doc.get(F_VAL)));
         }
         return result;
     }
 
-    public void findData() {
-        for (var doc : oplog.find()) {
-            MoCaiClues.LOGGER.debug("{}\n\n", doc);
-        }
-    }
+//    public void findData() {
+//        for (var doc : data.find()) {
+//            MoCaiClues.LOGGER.debug("{}\n\n", doc);
+//        }
+//    }
 
     public void clientApplySnapshotClearAndBegin(long baseSeq) {
         requireMode(Mode.CLIENT);
@@ -260,11 +325,11 @@ public final class NitriteMyObjectStore {
     public void clientApplySnapshotUpsert(ClueObject obj, String keyOverrideOrNull) {
         requireMode(Mode.CLIENT);
         String key = keyOverrideOrNull != null ? keyOverrideOrNull : keyProvider.keyOf(obj);
-        byte[] bytes = NbtCodecIO.encodeToBytes(ClueObject.CODEC, obj);
+        Document valueDoc = NbtCodecIO.encodeToDocument(ClueObject.CODEC, obj);
 
         lock.writeLock().lock();
         try {
-            upsertBytesLocked(key, bytes);
+            upsertValueLocked(key, valueDoc);
         } finally {
             lock.writeLock().unlock();
         }
@@ -283,9 +348,9 @@ public final class NitriteMyObjectStore {
 
             if (op.type() == MyObjectOpType.UPSERT) {
                 ClueObject val = op.value().orElseThrow(() -> new IllegalStateException("UPSERT missing value"));
-                byte[] bytes = NbtCodecIO.encodeToBytes(ClueObject.CODEC, val);
-                upsertBytesLocked(op.key(), bytes);
-                appendClientOplogLocked(op, bytes);
+                Document valueDoc = NbtCodecIO.encodeToDocument(ClueObject.CODEC, val);
+                upsertValueLocked(op.key(), valueDoc);
+                appendClientOplogLocked(op, valueDoc);
             } else {
                 deleteLocked(op.key());
                 appendClientOplogLocked(op, null);
@@ -320,8 +385,7 @@ public final class NitriteMyObjectStore {
             List<ClueObject> out = new ArrayList<>();
             var cursor = data.find(FindOptions.orderBy(F_KEY, SortOrder.Ascending));
             for (Document d : cursor) {
-                byte[] bytes = d.get(F_VAL, byte[].class);
-                out.add(NbtCodecIO.decodeFromBytes(ClueObject.CODEC, bytes));
+                out.add(decodeValueOrThrow(d.get(F_VAL)));
             }
             return out;
         } finally {
@@ -339,27 +403,26 @@ public final class NitriteMyObjectStore {
         }
     }
 
-    public String serverStateDigestHex() {
-        requireMode(Mode.SERVER);
-        lock.readLock().lock();
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            var cursor = data.find(FindOptions.orderBy(F_KEY, SortOrder.Ascending));
-            for (Document d : cursor) {
-                String k = d.get(F_KEY, String.class);
-                byte[] v = d.get(F_VAL, byte[].class);
-                md.update(k.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                md.update((byte) 0);
-                md.update(v);
-                md.update((byte) 0);
-            }
-            return HexFormat.of().formatHex(md.digest());
-        } catch (Exception e) {
-            throw new IllegalStateException("Digest failed", e);
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
+//    public String serverStateDigestHex() {
+//        requireMode(Mode.SERVER);
+//        lock.readLock().lock();
+//        try {
+//            MessageDigest md = MessageDigest.getInstance("SHA-256");
+//            var cursor = data.find(FindOptions.orderBy(F_KEY, SortOrder.Ascending));
+//            for (Document d : cursor) {
+//                String k = d.get(F_KEY, String.class);
+//                md.update(k.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+//                md.update((byte) 0);
+//                updateDigest(md, d.get(F_VAL));
+//                md.update((byte) 0);
+//            }
+//            return HexFormat.of().formatHex(md.digest());
+//        } catch (Exception e) {
+//            throw new IllegalStateException("Digest failed", e);
+//        } finally {
+//            lock.readLock().unlock();
+//        }
+//    }
 
     public void serverPruneOplogIfNeeded() {
         requireMode(Mode.SERVER);
@@ -395,7 +458,11 @@ public final class NitriteMyObjectStore {
     }
 
     private void upsertBytesLocked(String key, byte[] bytes) {
-        Document doc = Document.createDocument(F_KEY, key).put(F_VAL, bytes);
+        throw new UnsupportedOperationException("Binary value storage is no longer supported; use upsertValueLocked");
+    }
+
+    private void upsertValueLocked(String key, Document valueDoc) {
+        Document doc = Document.createDocument(F_KEY, key).put(F_VAL, valueDoc);
         data.update(FluentFilter.where(F_KEY).eq(key), doc, UpdateOptions.updateOptions(true));
     }
 
@@ -403,7 +470,7 @@ public final class NitriteMyObjectStore {
         data.remove(FluentFilter.where(F_KEY).eq(key));
     }
 
-    private void appendOpLocked(MyObjectOpRecord op, byte[] encodedValueOrNull) {
+    private void appendOpLocked(MyObjectOpRecord op, Document encodedValueOrNull) {
         Document doc = Document.createDocument(F_SEQ, op.seq())
                 .put(F_OP, op.opType())
                 .put(F_KEY, op.key())
@@ -418,7 +485,7 @@ public final class NitriteMyObjectStore {
         }
     }
 
-    private void appendClientOplogLocked(MyObjectOpRecord op, byte[] encodedValueOrNull) {
+    private void appendClientOplogLocked(MyObjectOpRecord op, Document encodedValueOrNull) {
         Document doc = Document.createDocument(F_SEQ, op.seq())
                 .put(F_OP, op.opType())
                 .put(F_KEY, op.key())
@@ -437,12 +504,161 @@ public final class NitriteMyObjectStore {
         String key = d.get(F_KEY, String.class);
 
         if (MyObjectOpType.fromId(op) == MyObjectOpType.UPSERT) {
-            byte[] bytes = d.get(F_VAL, byte[].class);
-            ClueObject obj = NbtCodecIO.decodeFromBytes(ClueObject.CODEC, bytes);
+            ClueObject obj = decodeValueOrThrow(d.get(F_VAL));
             return MyObjectOpRecord.upsert(seq, key, obj);
         }
         return MyObjectOpRecord.delete(seq, key);
     }
+
+    /**
+     * Decodes a stored value from either the new document format or the legacy compressed byte[] format.
+     */
+    private static ClueObject decodeValueOrThrow(Object raw) {
+        if (raw == null) {
+            throw new IllegalStateException("Missing value field '" + F_VAL + "'");
+        }
+        if (raw instanceof Document doc) {
+            return NbtCodecIO.decodeFromDocument(ClueObject.CODEC, doc);
+        }
+        if (raw instanceof Map<?, ?> map) {
+            // Defensive: depending on store adapter, nested documents may be materialized as plain maps.
+            Document d = Document.createDocument();
+            for (Map.Entry<?, ?> e : map.entrySet()) {
+                if (e.getKey() instanceof String k) d.put(k, e.getValue());
+            }
+            return NbtCodecIO.decodeFromDocument(ClueObject.CODEC, d);
+        }
+//        if (raw instanceof byte[] bytes) {
+//            return NbtCodecIO.decodeFromBytes(ClueObject.CODEC, bytes);
+//        }
+        throw new IllegalStateException("Unsupported stored value type: " + raw.getClass());
+    }
+
+//    // Deterministic digest for nested documents/lists/primitives.
+//    private static void updateDigest(MessageDigest md, Object v) {
+//        if (v == null) {
+//            md.update((byte) 0);
+//            return;
+//        }
+//        if (v instanceof byte[] bytes) {
+//            md.update((byte) 1);
+//            putInt(md, bytes.length);
+//            md.update(bytes);
+//            return;
+//        }
+//        if (v instanceof Document d) {
+//            md.update((byte) 2);
+//            updateDigestForMap(md, d);
+//            return;
+//        }
+//        if (v instanceof Map<?, ?> map) {
+//            md.update((byte) 3);
+//            updateDigestForMap(md, map);
+//            return;
+//        }
+//        if (v instanceof List<?> list) {
+//            md.update((byte) 4);
+//            putInt(md, list.size());
+//            for (Object o : list) {
+//                updateDigest(md, o);
+//            }
+//            return;
+//        }
+//        if (v instanceof String s) {
+//            md.update((byte) 5);
+//            byte[] b = s.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+//            putInt(md, b.length);
+//            md.update(b);
+//            return;
+//        }
+//        if (v instanceof Boolean b) {
+//            md.update((byte) 6);
+//            md.update((byte) (b ? 1 : 0));
+//            return;
+//        }
+//        if (v instanceof Integer i) {
+//            md.update((byte) 7);
+//            putInt(md, i);
+//            return;
+//        }
+//        if (v instanceof Long l) {
+//            md.update((byte) 8);
+//            putLong(md, l);
+//            return;
+//        }
+//        if (v instanceof Short s) {
+//            md.update((byte) 9);
+//            putInt(md, s);
+//            return;
+//        }
+//        if (v instanceof Byte b) {
+//            md.update((byte) 10);
+//            md.update(b);
+//            return;
+//        }
+//        if (v instanceof Float f) {
+//            md.update((byte) 11);
+//            putInt(md, Float.floatToIntBits(f));
+//            return;
+//        }
+//        if (v instanceof Double d) {
+//            md.update((byte) 12);
+//            putLong(md, Double.doubleToLongBits(d));
+//            return;
+//        }
+//        if (v instanceof int[] arr) {
+//            md.update((byte) 13);
+//            putInt(md, arr.length);
+//            for (int x : arr) putInt(md, x);
+//            return;
+//        }
+//        if (v instanceof long[] arr) {
+//            md.update((byte) 14);
+//            putInt(md, arr.length);
+//            for (long x : arr) putLong(md, x);
+//            return;
+//        }
+//        // Fallback
+//        md.update((byte) 127);
+//        byte[] b = String.valueOf(v).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+//        putInt(md, b.length);
+//        md.update(b);
+//    }
+//
+//    private static void updateDigestForMap(MessageDigest md, Map<?, ?> map) {
+//        List<String> keys = new ArrayList<>();
+//        for (Object k : map.keySet()) {
+//            if (k instanceof String s) keys.add(s);
+//        }
+//        Collections.sort(keys);
+//        putInt(md, keys.size());
+//        for (String k : keys) {
+//            byte[] kb = k.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+//            putInt(md, kb.length);
+//            md.update(kb);
+//            md.update((byte) 0);
+//            updateDigest(md, map.get(k));
+//            md.update((byte) 0);
+//        }
+//    }
+//
+//    private static void putInt(MessageDigest md, int v) {
+//        md.update((byte) (v >>> 24));
+//        md.update((byte) (v >>> 16));
+//        md.update((byte) (v >>> 8));
+//        md.update((byte) (v));
+//    }
+//
+//    private static void putLong(MessageDigest md, long v) {
+//        md.update((byte) (v >>> 56));
+//        md.update((byte) (v >>> 48));
+//        md.update((byte) (v >>> 40));
+//        md.update((byte) (v >>> 32));
+//        md.update((byte) (v >>> 24));
+//        md.update((byte) (v >>> 16));
+//        md.update((byte) (v >>> 8));
+//        md.update((byte) (v));
+//    }
 
     private void requireMode(Mode expected) {
         if (mode != expected) {

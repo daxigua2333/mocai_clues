@@ -1,56 +1,47 @@
 package io.github.daxigua2333.mocai_clues.data.sync;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
+import com.mojang.serialization.JsonOps;
+import org.dizitart.no2.collection.Document;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.Objects;
 
+/**
+ * Codec <-> Nitrite {@link Document} bridge.
+ *
+ * <p>This implementation uses {@link JsonOps} (Gson {@link JsonElement}) as the intermediate format, then
+ * converts that JSON tree into a Nitrite {@link Document}/{@link List} of primitives. This keeps individual
+ * fields addressable so that Nitrite indexes can be created on them.
+ *
+ * <p>Important: this class intentionally does NOT persist values as opaque {@code byte[]} blobs.
+ */
 public final class NbtCodecIO {
-    private NbtCodecIO() {}
-
-    public static <T> byte[] encodeToBytes(Codec<T> codec, T value) {
-        Objects.requireNonNull(codec);
-        Objects.requireNonNull(value);
-
-        Tag tag = codec.encodeStart(NbtOps.INSTANCE, value)
-                .getOrThrow(msg -> new IllegalStateException("Encode failed: " + msg));
-
-        CompoundTag root = new CompoundTag();
-        root.put("v", tag);
-
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            NbtIo.writeCompressed(root, baos);
-            return baos.toByteArray();
-        } catch (Exception e) {
-            throw new IllegalStateException("NBT encode (compressed) failed", e);
-        }
+    private NbtCodecIO() {
     }
 
-    public static <T> T decodeFromBytes(Codec<T> codec, byte[] bytes) {
-        Objects.requireNonNull(codec);
-        Objects.requireNonNull(bytes);
+    public static <T> Document encodeToDocument(Codec<T> codec, T value) {
+        Objects.requireNonNull(codec, "codec");
+        Objects.requireNonNull(value, "value");
 
-        final CompoundTag root;
-        try {
-            root = NbtIo.readCompressed(new ByteArrayInputStream(bytes), NbtAccounter.unlimitedHeap());
-        } catch (Exception e) {
-            throw new IllegalStateException("NBT decode (compressed) failed", e);
-        }
+        JsonElement json = codec.encodeStart(JsonOps.INSTANCE, value)
+                .getOrThrow(msg -> new IllegalStateException("Encode failed: " + msg));
 
-        Tag tag = root.get("v");
-        if (tag == null) {
-            throw new IllegalStateException("Missing NBT root key 'v'");
-        }
+        return NitriteDocumentJson.fromJsonObject(json.getAsJsonObject());
 
-        DataResult<T> res = codec.parse(NbtOps.INSTANCE, tag);
+    }
+
+    public static <T> T decodeFromDocument(Codec<T> codec, Document doc) {
+        Objects.requireNonNull(codec, "codec");
+        Objects.requireNonNull(doc, "doc");
+
+        JsonObject json = NitriteDocumentJson.toJsonObject(doc);
+        DataResult<T> res = codec.parse(JsonOps.INSTANCE, json == null ? JsonNull.INSTANCE : json);
+
         return res.getOrThrow(msg -> new IllegalStateException("Decode failed: " + msg));
     }
 }
