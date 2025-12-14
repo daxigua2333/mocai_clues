@@ -3,7 +3,6 @@ package io.github.daxigua2333.mocai_clues.component.network;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +18,7 @@ public class ManualClueServerHandler extends BaseSyncHandler {
 
     public void handleSync(ServerLevel level) {
         ClueObject object = this.owner;
-        ClueObjectHolderInSavedData.getInstance(level.getServer()).put(object);  // TODO: use database api
+//        ClueObjectHolderInSavedData.getInstance(level.getServer()).put(object);  // TODO: use database api
     }
 
     @Override

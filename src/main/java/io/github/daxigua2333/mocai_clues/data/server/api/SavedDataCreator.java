@@ -10,18 +10,18 @@ import net.minecraft.server.level.ServerLevel;
 public class SavedDataCreator {
 
     public static void createDefault(ClueType type, ServerLevel level) {
-        ClueObject object;
-        switch (type) {
-            case MANUAL -> object = Assembler.createManualClue(level);
-            case null, default -> throw new NullPointerException("unimplemented clueType creation");
-        }
-
-        // iterate all data holder components
-        for (ClueComponent component : object.getComponents()) {
-            if (component instanceof BaseDataHolder) {
-                ((BaseDataHolder) component).onCreate();
-            }
-        }
+//        ClueObject object;
+//        switch (type) {
+//            case MANUAL -> object = Assembler.createManualClue(level);
+//            case null, default -> throw new NullPointerException("unimplemented clueType creation");
+//        }
+//
+//        // iterate all data holder components
+//        for (ClueComponent component : object.getComponents()) {
+//            if (component instanceof BaseDataHolder) {
+//                ((BaseDataHolder) component).onCreate();
+//            }
+//        }
 
     }
 

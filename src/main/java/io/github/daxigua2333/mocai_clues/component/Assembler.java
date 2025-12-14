@@ -11,15 +11,15 @@ import java.util.List;
 public class Assembler {
 
     // ===== manual clue =====
-    public static ClueObject createManualClue(String name, List<String> details, ServerLevel level){
+    public static ClueObject createManualClue(String name, List<String> details){
         ClueObject object = new ClueObject(ClueType.MANUAL);
         object.addComponent(new DetailData(name, details));
-        object.addComponent(new ManualClueServerHandler());
-        object.addComponent(new SavedDataHolder(level));
+//        object.addComponent(new ManualClueServerHandler());
+//        object.addComponent(new SavedDataHolder(level));
         return object;
     }
-    public static ClueObject createManualClue(ServerLevel level) {
-        return Assembler.createManualClue("default name", new ArrayList<>(), level);
+    public static ClueObject createManualClue() {
+        return Assembler.createManualClue("default name", new ArrayList<>());
     }
 
 }

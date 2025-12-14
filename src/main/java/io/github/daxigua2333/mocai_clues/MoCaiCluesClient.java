@@ -1,6 +1,8 @@
 package io.github.daxigua2333.mocai_clues;
 
 import io.github.daxigua2333.mocai_clues.data.client.ClientDatabase;
+import io.github.daxigua2333.mocai_clues.data.sync.ClueObjectKeyProvider;
+import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.items.ClueFinderItem;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -27,7 +29,10 @@ public class MoCaiCluesClient {
         MoCaiClues.LOGGER.info("HELLO FROM CLIENT SETUP");
         MoCaiClues.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         event.enqueueWork(ClueFinderItem::registerTextureChange);
-//        event.enqueueWork(ClientDatabase::init);
+        event.enqueueWork(ClientDatabase::init);
+        event.enqueueWork( () -> {
+            MyObjectSync.initClient(ClientDatabase.get(), new ClueObjectKeyProvider());
+        });
     }
 
 }

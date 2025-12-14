@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.network.ManualClueServerHandler;
 import io.github.daxigua2333.mocai_clues.component.storage.SavedDataHolder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -120,8 +121,9 @@ public class ClueObject {
     }
 
     // stream codec: reuse codec  TODO: optimize packet size
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClueObject> STREAM_CODEC =
-        ByteBufCodecs.fromCodecWithRegistries(ClueObject.CODEC);
+    public static final StreamCodec<ByteBuf, ClueObject> STREAM_CODEC =
+//        ByteBufCodecs.fromCodecWithRegistries(ClueObject.CODEC);
+        ByteBufCodecs.fromCodec(ClueObject.CODEC);
 
 
 //    public void update(float deltaTime) {

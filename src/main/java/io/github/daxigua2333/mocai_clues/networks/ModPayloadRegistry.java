@@ -6,6 +6,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.network.BaseSyncHandler;
 import io.github.daxigua2333.mocai_clues.data.server.api.SavedDataCreator;
+import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
@@ -69,7 +70,8 @@ public class ModPayloadRegistry {
                 ManualClueCreatePayload.STREAM_CODEC,
                 (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-                        SavedDataCreator.createDefault(ClueType.MANUAL, (ServerLevel) context.player().level());
+//                        SavedDataCreator.createDefault(ClueType.MANUAL, (ServerLevel) context.player().level());
+                        ServerDataAccessor.createDefault();
                     });
                 }
         );

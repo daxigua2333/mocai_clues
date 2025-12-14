@@ -2,6 +2,8 @@ package io.github.daxigua2333.mocai_clues;
 
 import io.github.daxigua2333.mocai_clues.blocks.ModBlocksRegistry;
 import io.github.daxigua2333.mocai_clues.data.server.ServerDatabase;
+import io.github.daxigua2333.mocai_clues.data.sync.ClueObjectKeyProvider;
+import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.data_attachments.ModDataAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.mocai_clues.guis.ModMenuTypeRegistry;
@@ -87,6 +89,7 @@ public class MoCaiClues {
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("========== server starting ============");
         ServerDatabase.init(event.getServer());
+        MyObjectSync.initServer(ServerDatabase.get(), new ClueObjectKeyProvider());
     }
 
     @SubscribeEvent

@@ -46,33 +46,33 @@ public final class ClientDatabase {
         db = openAt(liveDbPath());
     }
 
-//    public static void init() {
-//        if (db != null && !db.isClosed()) {
-//            return;
-//        }
-//
-//        // Only ever called on physical client (MyModClient)
-//        File gameDir = Minecraft.getInstance().gameDirectory;
-//        Path dbDir = gameDir.toPath().resolve(MoCaiClues.MODID);
-//
-//        try {
-//            Files.createDirectories(dbDir);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Failed to create client DB directory: " + dbDir, e);
-//        }
-//
-//        Path dbFile = dbDir.resolve("client.nitrite");
-//
-//        MVStoreModule storeModule = MVStoreModule.withConfig()
-//                .filePath(dbFile.toString())
-//                .compress(true)
-//                .build();
-//
-//        db = Nitrite.builder()
-//                .loadModule(storeModule)
-//                .openOrCreate();
-//
-//    }
+    public static void init() {
+        if (db != null && !db.isClosed()) {
+            return;
+        }
+
+        // Only ever called on physical client (MyModClient)
+        File gameDir = Minecraft.getInstance().gameDirectory;
+        Path dbDir = gameDir.toPath().resolve(MoCaiClues.MODID);
+
+        try {
+            Files.createDirectories(dbDir);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create client DB directory: " + dbDir, e);
+        }
+
+        Path dbFile = dbDir.resolve("client.nitrite");
+
+        MVStoreModule storeModule = MVStoreModule.withConfig()
+                .filePath(dbFile.toString())
+                .compress(true)
+                .build();
+
+        db = Nitrite.builder()
+                .loadModule(storeModule)
+                .openOrCreate();
+
+    }
 
     public static Nitrite get() {
         if (db == null || db.isClosed()) {
