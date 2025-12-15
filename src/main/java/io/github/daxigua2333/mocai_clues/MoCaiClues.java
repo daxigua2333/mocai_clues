@@ -85,17 +85,5 @@ public class MoCaiClues {
 //        }
     }
 
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("========== server starting ============");
-        ServerDatabase.init(event.getServer());
-        MyObjectSync.initServer(ServerDatabase.get(), new ClueObjectKeyProvider());
-    }
-
-    @SubscribeEvent
-    private void onServerStopping(ServerStoppingEvent event) {
-        LOGGER.info("========== server shutting down ============");
-        ServerDatabase.shutdown();
-    }
 
 }

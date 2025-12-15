@@ -29,8 +29,11 @@ public final class NitriteMyObjectStore {
     private static final String C_OPLOG = "myobject_oplog";
     private static final String C_META = "myobject_meta";
 
+    /** used in meta(config) collection like doc1: {k: meta, v:..}, {k: config, v:}
+     * also in data collection, because UUID can be sorted in time order*/
     private static final String F_KEY = "k";
     private static final String F_VAL = "v";
+
     private static final String F_SEQ = "seq";
     private static final String F_OP = "op";
     private static final String F_TS = "ts";
@@ -80,43 +83,13 @@ public final class NitriteMyObjectStore {
                 meta.createIndex(IndexOptions.indexOptions(IndexType.UNIQUE), F_KEY);
             } catch (Exception ignored) {}
 
-
             ensureMetaDefaults();
-//
-//            // Migrate older DBs that stored values as compressed byte[] so that value fields become indexable.
-//            migrateLegacyBinaryValuesLocked();
+
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-//    /**
-//     * Converts legacy byte[] values to nested Nitrite documents.
-//     *
-//     * <p>This enables indexing/querying on value fields (e.g. "v.someField") instead of treating values as
-//     * an opaque blob.
-//     */
-//    private void migrateLegacyBinaryValuesLocked() {
-//        migrateCollectionLegacyValuesLocked(data);
-//        migrateCollectionLegacyValuesLocked(oplog);
-//    }
-//
-//    private void migrateCollectionLegacyValuesLocked(NitriteCollection col) {
-//        for (Document d : col.find()) {
-//            Object raw = d.get(F_VAL);
-//            if (!(raw instanceof byte[] bytes)) continue;
-//
-//            try {
-//                Document newVal = NbtCodecIO.decodeDocumentFromLegacyBytes(bytes);
-//                d.put(F_VAL, newVal);
-//                col.update(Filter.byId(d.getId()), d);
-//            } catch (Exception e) {
-//                // Do not fail startup for a single bad record; leave it as-is.
-//                MoCaiClues.LOGGER.warn("Failed to migrate legacy value in collection {} (id={}): {}",
-//                        col.getName(), d.getId(), e.toString());
-//            }
-//        }
-//    }
 
     private Filter metaFilter() {
         return FluentFilter.where(F_KEY).eq(META_KEY);
@@ -212,13 +185,15 @@ public final class NitriteMyObjectStore {
         }
     }
 
-    /**
-     * Convenience overload: creates a unique index on the specified {@link ClueObject} field path(s).
-     */
+    // Convenience overload: creates a unique index on the specified {@link ClueObject} field path(s).
     public void createClueFieldIndex(String... clueFieldPaths) {
         createClueFieldIndex(IndexOptions.indexOptions(IndexType.UNIQUE), clueFieldPaths);
     }
 
+
+    /**
+     * these 2 serve the start and end Long of oplog sequence
+     * */
     public long serverCurrentSeq() {
         requireMode(Mode.SERVER);
         lock.readLock().lock();
@@ -230,7 +205,6 @@ public final class NitriteMyObjectStore {
             lock.readLock().unlock();
         }
     }
-
     public long serverMinAvailableSeqExclusive() {
         requireMode(Mode.SERVER);
         lock.readLock().lock();
@@ -244,6 +218,7 @@ public final class NitriteMyObjectStore {
         }
     }
 
+    /** client seq */
     public long clientLastAppliedSeq() {
         requireMode(Mode.CLIENT);
         lock.readLock().lock();
@@ -254,7 +229,6 @@ public final class NitriteMyObjectStore {
             lock.readLock().unlock();
         }
     }
-
     public void clientSetLastAppliedSeq(long seq) {
         requireMode(Mode.CLIENT);
         lock.writeLock().lock();
@@ -267,6 +241,8 @@ public final class NitriteMyObjectStore {
         }
     }
 
+
+    /** 2 server side write behaviors*/
     public void serverUpsert(ClueObject obj) {
         requireMode(Mode.SERVER);
         String key = keyProvider.keyOf(obj);
@@ -281,7 +257,6 @@ public final class NitriteMyObjectStore {
             lock.writeLock().unlock();
         }
     }
-
     public void serverDelete(String key) {
         requireMode(Mode.SERVER);
 
@@ -295,13 +270,97 @@ public final class NitriteMyObjectStore {
         }
     }
 
-    public List<ClueObject> find() {
-        List<ClueObject> result = new ArrayList<>();
-        var cursor = data.find();
-        for (Document doc : cursor) {
-            result.add(decodeValueOrThrow(doc.get(F_VAL)));
+    /**
+     * Retrieves a single {@link ClueObject} by its logical key from the data collection.
+     *
+     * <p>This is a read-only operation and is valid in both {@link Mode#SERVER} and
+     * {@link Mode#CLIENT} modes.
+     */
+    public Optional<ClueObject> retrieve(String key) {
+        Objects.requireNonNull(key, "key");
+        lock.readLock().lock();
+        try {
+            Document doc = data.find(FluentFilter.where(F_KEY).eq(key)).firstOrNull();
+            if (doc == null) return Optional.empty();
+            return Optional.of(decodeValueOrThrow(doc.get(F_VAL)));
+        } finally {
+            lock.readLock().unlock();
         }
-        return result;
+    }
+
+
+    /**
+     * Helper to reference a {@link ClueObject} field path inside the stored Nitrite document.
+     *
+     * <p>All {@link ClueObject} data is stored under the nested field {@code "v"}. Therefore,
+     * to filter/sort on a {@link ClueObject} field named {@code "foo"}, you should use
+     * {@code NitriteMyObjectStore.clueField("foo")} which returns {@code "v.foo"}.
+     */
+    public static String clueField(String clueFieldPath) {
+        Objects.requireNonNull(clueFieldPath, "clueFieldPath");
+        return F_VAL + "." + clueFieldPath;
+    }
+
+    /**
+     * Retrieves {@link ClueObject}(s) by applying a Nitrite {@link Filter} and optional {@link FindOptions}.
+     *
+     * <p><strong>Important:</strong> since the value is stored under the nested field {@code "v"},
+     * the provided {@code filter} (and any {@code FindOptions#orderBy} field) should reference
+     * nested fields such as {@code "v.someField"}. Use {@link #clueField(String)} to build those paths.
+     *
+     * <p>Examples:
+     * <pre>
+     * // equality
+     * store.retrieve(FluentFilter.where(NitriteMyObjectStore.clueField("type")).eq("X"));
+     *
+     * // paging + sorting
+     * var opts = FindOptions.orderBy(NitriteMyObjectStore.clueField("updatedAt"), SortOrder.Descending)
+     *     .skip(0)
+     *     .limit(50);
+     * store.retrieve(FluentFilter.where(NitriteMyObjectStore.clueField("status")).eq("OPEN"), opts);
+     * </pre>
+     */
+    public List<ClueObject> retrieve(Filter filter, FindOptions options) {
+        Objects.requireNonNull(filter, "filter");
+        lock.readLock().lock();
+        try {
+            List<ClueObject> result = new ArrayList<>();
+            var cursor = (options == null) ? data.find(filter) : data.find(filter, options);
+            for (Document doc : cursor) {
+                result.add(decodeValueOrThrow(doc.get(F_VAL)));
+            }
+            return result;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /** Convenience overload for {@link #retrieve(Filter, FindOptions)} with no {@link FindOptions}. */
+    public List<ClueObject> retrieve(Filter filter) {
+        return retrieve(filter, null);
+    }
+
+    /**
+     * Retrieves the first matching {@link ClueObject} for a filter/options pair.
+     *
+     * <p>If you want a stable "first" when multiple records match, pass an {@link FindOptions}
+     * with {@code orderBy(...)} and {@code limit(1)}.
+     */
+    public Optional<ClueObject> retrieveFirst(Filter filter, FindOptions options) {
+        Objects.requireNonNull(filter, "filter");
+        lock.readLock().lock();
+        try {
+            Document doc = (options == null) ? data.find(filter).firstOrNull() : data.find(filter, options).firstOrNull();
+            if (doc == null) return Optional.empty();
+            return Optional.of(decodeValueOrThrow(doc.get(F_VAL)));
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /** Convenience overload for {@link #retrieveFirst(Filter, FindOptions)} with no {@link FindOptions}. */
+    public Optional<ClueObject> retrieveFirst(Filter filter) {
+        return retrieveFirst(filter, null);
     }
 
 //    public void findData() {
@@ -310,6 +369,7 @@ public final class NitriteMyObjectStore {
 //        }
 //    }
 
+    /** client behaviors */
     public void clientApplySnapshotClearAndBegin(long baseSeq) {
         requireMode(Mode.CLIENT);
         lock.writeLock().lock();
@@ -362,6 +422,8 @@ public final class NitriteMyObjectStore {
         }
     }
 
+
+    /** get the list of client behind seq from server */
     public List<MyObjectOpRecord> serverGetOpsAfter(long afterSeqExclusive, int limit) {
         requireMode(Mode.SERVER);
         lock.readLock().lock();
@@ -378,6 +440,7 @@ public final class NitriteMyObjectStore {
         }
     }
 
+    /** get snapshot */
     public List<ClueObject> serverSnapshotAllObjectsSorted() {
         requireMode(Mode.SERVER);
         lock.readLock().lock();
@@ -392,7 +455,6 @@ public final class NitriteMyObjectStore {
             lock.readLock().unlock();
         }
     }
-
     public int serverSnapshotCount() {
         requireMode(Mode.SERVER);
         lock.readLock().lock();
@@ -403,6 +465,8 @@ public final class NitriteMyObjectStore {
         }
     }
 
+    /** Computes a SHA-256 digest over the sorted (key, valueBytes) pairs.
+     * Used to check if client and server are the same */
 //    public String serverStateDigestHex() {
 //        requireMode(Mode.SERVER);
 //        lock.readLock().lock();
@@ -424,6 +488,7 @@ public final class NitriteMyObjectStore {
 //        }
 //    }
 
+    /** delete unneeded oplog, to limit its length */
     public void serverPruneOplogIfNeeded() {
         requireMode(Mode.SERVER);
         lock.writeLock().lock();
@@ -448,6 +513,12 @@ public final class NitriteMyObjectStore {
         }
     }
 
+
+    /**
+     * many internal helpers
+     * */
+
+    // server increments seq
     private long nextSeqLocked() {
         Document m = metaDocOrThrow();
         long next = m.get(F_NEXT_SEQ, Long.class);
@@ -457,19 +528,19 @@ public final class NitriteMyObjectStore {
         return seq;
     }
 
-    private void upsertBytesLocked(String key, byte[] bytes) {
-        throw new UnsupportedOperationException("Binary value storage is no longer supported; use upsertValueLocked");
-    }
-
+    /** actual part that upsert/delete DATA coll */
+//    private void upsertBytesLocked(String key, byte[] bytes) {
+//        throw new UnsupportedOperationException("Binary value storage is no longer supported; use upsertValueLocked");
+//    }
     private void upsertValueLocked(String key, Document valueDoc) {
         Document doc = Document.createDocument(F_KEY, key).put(F_VAL, valueDoc);
         data.update(FluentFilter.where(F_KEY).eq(key), doc, UpdateOptions.updateOptions(true));
     }
-
     private void deleteLocked(String key) {
         data.remove(FluentFilter.where(F_KEY).eq(key));
     }
 
+    /** server/client append new oplog */
     private void appendOpLocked(MyObjectOpRecord op, Document encodedValueOrNull) {
         Document doc = Document.createDocument(F_SEQ, op.seq())
                 .put(F_OP, op.opType())
@@ -484,7 +555,6 @@ public final class NitriteMyObjectStore {
             } catch (Exception ignored) {}
         }
     }
-
     private void appendClientOplogLocked(MyObjectOpRecord op, Document encodedValueOrNull) {
         Document doc = Document.createDocument(F_SEQ, op.seq())
                 .put(F_OP, op.opType())
@@ -498,6 +568,7 @@ public final class NitriteMyObjectStore {
         }
     }
 
+    // convert OpDoc to OpRecord
     private MyObjectOpRecord decodeOpDoc(Document d) {
         long seq = d.get(F_SEQ, Long.class);
         byte op = d.get(F_OP, Byte.class);

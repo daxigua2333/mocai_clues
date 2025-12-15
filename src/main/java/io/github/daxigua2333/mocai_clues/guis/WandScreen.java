@@ -237,7 +237,7 @@ public class WandScreen extends Screen {
 
     @Override
     public boolean isPauseScreen() {
-        return true;
+        return false;
     }
 
 }

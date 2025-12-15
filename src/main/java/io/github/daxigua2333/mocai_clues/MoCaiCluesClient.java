@@ -29,10 +29,6 @@ public class MoCaiCluesClient {
         MoCaiClues.LOGGER.info("HELLO FROM CLIENT SETUP");
         MoCaiClues.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         event.enqueueWork(ClueFinderItem::registerTextureChange);
-        event.enqueueWork(ClientDatabase::init);
-        event.enqueueWork( () -> {
-            MyObjectSync.initClient(ClientDatabase.get(), new ClueObjectKeyProvider());
-        });
     }
 
 }
