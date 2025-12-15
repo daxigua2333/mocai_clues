@@ -63,10 +63,7 @@ public class WandScreen extends Screen {
             Supplier<List<ClueType>> typeSupplier,
             Function<ClueType, List<ClueObject>> clueSupplier
     ) {
-//        List<ClueObject> list = List.of(new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL), new ClueObject(ClueType.MANUAL));
         Minecraft.getInstance().setScreen(new WandScreen(
-//                () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT, ClueType.FOOTPRINT1, ClueType.FOOTPRINT2, ClueType.FOOTPRINT3, ClueType.FOOTPRINT4, ClueType.FOOTPRINT6, ClueType.FOOTPRINT7),
-//                () -> list
                 typeSupplier,
                 clueSupplier
         ));
@@ -87,30 +84,8 @@ public class WandScreen extends Screen {
 
         this.clearWidgets();
 
-        Button applyButton = Button.builder(Component.literal("apply"), btn -> {
-            if (this.list.getSelected() == null) {return;}
-            ClueObject object = this.list.getSelected().getValue();
-            PacketDistributor.sendToServer(new ClueObjectSyncPayload(object));
-        }).bounds(20, 0, 50, 20).build();
 
-        Button editButton = Button.builder(Component.literal("edit"), btn -> {
-            if (this.list.getSelected() == null) {return;}
-            ClueObject object = this.list.getSelected().getValue();
-
-            List<AbstractWidget> details = new ArrayList<>();
-
-            details.add(applyButton);  // TODO: cancel button
-
-            for (ClueComponent component : object.getComponents()) {
-                List<AbstractWidget> editables = component.getEditable();
-                if (editables != null) {
-                    details.addAll(editables);
-                }
-            }
-            this.details.updateChildren(details);
-        }).bounds(0, 0, 50, 20).build();
-
-        // build and add widgets
+        // build widgets
 
         this.list = new AutoUpdatedScrollableListWidget<ClueObject>(
                 this.minecraft,
@@ -124,17 +99,8 @@ public class WandScreen extends Screen {
 //                Component::literal,
                 (clue) -> Component.literal(clue.getId().toString()),  // TODO
                 (clueObject) -> {  /// TODO
-                    List<AbstractWidget> details = new ArrayList<>();
-
-                    details.add(editButton);
-
-                    for (ClueComponent component : clueObject.getComponents()) {
-                        List<AbstractWidget> uneditables = component.getUneditable();
-                        if (uneditables != null) {
-                            details.addAll(uneditables);
-                        }
-                    }
-                    this.details.updateChildren(clueObject, details);
+                    if (clueObject == null) return;
+                    this.details.updateObject(clueObject);
                 }
         );
 
@@ -165,22 +131,15 @@ public class WandScreen extends Screen {
                 60, 16
         ).build();
 
-//        this.details = new ScrollableConfigPanel(
-//                Minecraft.getInstance(),
-//                100,
-//                100,
-//                0,
-//                0
-//        );
         this.details = new DetailPanel(
                 Minecraft.getInstance(),
                 DETAIL_WIDTH,
                 LIST_HEIGHT - 4,
                 (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET,
-                (this.width - TEXTURE_WIDTH) / 2 + DETAIL_X_OFFSET,
-                List.of(
-                        new ReadOnlyDetailWidget(0, 0, 100, 100,
-                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333"))
+                (this.width - TEXTURE_WIDTH) / 2 + DETAIL_X_OFFSET
+//                List.of(
+//                        new ReadOnlyDetailWidget(0, 0, 100, 100,
+//                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333"))
 //                        new ReadOnlyDetailWidget(0, 0, 100, 100,
 //                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333")),
 //                        new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal("0.7 scale aaaaaaaaaaaa"), 0.7f),
@@ -188,7 +147,7 @@ public class WandScreen extends Screen {
 //                        new SplitLineRow(0, 0, 100, 100, 2, 2),
 //                        new TextListWithIndexRow(0, 0, 100, 100, 2, 2,
 //                                List.of("sentence 1", "sentence 2: 一句很长长长长长长长长长长长的中文"), 2)
-                        )
+//                        )
         );
 
         // click event order
@@ -199,29 +158,14 @@ public class WandScreen extends Screen {
 
     }
 
-//    void setSelected(DataSelectionScreen.ListEntryData data) {
-//        this.selected = data;
-//    }
 
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(gfx, mouseX, mouseY, partialTick);
 
-        int panelRight = (this.width + PANEL_WIDTH) / 2;
-        int panelTop = (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET;
-        int splitX = (this.width - TEXTURE_WIDTH) / 2 + SPLIT_X_OFFSET;
-
-        // Let vanilla render widgets (including our list)
+        // render widgets
         super.render(gfx, mouseX, mouseY, partialTick);
 
-//        // Detail widget on the right
-//        if (this.selected != null) {
-//            drawDetailPanel(gfx, this.selected, splitX, panelTop, panelRight);
-//        } else {
-//            Component hint = Component.translatable("screen.yourmodid.data_selection.hint");
-//            gfx.drawString(this.font, hint, splitX + 8, panelTop + 8, 0xFFA0A0A0, false);
-//        }
-//
 //        // Tooltips (e.g. from item icon)
 //        this.renderTooltip(gfx, mouseX, mouseY);
     }
@@ -231,7 +175,7 @@ public class WandScreen extends Screen {
         int left = (this.width - TEXTURE_WIDTH) / 2;
         int top = (this.height - TEXTURE_HEIGHT) / 2;
 
-        // Your book texture
+        // book texture
         gfx.blit(BOOK_TEXTURE, left, top, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 

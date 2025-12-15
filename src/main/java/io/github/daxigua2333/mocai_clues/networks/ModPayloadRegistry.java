@@ -7,6 +7,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.network.BaseSyncHandler;
 import io.github.daxigua2333.mocai_clues.data.server.api.SavedDataCreator;
 import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
+import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
@@ -54,11 +55,12 @@ public class ModPayloadRegistry {
                     context.enqueueWork(() -> {
                         ClueObject object = payload.object();
                         // iterate all SyncHandler, invoke handleSync
-                        for (ClueComponent component : object.getComponents()) {
-                            if (component instanceof BaseSyncHandler) {
-                                ((BaseSyncHandler) component).handleSync((ServerLevel) context.player().level());
-                            }
-                        }
+//                        for (ClueComponent component : object.getComponents()) {
+//                            if (component instanceof BaseSyncHandler) {
+//                                ((BaseSyncHandler) component).handleSync((ServerLevel) context.player().level());
+//                            }
+//                        }
+                        MyObjectSync.server().store().serverUpsert(object);
                     });
                 }
         );

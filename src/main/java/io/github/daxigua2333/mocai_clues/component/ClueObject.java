@@ -12,7 +12,6 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -125,6 +124,26 @@ public class ClueObject {
 //        ByteBufCodecs.fromCodecWithRegistries(ClueObject.CODEC);
         ByteBufCodecs.fromCodec(ClueObject.CODEC);
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClueObject other)) return false;
+
+        // Codec-defined equality:
+        return this.toNbt().equals(other.toNbt());
+    }
+
+    @Override
+    public int hashCode() {
+        // Must match equals(): use the same representation
+        return toNbt().hashCode();
+    }
+
+    @Override
+    public ClueObject clone() {
+        return ClueObject.fromNbt(this.toNbt());
+    }
 
 //    public void update(float deltaTime) {
 //        if (!active) return;
