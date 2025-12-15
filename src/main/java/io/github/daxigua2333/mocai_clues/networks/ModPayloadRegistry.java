@@ -1,7 +1,6 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
@@ -44,21 +43,24 @@ public class ModPayloadRegistry {
 
         // ====== ClueObject =====
         registrar.playToServer(
-                ClueObjectSyncPayload.TYPE,
-                ClueObjectSyncPayload.STREAM_CODEC,
-                (final ClueObjectSyncPayload payload, final IPayloadContext context) -> {
+                ClueObjectUpsertPayload.TYPE,
+                ClueObjectUpsertPayload.STREAM_CODEC,
+                (final ClueObjectUpsertPayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-                        ClueObject object = payload.object();
-                        // iterate all SyncHandler, invoke handleSync
-//                        for (ClueComponent component : object.getComponents()) {
-//                            if (component instanceof BaseSyncHandler) {
-//                                ((BaseSyncHandler) component).handleSync((ServerLevel) context.player().level());
-//                            }
-//                        }
-                        MyObjectSync.server().store().serverUpsert(object);
+                        MyObjectSync.server().store().serverUpsert(payload.object());
                     });
                 }
         );
+        registrar.playToServer(
+                ClueObjectDeletePayload.TYPE,
+                ClueObjectDeletePayload.STREAM_CODEC,
+                (final ClueObjectDeletePayload payload, final IPayloadContext context) -> {
+                    context.enqueueWork(() -> {
+                        MyObjectSync.server().store().serverDelete(payload.id().toString());
+                    });
+                }
+        );
+
 
         // ===== manual =====
         // client create new one
@@ -67,7 +69,6 @@ public class ModPayloadRegistry {
                 ManualClueCreatePayload.STREAM_CODEC,
                 (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-//                        SavedDataCreator.createDefault(ClueType.MANUAL, (ServerLevel) context.player().level());
                         ServerDataAccessor.createDefault();
                     });
                 }

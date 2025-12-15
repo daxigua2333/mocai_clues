@@ -3,7 +3,9 @@ package io.github.daxigua2333.mocai_clues.guis.widget;
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.networks.ClueObjectSyncPayload;
+import io.github.daxigua2333.mocai_clues.networks.ClueObjectDeletePayload;
+import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpsertPayload;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,6 +13,8 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.gui.widget.ScrollPanel;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -38,6 +42,7 @@ public class DetailPanel extends ScrollPanel {
     private final Button applyButton;
     private final Button editButton;
     private final Button deleteButton;
+    private final Button cancelButton;
 
     private boolean dirty = false;
     public void setDirty() {
@@ -51,18 +56,38 @@ public class DetailPanel extends ScrollPanel {
 
         // top buttons  TODO: cancel, delete
         this.applyButton = Button.builder(Component.translatable("apply"), btn -> {
+            PacketDistributor.sendToServer(new ClueObjectUpsertPayload(copy));
             this.setState(State.READONLY);
-            PacketDistributor.sendToServer(new ClueObjectSyncPayload(copy));
+        }).bounds(0, 0, 0, 20).build();
+        this.cancelButton = Button.builder(Component.translatable("cancel"), btn -> {
+            this.setState(State.READONLY);
         }).bounds(0, 0, 0, 20).build();
 
         this.editButton = Button.builder(Component.translatable("edit"), btn -> {
-            if (object == null) return;
+            if (object == null) return;  // actually buttons won't be built if object is null
             this.setState(State.EDIT);
-            copy = object.clone();
         }).bounds(0, 0, 0, 20).build();
 
         this.deleteButton = Button.builder(Component.translatable("delete"), btn -> {
+            if (object == null) return;
+            ConfirmScreen confirm = new ConfirmScreen(
+                (BooleanConsumer) confirmed -> {
+                    mc.popGuiLayer();
+                    if (confirmed) {
+                        PacketDistributor.sendToServer(new ClueObjectDeletePayload(object.getId()));
+                        this.updateObject(null);
+                    }
+                },
+                Component.translatable("gui.mymod.confirm_delete.title"),
+                Component.translatable("gui.mymod.confirm_delete.body"),
+                Component.translatable("gui.mymod.delete"),
+                CommonComponents.GUI_CANCEL
+            );
 
+            // Optional: disable buttons for N ticks to prevent misclicks.
+            confirm.setDelay(10);
+
+            mc.pushGuiLayer(confirm);
         }).bounds(0, 0, 0, 20).build();
 
         setDirty();
@@ -83,11 +108,21 @@ public class DetailPanel extends ScrollPanel {
     public void setState(State s) {
         this.state = s;
         this.setDirty();
+        switch (s) {
+            case EDIT -> {
+                copy = object == null ? null : object.clone();
+            }
+            case READONLY -> {
+                copy = null;
+            }
+            case null, default -> throw new RuntimeException("inaccessible");
+        }
     }
 
     /** outer update obj */
-    public void updateObject(ClueObject obj) {
-        if (obj.equals(this.object)) return;
+    public void updateObject(@Nullable ClueObject obj) {
+        if (obj == null && this.object == null) return;
+        if (obj != null && obj.equals(this.object)) return;
         this.object = obj;
         this.setDirty();
     }
@@ -131,15 +166,13 @@ public class DetailPanel extends ScrollPanel {
     }
 
     private void rebuild() {
-        if (object == null) {
-            return;
-        }
         List<AbstractWidget> details = new ArrayList<>();
 
-        details.add(this.deleteButton);
         switch (state) {
             case EDIT -> {
+                if (copy == null) break;
                 details.add(applyButton);
+                details.add(cancelButton);
                 for (ClueComponent component : copy.getComponents()) {
                     List<AbstractWidget> editables = component.getEditable();
                     if (editables != null) {
@@ -148,6 +181,8 @@ public class DetailPanel extends ScrollPanel {
                 }
             }
             case READONLY -> {
+                if (object == null) break;
+                details.add(deleteButton);
                 details.add(editButton);
                 for (ClueComponent component : object.getComponents()) {  // use copy
                     List<AbstractWidget> uneditables = component.getUneditable();
