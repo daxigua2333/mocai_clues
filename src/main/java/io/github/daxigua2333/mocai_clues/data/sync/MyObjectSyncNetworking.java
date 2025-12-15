@@ -34,18 +34,4 @@ public final class MyObjectSyncNetworking {
         registrar.commonToClient(SyncErrorPayload.TYPE, SyncErrorPayload.STREAM_CODEC, MyObjectSyncClientPayloadHandler::handleError);
     }
 
-//    @EventBusSubscriber(modid = SyncConstants.MODID, value = Dist.CLIENT)
-//    public static final class ClientReg {
-//        private ClientReg() {}
-//
-//        @SubscribeEvent
-//        public static void registerClient(final RegisterClientPayloadHandlersEvent event) {
-//            event.register(SyncStartPayload.TYPE, HandlerThread.NETWORK, MyObjectSyncClientPayloadHandler::handleStart);
-//            event.register(SyncSnapshotBeginPayload.TYPE, HandlerThread.NETWORK, MyObjectSyncClientPayloadHandler::handleSnapshotBegin);
-//            event.register(SyncSnapshotChunkPayload.TYPE, HandlerThread.NETWORK, MyObjectSyncClientPayloadHandler::handleSnapshotChunk);
-//            event.register(SyncSnapshotEndPayload.TYPE, HandlerThread.NETWORK, MyObjectSyncClientPayloadHandler::handleSnapshotEnd);
-//            event.register(SyncOpBatchPayload.TYPE, HandlerThread.NETWORK, MyObjectSyncClientPayloadHandler::handleOpBatch);
-//            event.register(SyncErrorPayload.TYPE, HandlerThread.NETWORK, MyObjectSyncClientPayloadHandler::handleError);
-//        }
-//    }
 }

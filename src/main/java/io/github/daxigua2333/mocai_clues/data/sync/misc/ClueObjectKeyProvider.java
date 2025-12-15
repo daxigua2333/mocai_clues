@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.data.sync;
+package io.github.daxigua2333.mocai_clues.data.sync.misc;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 

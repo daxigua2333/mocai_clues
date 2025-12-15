@@ -1,43 +1,31 @@
 package io.github.daxigua2333.mocai_clues.guis;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.EditBoxRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ReadOnlyDetailWidget;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanel;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
-import io.github.daxigua2333.mocai_clues.networks.ClueObjectSyncPayload;
 import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class WandScreen extends Screen {
-//    private final List<ListEntryData> entries;
     private Supplier<List<ClueType>> typeSupplier;
     private Function<ClueType, List<ClueObject>> clueSupplier;
 
     private DropdownWidget<ClueType> tab;
     private AutoUpdatedScrollableListWidget<ClueObject> list;
     private DetailPanel details;
-//    private DataSelectionScreen.ListEntryData selected;
 
     private static final ResourceLocation BOOK_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "textures/gui/casebook.png");
@@ -137,17 +125,6 @@ public class WandScreen extends Screen {
                 LIST_HEIGHT - 4,
                 (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET,
                 (this.width - TEXTURE_WIDTH) / 2 + DETAIL_X_OFFSET
-//                List.of(
-//                        new ReadOnlyDetailWidget(0, 0, 100, 100,
-//                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333"))
-//                        new ReadOnlyDetailWidget(0, 0, 100, 100,
-//                                "title", List.of("111", "222", "33333333333333333333333 333333333333333333333333")),
-//                        new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal("0.7 scale aaaaaaaaaaaa"), 0.7f),
-//                        new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal("1.2 scale aaaaaaaaaaaa"), 1.2f),
-//                        new SplitLineRow(0, 0, 100, 100, 2, 2),
-//                        new TextListWithIndexRow(0, 0, 100, 100, 2, 2,
-//                                List.of("sentence 1", "sentence 2: 一句很长长长长长长长长长长长的中文"), 2)
-//                        )
         );
 
         // click event order

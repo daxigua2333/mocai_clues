@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.data.sync;
+package io.github.daxigua2333.mocai_clues.data.sync.misc;
 
 import com.google.gson.*;
 import org.dizitart.no2.collection.Document;
@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class NitriteDocumentJson {
+public final class DocumentJsonIO {
     private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
-    private NitriteDocumentJson() {}
+    private DocumentJsonIO() {}
 
     // Document -> JSON
     public static String toJson(Document doc) {

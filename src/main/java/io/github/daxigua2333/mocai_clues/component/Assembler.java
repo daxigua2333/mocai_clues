@@ -1,9 +1,6 @@
 package io.github.daxigua2333.mocai_clues.component;
 
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
-import io.github.daxigua2333.mocai_clues.component.network.ManualClueServerHandler;
-import io.github.daxigua2333.mocai_clues.component.storage.SavedDataHolder;
-import net.minecraft.server.level.ServerLevel;
 
 import java.util.ArrayList;
 import java.util.List;

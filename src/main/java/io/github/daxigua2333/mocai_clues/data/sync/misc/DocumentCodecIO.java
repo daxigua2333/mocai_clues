@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.data.sync;
+package io.github.daxigua2333.mocai_clues.data.sync.misc;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -20,8 +20,8 @@ import java.util.Objects;
  *
  * <p>Important: this class intentionally does NOT persist values as opaque {@code byte[]} blobs.
  */
-public final class NbtCodecIO {
-    private NbtCodecIO() {
+public final class DocumentCodecIO {
+    private DocumentCodecIO() {
     }
 
     public static <T> Document encodeToDocument(Codec<T> codec, T value) {
@@ -31,7 +31,7 @@ public final class NbtCodecIO {
         JsonElement json = codec.encodeStart(JsonOps.INSTANCE, value)
                 .getOrThrow(msg -> new IllegalStateException("Encode failed: " + msg));
 
-        return NitriteDocumentJson.fromJsonObject(json.getAsJsonObject());
+        return DocumentJsonIO.fromJsonObject(json.getAsJsonObject());
 
     }
 
@@ -39,7 +39,7 @@ public final class NbtCodecIO {
         Objects.requireNonNull(codec, "codec");
         Objects.requireNonNull(doc, "doc");
 
-        JsonObject json = NitriteDocumentJson.toJsonObject(doc);
+        JsonObject json = DocumentJsonIO.toJsonObject(doc);
         DataResult<T> res = codec.parse(JsonOps.INSTANCE, json == null ? JsonNull.INSTANCE : json);
 
         return res.getOrThrow(msg -> new IllegalStateException("Decode failed: " + msg));

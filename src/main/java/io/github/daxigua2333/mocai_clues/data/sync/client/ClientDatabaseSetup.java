@@ -2,10 +2,8 @@ package io.github.daxigua2333.mocai_clues.data.sync.client;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.data.client.ClientDatabase;
-import io.github.daxigua2333.mocai_clues.data.sync.ClueObjectKeyProvider;
+import io.github.daxigua2333.mocai_clues.data.sync.misc.ClueObjectKeyProvider;
 import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
-import io.github.daxigua2333.mocai_clues.items.ClueFinderItem;
-import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

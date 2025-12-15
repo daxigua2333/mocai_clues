@@ -1,8 +1,5 @@
 package io.github.daxigua2333.mocai_clues;
 
-import io.github.daxigua2333.mocai_clues.data.client.ClientDatabase;
-import io.github.daxigua2333.mocai_clues.data.sync.ClueObjectKeyProvider;
-import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.items.ClueFinderItem;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;

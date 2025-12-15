@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues.data.sync;
 
 
 import io.github.daxigua2333.mocai_clues.data.sync.client.MyObjectSyncClient;
+import io.github.daxigua2333.mocai_clues.data.sync.misc.MyObjectKeyProvider;
 import io.github.daxigua2333.mocai_clues.data.sync.server.MyObjectSyncServer;
 import org.dizitart.no2.Nitrite;
 

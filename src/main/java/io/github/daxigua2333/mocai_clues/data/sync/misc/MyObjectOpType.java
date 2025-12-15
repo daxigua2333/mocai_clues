@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.data.sync;
+package io.github.daxigua2333.mocai_clues.data.sync.misc;
 
 public enum MyObjectOpType {
     UPSERT((byte) 1),

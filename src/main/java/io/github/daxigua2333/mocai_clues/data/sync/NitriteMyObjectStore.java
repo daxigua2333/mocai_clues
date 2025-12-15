@@ -1,7 +1,10 @@
 package io.github.daxigua2333.mocai_clues.data.sync;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.sync.misc.DocumentCodecIO;
+import io.github.daxigua2333.mocai_clues.data.sync.misc.MyObjectKeyProvider;
+import io.github.daxigua2333.mocai_clues.data.sync.misc.MyObjectOpRecord;
+import io.github.daxigua2333.mocai_clues.data.sync.misc.MyObjectOpType;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.collection.*;
 import org.dizitart.no2.common.SortOrder;
@@ -10,10 +13,7 @@ import org.dizitart.no2.filters.FluentFilter;
 import org.dizitart.no2.index.IndexOptions;
 import org.dizitart.no2.index.IndexType;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -246,7 +246,7 @@ public final class NitriteMyObjectStore {
     public void serverUpsert(ClueObject obj) {
         requireMode(Mode.SERVER);
         String key = keyProvider.keyOf(obj);
-        Document valueDoc = NbtCodecIO.encodeToDocument(ClueObject.CODEC, obj);
+        Document valueDoc = DocumentCodecIO.encodeToDocument(ClueObject.CODEC, obj);
 
         lock.writeLock().lock();
         try {
@@ -385,7 +385,7 @@ public final class NitriteMyObjectStore {
     public void clientApplySnapshotUpsert(ClueObject obj, String keyOverrideOrNull) {
         requireMode(Mode.CLIENT);
         String key = keyOverrideOrNull != null ? keyOverrideOrNull : keyProvider.keyOf(obj);
-        Document valueDoc = NbtCodecIO.encodeToDocument(ClueObject.CODEC, obj);
+        Document valueDoc = DocumentCodecIO.encodeToDocument(ClueObject.CODEC, obj);
 
         lock.writeLock().lock();
         try {
@@ -408,7 +408,7 @@ public final class NitriteMyObjectStore {
 
             if (op.type() == MyObjectOpType.UPSERT) {
                 ClueObject val = op.value().orElseThrow(() -> new IllegalStateException("UPSERT missing value"));
-                Document valueDoc = NbtCodecIO.encodeToDocument(ClueObject.CODEC, val);
+                Document valueDoc = DocumentCodecIO.encodeToDocument(ClueObject.CODEC, val);
                 upsertValueLocked(op.key(), valueDoc);
                 appendClientOplogLocked(op, valueDoc);
             } else {
@@ -589,7 +589,7 @@ public final class NitriteMyObjectStore {
             throw new IllegalStateException("Missing value field '" + F_VAL + "'");
         }
         if (raw instanceof Document doc) {
-            return NbtCodecIO.decodeFromDocument(ClueObject.CODEC, doc);
+            return DocumentCodecIO.decodeFromDocument(ClueObject.CODEC, doc);
         }
         if (raw instanceof Map<?, ?> map) {
             // Defensive: depending on store adapter, nested documents may be materialized as plain maps.
@@ -597,7 +597,7 @@ public final class NitriteMyObjectStore {
             for (Map.Entry<?, ?> e : map.entrySet()) {
                 if (e.getKey() instanceof String k) d.put(k, e.getValue());
             }
-            return NbtCodecIO.decodeFromDocument(ClueObject.CODEC, d);
+            return DocumentCodecIO.decodeFromDocument(ClueObject.CODEC, d);
         }
 //        if (raw instanceof byte[] bytes) {
 //            return NbtCodecIO.decodeFromBytes(ClueObject.CODEC, bytes);

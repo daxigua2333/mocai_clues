@@ -21,13 +21,9 @@ public class ClientAccessor {
 
 
     public static List<ClueObject> queryClueObjectByClueType(ClueType type) {
-        List<ClueObject> result = new ArrayList<>();
-//        result.addAll(ClientSavedDataAccessor.queryClueObjectByClueType(type));
-//        result.addAll();
         NitriteMyObjectStore store = MyObjectSync.client().store();
         String field = NitriteMyObjectStore.clueField("type");
-        result = store.retrieve(FluentFilter.where(field).eq(type.toString()));
-        return result;
+        return store.retrieve(FluentFilter.where(field).eq(type.toString()));
     }
 
 }

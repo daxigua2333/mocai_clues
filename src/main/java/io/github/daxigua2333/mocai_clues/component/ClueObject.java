@@ -5,8 +5,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
-import io.github.daxigua2333.mocai_clues.component.network.ManualClueServerHandler;
-import io.github.daxigua2333.mocai_clues.component.storage.SavedDataHolder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -88,8 +86,6 @@ public class ClueObject {
                     ComponentType.CODEC,
                     key -> switch (key) {  // TODO
                         case DETAIL_DATA -> DetailData.CODEC;
-                        case MANUAL_CLUE_SERVER_HANDLER -> ManualClueServerHandler.CODEC;
-                        case SAVED_DATA_HOLDER -> SavedDataHolder.CODEC;
                     }
             );
 //    public static final Codec<ClueObject> CODEC = MAP_CODEC.xmap(ClueObject::new, ClueObject::getMap);

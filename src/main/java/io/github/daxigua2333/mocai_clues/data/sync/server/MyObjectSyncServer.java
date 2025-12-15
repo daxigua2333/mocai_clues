@@ -1,7 +1,7 @@
 package io.github.daxigua2333.mocai_clues.data.sync.server;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.data.sync.MyObjectOpRecord;
+import io.github.daxigua2333.mocai_clues.data.sync.misc.MyObjectOpRecord;
 import io.github.daxigua2333.mocai_clues.data.sync.NitriteMyObjectStore;
 import io.github.daxigua2333.mocai_clues.data.sync.SyncConstants;
 import io.github.daxigua2333.mocai_clues.data.sync.payload.*;

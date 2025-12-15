@@ -198,7 +198,7 @@ public class StringListWidget extends AbstractContainerWidget {
         }
     }
 
-    // If the widget is moved or resized, keep children in sync.
+    // ========= layout ============
     @Override
     public void setX(int x) {
         super.setX(x);
@@ -223,18 +223,7 @@ public class StringListWidget extends AbstractContainerWidget {
         relayout();
     }
 
-    // ---------------------------------------------------------------------
-    // Widget lifecycle / events
-    // ---------------------------------------------------------------------
-
-//    @Override
-//    public void tick() {
-//        // Screen#tick will call this; we just tick the EditBoxes.
-//        for (Row row : rows) {
-//            row.editBox.tick();
-//        }
-//    }
-
+    // ========= ticker ============
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Background or border could be drawn here if you want.
@@ -246,61 +235,14 @@ public class StringListWidget extends AbstractContainerWidget {
         }
     }
 
+    // =========== event ============
     @Override
     public List<? extends GuiEventListener> children() {
         return children;
     }
 
-//    @Override
-//    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-//        for (AbstractWidget child : children) {
-//            if (child.mouseClicked(mouseX, mouseY, button)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-//        for (AbstractWidget child : children) {
-//            if (child.mouseReleased(mouseX, mouseY, button)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-//        for (AbstractWidget child : children) {
-//            if (child.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-//        for (AbstractWidget child : children) {
-//            if (child.mouseScrolled(mouseX, mouseY, delta)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-//        for (AbstractWidget child : children) {
-//            if (child.keyPressed(keyCode, scanCode, modifiers)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
+    // ========== misc ===========
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
         for (Row row : rows) {
