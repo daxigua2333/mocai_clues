@@ -1,7 +1,8 @@
 package io.github.daxigua2333.mocai_clues.component;
 
 import com.mojang.serialization.Codec;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlineRenderer;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlinePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.FlashPointRender;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,10 +23,10 @@ public enum ComponentType {
             Codec.STRING.xmap(ComponentType::valueOf, Enum::name);
 
     @Nullable
-    public static ClueComponent getRenderer(ComponentType type) {
+    public static BasePass getPass(ComponentType type) {
         switch (type) {
             case BLOCK_OUTLINE_RENDERER -> {
-                return new BlockOutlineRenderer();
+                return new BlockOutlinePass();
             }
             case FLASH_POINT_RENDERER -> {
                 return new FlashPointRender();

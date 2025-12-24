@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -16,7 +18,7 @@ import java.util.function.Supplier;
 
 public class ChunkRenderBatch {
     // One buffer per RenderType you support
-    private final Map<RenderType, VertexBuffer> buffers = new HashMap<>();
+    private final Map<ComponentType, VertexBuffer> buffers = new HashMap<>();
     private boolean dirty = true;
     private boolean isEmpty = true;
 
@@ -24,15 +26,10 @@ public class ChunkRenderBatch {
     public boolean isDirty() { return dirty; }
     public boolean isEmpty() { return isEmpty; }
 
-    public void upload(Map<RenderType, MeshData> meshDataMap) {
+    public void upload(Map<ComponentType, MeshData> meshDataMap) {
         meshDataMap.forEach((type, data) -> {
 //            VertexBuffer vbo = buffers.computeIfAbsent(type, t -> new VertexBuffer(VertexBuffer.Usage.STATIC));
             VertexBuffer vbo = buffers.computeIfAbsent(type, t -> new VertexBuffer(VertexBuffer.Usage.DYNAMIC));
-//            VertexBuffer vbo = buffers.get(type);
-//            if (vbo != null) vbo.close();
-//            vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
-            MoCaiClues.LOGGER.debug("======uploading: {} {}", data.drawState().vertexCount(), data.drawState().mode());
-            MoCaiClues.LOGGER.debug("======uploading: {}: {}", buffers.size(), buffers);
             vbo.bind();
             vbo.upload(data);
             VertexBuffer.unbind();
@@ -41,32 +38,30 @@ public class ChunkRenderBatch {
         this.dirty = false;
     }
 
-    public void render(RenderType type, PoseStack poseStack, Matrix4f projectionMatrix) {
+    public void render(ComponentType type, PoseStack poseStack, Matrix4f projectionMatrix) {
         VertexBuffer vbo = buffers.get(type);
         if (vbo == null || vbo.isInvalid()) {return;}
-        type.setupRenderState();
-//var shader = GameRenderer.getRendertypeLinesShader();
-//Supplier<ShaderInstance> sup = () -> GameRenderer.getRendertypeLinesShader();
-//RenderSystem.setShader(sup);
-//MoCaiClues.LOGGER.debug("{}\n{}", RenderSystem.getShader(), GameRenderer.getRendertypeLinesShader());
-RenderSystem.disableDepthTest();  // TODO
-//RenderSystem.depthMask(false);
-//RenderSystem.enableBlend();
-//RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1f,1f,1f,1f);
+
+        BasePass passCompo = ComponentType.getPass(type);
+        if (passCompo == null) {
+            MoCaiClues.LOGGER.error("ComponentType: '{}' should not appear in render batch.", type, new NullPointerException("Undefined Pass component type."));
+            return;
+        }
+        RenderType rType = passCompo.renderType();
+
+        rType.setupRenderState();
+        passCompo.setupRenderState();
+
         vbo.bind();
         vbo.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
-//        vbo.drawWithShader(poseStack.last().pose(), projectionMatrix, shader);
-//        vbo.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
         VertexBuffer.unbind();
-        type.clearRenderState();
-//RenderSystem.depthMask(true);
-RenderSystem.enableDepthTest();
-//RenderSystem.disableBlend();
+
+        passCompo.clearRenderState();
+        rType.clearRenderState();
     }
 
     public void renderAllTypes(PoseStack poseStack, Matrix4f projectionMatrix) {
-        for (RenderType t : buffers.keySet()) {
+        for (ComponentType t : buffers.keySet()) {
             render(t, poseStack, projectionMatrix);
         }
     }

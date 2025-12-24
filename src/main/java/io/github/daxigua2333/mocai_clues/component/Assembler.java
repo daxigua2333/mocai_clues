@@ -2,7 +2,7 @@ package io.github.daxigua2333.mocai_clues.component;
 
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlineRenderer;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlinePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
 import net.minecraft.core.BlockPos;
 
@@ -20,7 +20,7 @@ public class Assembler {
 //                ComponentType.FLASH_POINT_RENDERER
                 )));
         object.addComponent(new WorldBlockPos(new BlockPos(0, -60, 0)));
-        object.addComponent(new BlockOutlineRenderer());
+        object.addComponent(new BlockOutlinePass());
         return object;
     }
     public static ClueObject createManualClue() {

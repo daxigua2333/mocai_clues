@@ -1,21 +1,26 @@
 package io.github.daxigua2333.mocai_clues.component.world.renderer;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.OptionalDouble;
 
-public class BlockOutlineRenderer extends BaseRenderer{
+public class BlockOutlinePass extends BasePass {
     private static final int ARGB = 0xFF000000;
 
     @Override
@@ -24,23 +29,56 @@ public class BlockOutlineRenderer extends BaseRenderer{
     }
 
     @Override
-    public Pass pass() {
-        return Pass.BLOCK_OUTLINE;
+    public RenderType renderType() {
+        return RenderType.create(
+                MoCaiClues.MODID +":overlay_lines",
+    //            DefaultVertexFormat.POSITION_COLOR,
+                DefaultVertexFormat.POSITION_COLOR_NORMAL,
+                VertexFormat.Mode.LINES,
+    //            1536, // Buffer size
+                256,
+                false, // useDelegate
+                false, // isAlbum
+                RenderType.CompositeState.builder()
+    //                    .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
+    //                    .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
+                        .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLinesShader))
+                        .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(3.0D))) // Line thickness
+                        .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING) // Prevents Z-fighting
+                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                        .setDepthTestState(RenderStateShard.NO_DEPTH_TEST) // THIS makes it X-Ray
+    //                    .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setCullState(RenderStateShard.NO_CULL)
+                        .createCompositeState(false)
+        );
     }
+
+    @Override
+    public void setupRenderState() {
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.setShaderColor(1f,1f,1f,1f);
+    }
+
+    @Override
+    public void clearRenderState() {
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+    }
+
+
     @Override
     public void addToMesh(BufferBuilder builder) {
         // get block pos
         BlockPos pos;
-        MoCaiClues.LOGGER.debug("whyyyyyyyyyyyyyyyy: 1");
         if (this.owner.hasComponent(ComponentType.WORLD_BLOCK_POS)) {
             var compo = (WorldBlockPos) this.owner.getComponent(ComponentType.WORLD_BLOCK_POS);
             pos = compo.getBlockPos();
-        MoCaiClues.LOGGER.debug("whyyyyyyyyyyyyyyyy: 2 {}", pos);
         } else {
             throw new RuntimeException("ClueObject should contain WorldBlockPos");
         }
 
-        MoCaiClues.LOGGER.debug("whyyyyyyyyyyyyyyyy: 3");
         // Create a box slightly larger than the block to avoid z-fighting with block faces
 //        LevelRenderer.renderLineBox(builder, pos.getX(), pos.getY(), pos.getZ(), pos.getX()+1, pos.getY()+1, pos.getZ()+1,
 //                1f, 1f, 0f, 1f);
@@ -54,19 +92,16 @@ public class BlockOutlineRenderer extends BaseRenderer{
         float maxZ = (float) box.maxZ;
         // Draw the 12 edges of the cube
         // Bottom square
-        MoCaiClues.LOGGER.debug("whyyyyyyyyyyyyyyyy: 4");
         line(builder, minX, minY, minZ, maxX, minY, minZ, ARGB);
         line(builder, maxX, minY, minZ, maxX, minY, maxZ, ARGB);
         line(builder, maxX, minY, maxZ, minX, minY, maxZ, ARGB);
         line(builder, minX, minY, maxZ, minX, minY, minZ, ARGB);
         // Top square
-        MoCaiClues.LOGGER.debug("whyyyyyyyyyyyyyyyy: 5");
         line(builder, minX, maxY, minZ, maxX, maxY, minZ, ARGB);
         line(builder, maxX, maxY, minZ, maxX, maxY, maxZ, ARGB);
         line(builder, maxX, maxY, maxZ, minX, maxY, maxZ, ARGB);
         line(builder, minX, maxY, maxZ, minX, maxY, minZ, ARGB);
         // Vertical pillars
-        MoCaiClues.LOGGER.debug("whyyyyyyyyyyyyyyyy: 6");
         line(builder, minX, minY, minZ, minX, maxY, minZ, ARGB);
         line(builder, maxX, minY, minZ, maxX, maxY, minZ, ARGB);
         line(builder, maxX, minY, maxZ, maxX, maxY, maxZ, ARGB);
@@ -84,12 +119,10 @@ public class BlockOutlineRenderer extends BaseRenderer{
         }
         builder.addVertex(x1, y1, z1).setColor(argb).setNormal(dx, dy, dz);
         builder.addVertex(x2, y2, z2).setColor(argb).setNormal(dx, dy, dz);
-//        builder.addVertex(x1, y1, z1).setColor(argb);
-//        builder.addVertex(x2, y2, z2).setColor(argb);
     }
 
 
-    public static Codec<BlockOutlineRenderer> CODEC = Codec.unit(BlockOutlineRenderer::new);
+    public static Codec<BlockOutlinePass> CODEC = Codec.unit(BlockOutlinePass::new);
 
     @Nullable
     @Override

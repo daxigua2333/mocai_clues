@@ -40,7 +40,7 @@ public class RendererWidgetCollector extends ClueComponent{
                 }).bounds(0, 0, 0, 20).build(),
                 new MultiChoiceList(0, 0, 0, 20, list,
                         (added) -> {
-                            var compo = ComponentType.getRenderer(added);
+                            var compo = ComponentType.getPass(added);
                             if (compo == null) throw new RuntimeException("unsupported renderer component type: " + added.toString());
                             this.owner.addComponent(compo);
                         },

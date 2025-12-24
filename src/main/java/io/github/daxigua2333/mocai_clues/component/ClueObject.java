@@ -6,7 +6,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlineRenderer;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlinePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.FlashPointRender;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
 import io.netty.buffer.ByteBuf;
@@ -90,7 +90,7 @@ public class ClueObject {
                     ComponentType.CODEC,
                     key -> switch (key) {  // TODO
                         case DETAIL_DATA -> DetailData.CODEC;
-                        case BLOCK_OUTLINE_RENDERER -> BlockOutlineRenderer.CODEC;
+                        case BLOCK_OUTLINE_RENDERER -> BlockOutlinePass.CODEC;
                         case WORLD_BLOCK_POS -> WorldBlockPos.CODEC;
                         case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
                         case FLASH_POINT_RENDERER -> FlashPointRender.CODEC;

@@ -4,18 +4,30 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class FlashPointRender extends BaseRenderer{
+public class FlashPointRender extends BasePass {
+
     @Override
-    public Pass pass() {
+    public RenderType renderType() {
         return null;
     }
 
     @Override
     public void addToMesh(BufferBuilder builder) {
+
+    }
+
+    @Override
+    public void setupRenderState() {
+
+    }
+
+    @Override
+    public void clearRenderState() {
 
     }
 

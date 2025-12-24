@@ -1,18 +1,15 @@
 package io.github.daxigua2333.mocai_clues.entry.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
-import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BaseRenderer;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
-import io.github.daxigua2333.mocai_clues.data.ObjectHolderDataChangeEvent;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.level.ChunkPos;
@@ -60,9 +57,9 @@ public class ObjectRenderManager {
         renderBatches(event);
     }
 
+    // avoid leaking GPU buffers when leaving a world/server
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        // avoid leaking GPU buffers when leaving a world/server
         CHUNK_BATCHES.values().forEach(ChunkRenderBatch::close);
     }
 
@@ -97,42 +94,36 @@ public class ObjectRenderManager {
         }
     }
 
-    private static Map<RenderType, MeshData> buildChunkMesh(ChunkPos chunkPos) {
+    private static Map<ComponentType, MeshData> buildChunkMesh(ChunkPos chunkPos) {
 
         // 1. Get your data from Chunk Attachment
         Level level = Minecraft.getInstance().level;
 //        LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
 //        var dataMap = chunk.getData(MyAttachments.CHUNK_DATA_MAP);
-        MoCaiClues.LOGGER.debug("===========yes: {}", 1);
-        var data = ClientAccessor.queryClueObjectByChunkPos(chunkPos);
-        MoCaiClues.LOGGER.debug("===========yes: {} {}", 2, data);
+        var data = ClientAccessor.queryClueObjectByChunkPos(chunkPos);  // TODO;
 
         ByteBufferBuilder pool = new ByteBufferBuilder(1024);
-//        var tess = Tesselator.getInstance();
-        Map<RenderType, BufferBuilder> builders = new HashMap<>();
+        Map<ComponentType, BufferBuilder> builders = new EnumMap<>(ComponentType.class);
 
         data.forEach(obj -> {
             for (ClueComponent compo : obj.getComponents()) {
-                MoCaiClues.LOGGER.debug("===========yes: {}  {}", 3, compo);
-                if (compo instanceof BaseRenderer rCompo) {
-                    RenderType type = rCompo.pass().renderType;
-                    BufferBuilder builder = builders.computeIfAbsent(type, t -> new BufferBuilder(pool, type.mode(), type.format()));
-//                    BufferBuilder builder = builders.computeIfAbsent(type, t -> tess.begin(t.mode(), t.format()));
+                if (compo instanceof BasePass passCompo) {
+                    ComponentType type = passCompo.type();
+                    RenderType rType = passCompo.renderType();
+                    BufferBuilder builder = builders.computeIfAbsent(type, t -> new BufferBuilder(pool, rType.mode(), rType.format()));
 
                     // Build the geometry (Lines, Quads, etc.)
                     // TODO: Coordinates should be relative to Chunk (0-15)
                     // to prevent floating point jitter at high coordinates
 //                    addObjToMesh(builder, obj, chunkPos);
-                    MoCaiClues.LOGGER.debug("===========yes: {}  {} {}", 4, rCompo, builders);
-                    rCompo.addToMesh(builder);
+                    passCompo.addToMesh(builder);
                 }
             }
         });
 
         // Finalize meshes
-        Map<RenderType, MeshData> result = new HashMap<>();
+        Map<ComponentType, MeshData> result = new EnumMap<>(ComponentType.class);
         builders.forEach((type, buf) -> result.put(type, buf.buildOrThrow()));
-        MoCaiClues.LOGGER.debug("===========yes: {}  {}", 5, result.get(ModRenderType.OVERLAY_LINES));
         return result;
     }
 
