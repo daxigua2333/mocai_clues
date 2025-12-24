@@ -3,12 +3,16 @@ package io.github.daxigua2333.mocai_clues.items;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
+import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
-import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
+import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
+import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.guis.WandScreen;
+import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.core.BlockPos;
@@ -126,11 +130,27 @@ public class ClueWandItem extends Item {
                 return InteractionResult.sidedSuccess(level.isClientSide());
             case ATTACH:
                 if (!level.isClientSide() && player != null) {
-                    if (attachedObject == null) {
+                    AttachingObject attaching = stack.get(ModDataComponentsRegistry.ATTACHING_OBJECT.get());
+                    if (attaching == null) {
                         player.sendSystemMessage(Component.translatable("No attachment data"));
-                        return InteractionResult.PASS;
+                        return InteractionResult.sidedSuccess(level.isClientSide());
                     }
-                    attachedObject.addComponent(new WorldBlockPos(clickedPos));
+                    // TODO: route to SD or something...
+                    var SD = ClueObjectHolderInSavedData.getInstance(player.level().getServer());
+                    ObjectHolder<ClueObject> holder = SD.holder();
+                    ClueObject obj = holder.get(attaching.id());
+
+                    if (! obj.hasComponent(ComponentType.BLOCK_POS_LIST)) {
+                        obj.addComponent(new BlockPosList());
+                    }
+                    BlockPosList compo = obj.getComponent(ComponentType.BLOCK_POS_LIST);
+                    compo.add(clickedPos);
+                    // TODO:
+                    SD.setDirty();
+                    holder.markDirty(obj);
+
+                    player.sendSystemMessage(Component.translatable("Attaching successfully"));
+                    return InteractionResult.sidedSuccess(level.isClientSide());
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());
             case null, default:
@@ -138,9 +158,5 @@ public class ClueWandItem extends Item {
         }
     }
 
-    private ClueObject attachedObject;
-    public void setAttachedObject(ClueObject obj) {
-        this.attachedObject = obj;
-    }
 
 }

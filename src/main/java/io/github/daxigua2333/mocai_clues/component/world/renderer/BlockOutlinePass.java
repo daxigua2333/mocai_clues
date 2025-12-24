@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -70,16 +70,18 @@ public class BlockOutlinePass extends BasePass {
 
     @Override
     public void addToMesh(BufferBuilder builder) {
-        // get block pos
-        BlockPos pos;
-        if (this.owner.hasComponent(ComponentType.WORLD_BLOCK_POS)) {
-            var compo = (WorldBlockPos) this.owner.getComponent(ComponentType.WORLD_BLOCK_POS);
-            pos = compo.getBlockPos();
+        BlockPosList compo = this.owner.getComponent(ComponentType.BLOCK_POS_LIST);
+        if (compo != null) {
+            for (var pos : compo.getImmutable()) {
+                box(builder, pos);
+            }
         } else {
-            throw new RuntimeException("ClueObject should contain WorldBlockPos");
+//            throw new RuntimeException("ClueObject should contain WorldBlockPos");
         }
+    }
 
-        // Create a box slightly larger than the block to avoid z-fighting with block faces
+    // Create a box slightly larger than the block to avoid z-fighting with block faces
+    private static void box(BufferBuilder builder, BlockPos pos) {
 //        LevelRenderer.renderLineBox(builder, pos.getX(), pos.getY(), pos.getZ(), pos.getX()+1, pos.getY()+1, pos.getZ()+1,
 //                1f, 1f, 0f, 1f);
         AABB box = new AABB(pos).inflate(0.002);
@@ -107,6 +109,7 @@ public class BlockOutlinePass extends BasePass {
         line(builder, maxX, minY, maxZ, maxX, maxY, maxZ, ARGB);
         line(builder, minX, minY, maxZ, minX, maxY, maxZ, ARGB);
     }
+
     private static void line(BufferBuilder builder, float x1, float y1, float z1, float x2, float y2, float z2, int argb) {
         float dx = x2 - x1;
         float dy = y2 - y1;

@@ -2,7 +2,8 @@ package io.github.daxigua2333.mocai_clues.data.client.api;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
 import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
 import net.minecraft.world.level.ChunkPos;
 
@@ -23,13 +24,15 @@ public class ClientAccessor {
         return result;
     }
 
-    public static List<ClueObject> queryClueObjectByChunkPos(ChunkPos pos) {  // TODO:
+    public static List<ClueObject> queryClueObjectByChunkPos(ChunkPos chunkPos) {  // TODO: optimize
         List<ClueObject> result = new ArrayList<>();
 
         var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
         for (var obj : holder.values()) {
-            for(var compo : obj.getComponents()) {
-                if (compo instanceof WorldBlockPos posCompo && pos.equals(new ChunkPos(posCompo.getBlockPos()))) {
+            BlockPosList compo = obj.getComponent(ComponentType.BLOCK_POS_LIST);
+            if (compo == null) continue;
+            for (var pos : compo.getImmutable()) {
+                if (chunkPos.equals(new ChunkPos(pos))) {
                     result.add(obj);
                     break;
                 }
@@ -39,15 +42,15 @@ public class ClientAccessor {
         return result;
     }
 
-    public static Set<ChunkPos> queryChunkPosInSavedData() {
+    public static Set<ChunkPos> queryChunkPosInSavedData() {  // TODO: optimize
         Set<ChunkPos> result = new HashSet<>();
 
         var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
         for (ClueObject obj : holder.values()) {
-            for (var compo : obj.getComponents()) {
-                if (compo instanceof WorldBlockPos posCompo) {
-                    result.add(new ChunkPos(posCompo.getBlockPos()));
-                }
+            BlockPosList compo = obj.getComponent(ComponentType.BLOCK_POS_LIST);
+            if (compo == null) continue;
+            for (var pos : compo.getImmutable()) {
+                result.add(new ChunkPos(pos));
             }
         }
 

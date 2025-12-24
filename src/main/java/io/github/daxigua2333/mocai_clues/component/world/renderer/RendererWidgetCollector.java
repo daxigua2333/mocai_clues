@@ -5,11 +5,21 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.gui.editable.MultiChoiceList;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
+import io.github.daxigua2333.mocai_clues.networks.WandSwitchToAttachModePayload;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RendererWidgetCollector extends ClueComponent{
@@ -37,6 +47,8 @@ public class RendererWidgetCollector extends ClueComponent{
         return List.of(
                 Button.builder(Component.translatable("attach"), btn -> {
                     // TODO:
+                    PacketDistributor.sendToServer(new WandSwitchToAttachModePayload(this.owner));
+                    Minecraft.getInstance().setScreen(null);
                 }).bounds(0, 0, 0, 20).build(),
                 new MultiChoiceList(0, 0, 0, 20, list,
                         (added) -> {
@@ -51,6 +63,13 @@ public class RendererWidgetCollector extends ClueComponent{
     @Nullable
     @Override
     public List<AbstractWidget> getUneditable() {
-        return List.of();
+        List<AbstractWidget> result = new ArrayList<>();
+
+        return result;
+//        return List.of(
+//                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal(name), 1.2f),
+//                new SplitLineRow(0, 0, 100, 100, 2, 2),
+//                new TextListWithIndexRow(0, 0, 100, 100, 2, 2, details, 2)
+//        );
     }
 }

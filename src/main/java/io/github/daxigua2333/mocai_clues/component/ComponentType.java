@@ -12,7 +12,7 @@ public enum ComponentType {
     DETAIL_DATA,
     // world renderer
     RENDERER_WIDGET_COLLECTOR,
-    WORLD_BLOCK_POS,
+    BLOCK_POS_LIST,
 
     BLOCK_OUTLINE_RENDERER,
     FLASH_POINT_RENDERER,

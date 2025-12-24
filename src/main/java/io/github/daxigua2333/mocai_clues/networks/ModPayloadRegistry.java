@@ -3,8 +3,8 @@ package io.github.daxigua2333.mocai_clues.networks;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
-import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
+import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.statics.FinderHitResultTicker;
@@ -43,13 +43,14 @@ public class ModPayloadRegistry {
 
 
         // ====== ClueObject =====
+        // TODO: database api
         registrar.playToServer(
                 ClueObjectUpsertPayload.TYPE,
                 ClueObjectUpsertPayload.STREAM_CODEC,
                 (final ClueObjectUpsertPayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
 //                        MyObjectSync.server().store().serverUpsert(payload.object());
-                        ClueObjectHolderInSavedData.getInstance(context.player().level().getServer()).put(payload.object());
+                        ServerDataAccessor.upsertInSD(context.player().level().getServer(), payload.object());
                     });
                 }
         );
@@ -59,7 +60,7 @@ public class ModPayloadRegistry {
                 (final ClueObjectDeletePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
 //                        MyObjectSync.server().store().serverDelete(payload.id().toString());
-                        ClueObjectHolderInSavedData.getInstance(context.player().level().getServer()).remove(payload.id());
+                        ServerDataAccessor.deleteInSD(context.player().level().getServer(), payload.id());
                     });
                 }
         );
@@ -73,6 +74,30 @@ public class ModPayloadRegistry {
                 (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
                         ServerDataAccessor.createDefault(context.player().level());
+                    });
+                }
+        );
+        registrar.playToServer(
+                WandSwitchToAttachModePayload.TYPE,
+                WandSwitchToAttachModePayload.STREAM_CODEC,
+                (final WandSwitchToAttachModePayload payload, final IPayloadContext context) -> {
+                    context.enqueueWork(() -> {
+                        // update Database
+                        ServerDataAccessor.upsertInSD(context.player().level().getServer(), payload.object());
+                        // update main hand
+                        Player player = context.player();
+                        ItemStack stack = player.getMainHandItem();
+                        if (stack.getItem() == ModItemsRegistry.CLUE_WAND_ITEM.get()) {
+                            // update mode
+                            stack.update(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE, current -> WandMode.ATTACH);
+                            player.displayClientMessage(Component.literal("Wand mode: " + WandMode.ATTACH.toString()), true);
+                            // update attaching
+                            stack.update(ModDataComponentsRegistry.ATTACHING_OBJECT.get(),
+                                    new AttachingObject(payload.object().getId()), current -> new AttachingObject(payload.object().getId()));
+                        } else {
+                            throw new RuntimeException("Why you are not holding the wand???");
+                        }
+
                     });
                 }
         );

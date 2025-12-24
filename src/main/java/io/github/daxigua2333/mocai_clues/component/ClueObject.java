@@ -5,7 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
-import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlinePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.FlashPointRender;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.EnumMap;
@@ -76,6 +77,7 @@ public class ClueObject {
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     public <T extends ClueComponent> T getComponent(ComponentType type) {
         return (T) components.get(type);
     }
@@ -91,7 +93,7 @@ public class ClueObject {
                     key -> switch (key) {  // TODO
                         case DETAIL_DATA -> DetailData.CODEC;
                         case BLOCK_OUTLINE_RENDERER -> BlockOutlinePass.CODEC;
-                        case WORLD_BLOCK_POS -> WorldBlockPos.CODEC;
+                        case BLOCK_POS_LIST -> BlockPosList.CODEC;
                         case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
                         case FLASH_POINT_RENDERER -> FlashPointRender.CODEC;
                     }

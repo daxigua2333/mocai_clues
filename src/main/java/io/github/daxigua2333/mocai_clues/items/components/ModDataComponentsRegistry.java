@@ -45,6 +45,13 @@ public class ModDataComponentsRegistry {
                     .networkSynchronized(FINDER_HIT_RESULT_STREAM_CODEC)
     );
 
+    public static final Supplier<DataComponentType<AttachingObject>> ATTACHING_OBJECT =
+        DATA_COMPONENTS.registerComponentType("attaching_object", builder -> builder
+            .persistent(AttachingObject.CODEC)
+            .networkSynchronized(AttachingObject.STREAM_CODEC)
+        );
+
+
 
     public static void register(IEventBus bus) {
         DATA_COMPONENTS.register(bus);
