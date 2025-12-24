@@ -54,7 +54,7 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
 
         // Position widget and inform layout system
         this.setX(x);
-        this.setY(y); // TODO: ?
+        this.setY(y);
 //        this.updateSizeAndPosition(x, y, width, height);
 //        this.updateSizeAndPosition(width, height, y);
     }

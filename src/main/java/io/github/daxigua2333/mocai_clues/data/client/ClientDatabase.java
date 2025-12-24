@@ -18,6 +18,34 @@ public final class ClientDatabase {
 
     private ClientDatabase() {}
 
+    public static Path liveDbPath() {
+        return FMLPaths.CONFIGDIR.get()
+            .resolve(MoCaiClues.MODID)
+            .resolve("client.nitrite.db");
+    }
+
+    public static Path tempDbPath(UUID snapshotId) {
+        return FMLPaths.CONFIGDIR.get()
+            .resolve(MoCaiClues.MODID)
+            .resolve("client.nitrite.db.tmp." + snapshotId);
+    }
+
+    public static Nitrite openAt(Path path) {
+        MVStoreModule storeModule = MVStoreModule.withConfig()
+                .filePath(path.toString())
+                .compress(true)
+                .build();
+
+        return Nitrite.builder()
+                .loadModule(storeModule)
+                .openOrCreate();
+    }
+
+    public static synchronized void openLive() {
+        if (db != null && !db.isClosed()) return;
+        db = openAt(liveDbPath());
+    }
+
     public static void init() {
         if (db != null && !db.isClosed()) {
             return;

@@ -1,7 +1,8 @@
-package io.github.daxigua2333.mocai_clues.data.sync.misc;
+package io.github.daxigua2333.mocai_clues.data.sync;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 

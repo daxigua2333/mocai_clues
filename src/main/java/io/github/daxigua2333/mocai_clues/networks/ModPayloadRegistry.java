@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
@@ -47,7 +48,8 @@ public class ModPayloadRegistry {
                 ClueObjectUpsertPayload.STREAM_CODEC,
                 (final ClueObjectUpsertPayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-                        MyObjectSync.server().store().serverUpsert(payload.object());
+//                        MyObjectSync.server().store().serverUpsert(payload.object());
+                        ClueObjectHolderInSavedData.getInstance(context.player().level().getServer()).put(payload.object());
                     });
                 }
         );
@@ -56,7 +58,8 @@ public class ModPayloadRegistry {
                 ClueObjectDeletePayload.STREAM_CODEC,
                 (final ClueObjectDeletePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-                        MyObjectSync.server().store().serverDelete(payload.id().toString());
+//                        MyObjectSync.server().store().serverDelete(payload.id().toString());
+                        ClueObjectHolderInSavedData.getInstance(context.player().level().getServer()).remove(payload.id());
                     });
                 }
         );
@@ -69,7 +72,7 @@ public class ModPayloadRegistry {
                 ManualClueCreatePayload.STREAM_CODEC,
                 (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-                        ServerDataAccessor.createDefault();
+                        ServerDataAccessor.createDefault(context.player().level());
                     });
                 }
         );

@@ -1,7 +1,9 @@
 package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
+import io.github.daxigua2333.mocai_clues.component.world.data.WorldBlockPos;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
@@ -100,7 +102,7 @@ public class ClueWandItem extends Item {
                     }
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());
-            case EDITOR:
+            case EDITOR:  // TODO: use on air
                 if (level.isClientSide) {
 //                    Minecraft.getInstance().setScreen(new ExampleListScreen());
 //                    List<DataSelectionScreen.ListEntryData> list = new ArrayList<>();
@@ -121,9 +123,24 @@ public class ClueWandItem extends Item {
                             (type) -> ClientAccessor.queryClueObjectByClueType(type)
                     );
                 }
+                return InteractionResult.sidedSuccess(level.isClientSide());
+            case ATTACH:
+                if (!level.isClientSide() && player != null) {
+                    if (attachedObject == null) {
+                        player.sendSystemMessage(Component.translatable("No attachment data"));
+                        return InteractionResult.PASS;
+                    }
+                    attachedObject.addComponent(new WorldBlockPos(clickedPos));
+                }
+                return InteractionResult.sidedSuccess(level.isClientSide());
             case null, default:
                 return InteractionResult.PASS;
         }
+    }
+
+    private ClueObject attachedObject;
+    public void setAttachedObject(ClueObject obj) {
+        this.attachedObject = obj;
     }
 
 }
