@@ -14,7 +14,7 @@ public class Assembler {
         ClueObject object = new ClueObject(ClueType.MANUAL);
         object.addComponent(new DetailData(name, details));
         object.addComponent(new RendererWidgetCollector(List.of(
-                ComponentType.BLOCK_OUTLINE_RENDERER
+                ComponentType.BLOCK_OUTLINE_PASS
 //                ComponentType.FLASH_POINT_RENDERER
                 )));
 //        object.addComponent(new WorldBlockPos(new BlockPos(0, -60, 0)));

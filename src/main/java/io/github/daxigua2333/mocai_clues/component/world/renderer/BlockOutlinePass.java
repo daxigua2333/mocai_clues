@@ -8,12 +8,16 @@ import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
+import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +29,7 @@ public class BlockOutlinePass extends BasePass {
 
     @Override
     public ComponentType type() {
-        return ComponentType.BLOCK_OUTLINE_RENDERER;
+        return ComponentType.BLOCK_OUTLINE_PASS;
     }
 
     @Override
@@ -65,6 +69,14 @@ public class BlockOutlinePass extends BasePass {
     public void clearRenderState() {
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
+    }
+
+    @Override
+    public boolean doRender(Minecraft mc) {
+        Player player = mc.player;
+        if (player == null) return false;
+        return player.getMainHandItem().getItem() == ModItemsRegistry.CLUE_WAND_ITEM.get();
+//        return true;
     }
 
 

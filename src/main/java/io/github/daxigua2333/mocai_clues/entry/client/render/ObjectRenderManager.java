@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.entry.client.render;
 import com.mojang.blaze3d.vertex.*;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
@@ -25,6 +26,8 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,6 +36,14 @@ public class ObjectRenderManager {
     private static final Map<ChunkPos, ChunkRenderBatch> CHUNK_BATCHES = new ConcurrentHashMap<>();
     private static final Set<ChunkPos> DIRTY_CHUNKS = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final Set<ChunkPos> BUILDING_CHUNKS = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private static final int POOL_SIZE = 10;
+    private static final BlockingQueue<ByteBufferBuilder> POOL = new ArrayBlockingQueue<>(POOL_SIZE);
+    private static final int CAPACITY = 65536;
+    static {
+        for (int i=0; i<POOL_SIZE; i++) {
+            POOL.add(new ByteBufferBuilder(CAPACITY));
+        }
+    }
 
     // Call this from "onChange" sync hook
     public static void markChunkDirty(ChunkPos pos) {
@@ -61,6 +72,14 @@ public class ObjectRenderManager {
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         CHUNK_BATCHES.values().forEach(ChunkRenderBatch::close);
+        for (int i=0; i<POOL_SIZE; i++) {
+            try {
+                ByteBufferBuilder bbb = POOL.take();
+                bbb.close();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private static void processDirtyChunks() {
@@ -76,55 +95,67 @@ public class ObjectRenderManager {
 
             // Off-thread mesh building
             CompletableFuture.supplyAsync(() -> buildChunkMesh(pos), Util.backgroundExecutor())
-                .whenCompleteAsync((meshMap, throwable) -> {
+                .whenCompleteAsync((pending, throwable) -> {
                     // This block runs regardless of success or failure
+                    var meshMap = pending.meshMap;
                     try {
                         if (throwable != null) {
                             MoCaiClues.LOGGER.error("Failed to build chunk mesh at " + pos, throwable);
                         } else if (meshMap != null) {
                             // Success: Upload the mesh
                             ChunkRenderBatch batch = CHUNK_BATCHES.computeIfAbsent(pos, p -> new ChunkRenderBatch());
-                            batch.upload(meshMap);
+                            batch.upload(meshMap);  // TODO: it is said that upload api would close MeshData
                         }
                     } finally {
                         // ALWAYS remove from the building set, even if it crashed
                         BUILDING_CHUNKS.remove(pos);
+                        POOL.offer(pending.builder);
                     }
                 }, Minecraft.getInstance());
         }
     }
 
-    private static Map<ComponentType, MeshData> buildChunkMesh(ChunkPos chunkPos) {
+    record PendingMesh(ByteBufferBuilder builder, Map<ComponentType, MeshData> meshMap) {}
+    private static PendingMesh buildChunkMesh(ChunkPos chunkPos) {
 
         // 1. Get your data from Chunk Attachment
         Level level = Minecraft.getInstance().level;
 //        LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
 //        var dataMap = chunk.getData(MyAttachments.CHUNK_DATA_MAP);
-        var data = ClientAccessor.queryClueObjectByChunkPos(chunkPos);  // TODO;
+        List<ClueObject> data = ClientAccessor.queryClueObjectByChunkPos(chunkPos);  // TODO;
 
-        ByteBufferBuilder pool = new ByteBufferBuilder(1024);
         Map<ComponentType, BufferBuilder> builders = new EnumMap<>(ComponentType.class);
-
-        data.forEach(obj -> {
-            for (ClueComponent compo : obj.getComponents()) {
-                if (compo instanceof BasePass passCompo) {
-                    ComponentType type = passCompo.type();
-                    RenderType rType = passCompo.renderType();
-                    BufferBuilder builder = builders.computeIfAbsent(type, t -> new BufferBuilder(pool, rType.mode(), rType.format()));
-
-                    // Build the geometry (Lines, Quads, etc.)
-                    // TODO: Coordinates should be relative to Chunk (0-15)
-                    // to prevent floating point jitter at high coordinates
-//                    addObjToMesh(builder, obj, chunkPos);
-                    passCompo.addToMesh(builder);
-                }
-            }
-        });
-
-        // Finalize meshes
         Map<ComponentType, MeshData> result = new EnumMap<>(ComponentType.class);
-        builders.forEach((type, buf) -> result.put(type, buf.buildOrThrow()));
-        return result;
+        // because it's async, so cannot reuse same buffer. must one buffer per worker
+//        int perSize = DefaultVertexFormat.POSITION_COLOR_NORMAL.getVertexSize();
+//        ByteBufferBuilder pool = new ByteBufferBuilder(data.size() * 64 * perSize);
+
+        try {
+            ByteBufferBuilder bbb = POOL.take();
+            data.forEach(obj -> {
+                for (ClueComponent compo : obj.getComponents()) {
+                    if (compo instanceof BasePass passCompo) {
+                        ComponentType type = passCompo.type();
+                        RenderType rType = passCompo.renderType();
+                        BufferBuilder builder = builders.computeIfAbsent(type, t -> new BufferBuilder(bbb, rType.mode(), rType.format()));
+
+                        // Build the geometry (Lines, Quads, etc.)
+                        // TODO: Coordinates should be relative to Chunk (0-15)
+                        // to prevent floating point jitter at high coordinates
+                        passCompo.addToMesh(builder);
+                    }
+                }
+            });
+            // Finalize meshes
+            builders.forEach((type, buf) -> result.put(type, buf.buildOrThrow()));
+            return new PendingMesh(bbb, result);
+
+        } catch (Throwable t) {
+            result.values().forEach(MeshData::close);
+            throw new RuntimeException(t);
+        } finally {
+//            pool.close();
+        }
     }
 
     private static void renderBatches(RenderLevelStageEvent event) {

@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.component.world.renderer;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +33,13 @@ public class FlashPointRender extends BasePass {
     }
 
     @Override
+    public boolean doRender(Minecraft mc) {
+        return false;
+    }
+
+    @Override
     public ComponentType type() {
-        return ComponentType.FLASH_POINT_RENDERER;
+        return ComponentType.FLASH_POINT_PASS;
     }
 
     public static final Codec<FlashPointRender> CODEC = Codec.unit(new FlashPointRender());

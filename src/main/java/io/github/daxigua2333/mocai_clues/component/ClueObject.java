@@ -92,10 +92,10 @@ public class ClueObject {
                     ComponentType.CODEC,
                     key -> switch (key) {  // TODO
                         case DETAIL_DATA -> DetailData.CODEC;
-                        case BLOCK_OUTLINE_RENDERER -> BlockOutlinePass.CODEC;
+                        case BLOCK_OUTLINE_PASS -> BlockOutlinePass.CODEC;
                         case BLOCK_POS_LIST -> BlockPosList.CODEC;
                         case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
-                        case FLASH_POINT_RENDERER -> FlashPointRender.CODEC;
+                        case FLASH_POINT_PASS -> FlashPointRender.CODEC;
                     }
             );
 //    public static final Codec<ClueObject> CODEC = MAP_CODEC.xmap(ClueObject::new, ClueObject::getMap);

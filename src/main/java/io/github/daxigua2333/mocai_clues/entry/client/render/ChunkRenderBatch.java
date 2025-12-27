@@ -1,18 +1,24 @@
 package io.github.daxigua2333.mocai_clues.entry.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.*;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueComponent;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
+import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import org.joml.Matrix4f;
 
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -47,6 +53,7 @@ public class ChunkRenderBatch {
             MoCaiClues.LOGGER.error("ComponentType: '{}' should not appear in render batch.", type, new NullPointerException("Undefined Pass component type."));
             return;
         }
+        if (! passCompo.doRender(Minecraft.getInstance())) return;
         RenderType rType = passCompo.renderType();
 
         rType.setupRenderState();
