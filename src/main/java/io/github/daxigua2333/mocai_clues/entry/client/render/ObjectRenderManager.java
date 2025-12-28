@@ -18,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -31,7 +32,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-@EventBusSubscriber(modid = MoCaiClues.MODID)
+@EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public class ObjectRenderManager {
     private static final Map<ChunkPos, ChunkRenderBatch> CHUNK_BATCHES = new ConcurrentHashMap<>();
     private static final Set<ChunkPos> DIRTY_CHUNKS = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -39,11 +40,6 @@ public class ObjectRenderManager {
     private static final int POOL_SIZE = 10;
     private static final BlockingQueue<ByteBufferBuilder> POOL = new ArrayBlockingQueue<>(POOL_SIZE);
     private static final int CAPACITY = 65536;
-    static {
-        for (int i=0; i<POOL_SIZE; i++) {
-            POOL.add(new ByteBufferBuilder(CAPACITY));
-        }
-    }
 
     // Call this from "onChange" sync hook
     public static void markChunkDirty(ChunkPos pos) {
@@ -70,15 +66,22 @@ public class ObjectRenderManager {
 
     // avoid leaking GPU buffers when leaving a world/server
     @SubscribeEvent
-    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+    public static void onLeave(ClientPlayerNetworkEvent.LoggingOut event) {
         CHUNK_BATCHES.values().forEach(ChunkRenderBatch::close);
-        for (int i=0; i<POOL_SIZE; i++) {
+        for (int i=0; i<POOL.size(); i++) {
             try {
                 ByteBufferBuilder bbb = POOL.take();
                 bbb.close();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onJoin(ClientPlayerNetworkEvent.LoggingIn event) {
+        for (int i=0; i<POOL_SIZE; i++) {
+            POOL.add(new ByteBufferBuilder(CAPACITY));
         }
     }
 
