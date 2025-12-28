@@ -7,9 +7,12 @@ import io.github.daxigua2333.mocai_clues.data.server.ServerDatabase;
 import io.github.daxigua2333.mocai_clues.data.sync.MyObjectSync;
 import io.github.daxigua2333.mocai_clues.data.sync.NitriteMyObjectStore;
 import io.github.daxigua2333.mocai_clues.data.sync.server.MyObjectSyncServer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +24,13 @@ public final class ServerDataAccessor {
     public static ClueObject retrieveByIDInSD(MinecraftServer server, UUID id) {
         return ClueObjectHolderInSavedData.getInstance(server).holder().get(id);
     }
+    public static Collection<ClueObject> retrieveByBlockPos(BlockPos pos) {
+        return List.of();
+    }
+    public static Collection<ClueObject> retrieveByEntity(Entity entity) {
+        return List.of();
+    }
+
 
     // ========== upsert ==========
     public static void createDefault() {

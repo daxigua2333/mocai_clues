@@ -50,7 +50,7 @@ public class ObjectRenderManager {
         if (event.getAttachmentHolder() instanceof LevelChunk chunk) {
             ObjectRenderManager.markChunkDirty(chunk.getPos());
         } else if (event.getAttachmentHolder() == null) {  // TODO: event records deltas
-            ClientAccessor.queryChunkPosInSavedData().forEach(pos -> ObjectRenderManager.markChunkDirty(pos));
+            ClientAccessor.retrieveChunkPosInSavedData().forEach(pos -> ObjectRenderManager.markChunkDirty(pos));
         }
     }
 
@@ -125,7 +125,7 @@ public class ObjectRenderManager {
         Level level = Minecraft.getInstance().level;
 //        LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
 //        var dataMap = chunk.getData(MyAttachments.CHUNK_DATA_MAP);
-        List<ClueObject> data = ClientAccessor.queryClueObjectByChunkPos(chunkPos);  // TODO;
+        List<ClueObject> data = ClientAccessor.retrieveByChunkPos(chunkPos);  // TODO;
 
         Map<ComponentType, BufferBuilder> builders = new EnumMap<>(ComponentType.class);
         Map<ComponentType, MeshData> result = new EnumMap<>(ComponentType.class);

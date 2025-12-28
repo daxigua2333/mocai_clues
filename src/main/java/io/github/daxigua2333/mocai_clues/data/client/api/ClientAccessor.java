@@ -1,10 +1,13 @@
 package io.github.daxigua2333.mocai_clues.data.client.api;
 
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 
 import java.util.*;
@@ -14,7 +17,7 @@ import java.util.*;
  */
 public class ClientAccessor {
 
-    public static List<ClueObject> queryClueObjectByClueType(ClueType type) {
+    public static List<ClueObject> retrieveByClueType(ClueType type) {
         List<ClueObject> result = new ArrayList<>();
         result.addAll(ClientSavedDataAccessor.queryClueObjectByClueType(type));
 //        result.addAll();
@@ -24,12 +27,27 @@ public class ClientAccessor {
         return result;
     }
 
-    public static List<ClueObject> queryClueObjectByChunkPos(ChunkPos chunkPos) {  // TODO: optimize
+    public static List<ClueObject> retrieveByBlockPos(BlockPos pos) {
         List<ClueObject> result = new ArrayList<>();
 
         var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
         for (var obj : holder.values()) {
-            BlockPosList compo = obj.getComponent(ComponentType.BLOCK_POS_LIST);
+            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
+            if (compo == null) continue;
+            if (compo.getImmutable().contains(pos)) {
+                result.add(obj);
+            }
+        }
+
+        return result;
+    }
+
+    public static List<ClueObject> retrieveByChunkPos(ChunkPos chunkPos) {  // TODO: optimize
+        List<ClueObject> result = new ArrayList<>();
+
+        var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
+        for (var obj : holder.values()) {
+            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
             if (compo == null) continue;
             for (var pos : compo.getImmutable()) {
                 if (chunkPos.equals(new ChunkPos(pos))) {
@@ -42,12 +60,16 @@ public class ClientAccessor {
         return result;
     }
 
-    public static Set<ChunkPos> queryChunkPosInSavedData() {  // TODO: optimize
+    public static List<ClueObject> retrieveByEntity(Entity entity) {
+        return new ArrayList<>();
+    }
+
+    public static Set<ChunkPos> retrieveChunkPosInSavedData() {  // TODO: optimize
         Set<ChunkPos> result = new HashSet<>();
 
         var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
         for (ClueObject obj : holder.values()) {
-            BlockPosList compo = obj.getComponent(ComponentType.BLOCK_POS_LIST);
+            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
             if (compo == null) continue;
             for (var pos : compo.getImmutable()) {
                 result.add(new ChunkPos(pos));

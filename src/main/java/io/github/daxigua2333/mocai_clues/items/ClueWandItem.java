@@ -1,14 +1,12 @@
 package io.github.daxigua2333.mocai_clues.items;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
-import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
 import io.github.daxigua2333.mocai_clues.guis.WandScreen;
@@ -124,7 +122,7 @@ public class ClueWandItem extends Item {
 //                    DataSelectionScreen.open(list);
                     WandScreen.open(  // TODO
                             () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT, ClueType.FOOTPRINT1, ClueType.FOOTPRINT2, ClueType.FOOTPRINT3, ClueType.FOOTPRINT4, ClueType.FOOTPRINT6, ClueType.FOOTPRINT7),
-                            (type) -> ClientAccessor.queryClueObjectByClueType(type)
+                            (type) -> ClientAccessor.retrieveByClueType(type)
                     );
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());
@@ -140,10 +138,10 @@ public class ClueWandItem extends Item {
                     ObjectHolder<ClueObject> holder = SD.holder();
                     ClueObject obj = holder.get(attaching.id());
 
-                    if (! obj.hasComponent(ComponentType.BLOCK_POS_LIST)) {
-                        obj.addComponent(new BlockPosList());
+                    if (! obj.hasComponent(ComponentType.BLOCK_POS_SET)) {
+                        obj.addComponent(new BlockPosSet());
                     }
-                    BlockPosList compo = obj.getComponent(ComponentType.BLOCK_POS_LIST);
+                    BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
                     compo.add(clickedPos);
                     // TODO:
                     SD.setDirty();

@@ -1,6 +1,8 @@
 package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryInfiniteMenu;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
@@ -8,6 +10,7 @@ import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerA
 import io.github.daxigua2333.mocai_clues.items.components.FinderHitResult;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.statics.FinderHitResultTicker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
@@ -25,8 +28,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class ClueFinderItem extends Item {
     public ClueFinderItem(Properties props) {
@@ -38,13 +45,29 @@ public class ClueFinderItem extends Item {
         ItemProperties.register(ModItemsRegistry.CLUE_FINDER_ITEM.get(),
         ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "found"),
         (ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int id) -> {
-//        (stack, level, entity, id) -> {
-            if (entity != null) {
-                return stack.getOrDefault(ModDataComponentsRegistry.FINDER_HIT_RESULT.get(), new FinderHitResult(false, false)).current() ? 1.0F : 0.0F;
-            } else {
-                // entity == null (e.g., in item frame/JEI/creative preview) – fall back to stack data
-                return 0.0F;
+            if (!(entity instanceof Player player)) return 0.0f;
+            if (player != Minecraft.getInstance().player) return 0f;
+
+            boolean inHand = ItemStack.isSameItem(player.getMainHandItem(), stack) ||
+                    ItemStack.isSameItem(player.getOffhandItem(), stack);
+
+            HitResult hr = Minecraft.getInstance().hitResult;
+            if (hr == null) return 0f;
+            List<ClueObject> data;
+            switch (hr.getType()) {
+                case BLOCK -> {
+                    BlockHitResult bhr = (BlockHitResult) hr;
+                    data = ClientAccessor.retrieveByBlockPos(bhr.getBlockPos());
+                }
+                case ENTITY -> {
+                    EntityHitResult ehr = (EntityHitResult) hr;
+                    data = ClientAccessor.retrieveByEntity(ehr.getEntity());
+                }
+                default -> {
+                    return 0f;
+                }
             }
+            return (inHand && !data.isEmpty()) ? 1f : 0f;
         });
     };
 

@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,7 +81,7 @@ public class BlockOutlinePass extends BasePass {
 
     @Override
     public void addToMesh(BufferBuilder builder) {
-        BlockPosList compo = this.owner.getComponent(ComponentType.BLOCK_POS_LIST);
+        BlockPosSet compo = this.owner.getComponent(ComponentType.BLOCK_POS_SET);
         if (compo != null) {
             for (var pos : compo.getImmutable()) {
                 box(builder, pos);

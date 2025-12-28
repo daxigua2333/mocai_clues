@@ -4,11 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.daxigua2333.mocai_clues.component.data.DetailData;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosList;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlinePass;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.FlashPointRender;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -87,22 +82,11 @@ public class ClueObject {
     }
 
     // ==== Codec ====
-    private static final Codec<Map<ComponentType, ClueComponent>> MAP_CODEC =
-            Codec.dispatchedMap(
-                    ComponentType.CODEC,
-                    key -> switch (key) {  // TODO
-                        case DETAIL_DATA -> DetailData.CODEC;
-                        case BLOCK_OUTLINE_PASS -> BlockOutlinePass.CODEC;
-                        case BLOCK_POS_LIST -> BlockPosList.CODEC;
-                        case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
-                        case FLASH_POINT_PASS -> FlashPointRender.CODEC;
-                    }
-            );
 //    public static final Codec<ClueObject> CODEC = MAP_CODEC.xmap(ClueObject::new, ClueObject::getMap);
     public static final Codec<ClueObject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UUIDUtil.CODEC.fieldOf("id").forGetter(ClueObject::getId),
             ClueType.CODEC.fieldOf("type").forGetter(ClueObject::type),
-            MAP_CODEC.fieldOf("components").forGetter(ClueObject::getMap)
+            ComponentType.MAP_CODEC.fieldOf("components").forGetter(ClueObject::getMap)
     ).apply(instance, ClueObject::new));
 
     // NBT

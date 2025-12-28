@@ -15,7 +15,7 @@ import java.util.Set;
 
 /** in chunk attachment, this exists only once
  *  but in SavedData, this can exist multiply */
-public class BlockPosList extends ClueComponent {
+public class BlockPosSet extends ClueComponent {
     private final Set<BlockPos> set;
 
     public Set<BlockPos> getImmutable() {
@@ -31,21 +31,21 @@ public class BlockPosList extends ClueComponent {
         set.clear();
     }
 
-    public BlockPosList() {
+    public BlockPosSet() {
         this(new HashSet<>());
     }
-    private BlockPosList(Set<BlockPos> set) {
+    private BlockPosSet(Set<BlockPos> set) {
         this.set = set;
     }
 
     @Override
     public ComponentType type() {
-        return ComponentType.BLOCK_POS_LIST;
+        return ComponentType.BLOCK_POS_SET;
     }
 
-    public static final Codec<BlockPosList> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockPos.CODEC.listOf().xmap(HashSet::new, List::copyOf).fieldOf("set").forGetter(BlockPosList::getSet)
-    ).apply(instance, BlockPosList::new));
+    public static final Codec<BlockPosSet> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.listOf().xmap(HashSet::new, List::copyOf).fieldOf("set").forGetter(BlockPosSet::getSet)
+    ).apply(instance, BlockPosSet::new));
 
     @Nullable
     @Override
