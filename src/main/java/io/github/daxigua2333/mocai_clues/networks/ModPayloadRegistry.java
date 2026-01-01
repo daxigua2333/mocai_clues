@@ -7,7 +7,6 @@ import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
-import io.github.daxigua2333.mocai_clues.items.statics.FinderHitResultTicker;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -35,11 +34,6 @@ public class ModPayloadRegistry {
                 ModPayloadRegistry::onWandLeftButtonPressed
         );
 
-        registrar.playToServer(
-                FinderLeaveHandPayload.TYPE,
-                FinderLeaveHandPayload.STREAM_CODEC,
-                ModPayloadRegistry::onFinderLeaveHand
-        );
 
 
         // ====== ClueObject =====
@@ -128,27 +122,4 @@ public class ModPayloadRegistry {
         });
     }
 
-    private static void onFinderLeaveHand(final FinderLeaveHandPayload data, final IPayloadContext context) {
-        Player player = context.player();
-        ItemStack prev;
-        List<ItemStack> copies;
-        if (data.isMain()) {
-            prev = FinderHitResultTicker.prevMainHoldFinderMap.getOrDefault(player.getUUID(), ItemStack.EMPTY);
-            copies = FinderHitResultTicker.prevMainHoldFinderCopyMap.getOrDefault(prev, new ArrayList<>());
-        }else {
-            prev = FinderHitResultTicker.prevOffHoldFinderMap.getOrDefault(player.getUUID(), ItemStack.EMPTY);
-            copies = FinderHitResultTicker.prevOffHoldFinderCopyMap.getOrDefault(prev, new ArrayList<>());
-        }
-
-        // turn prev + copies all into false
-        var finder = ModItemsRegistry.CLUE_FINDER_ITEM.get();
-        if (prev.getItem() == finder) {
-            FinderHitResultTicker.handleHitResult(player, prev, false);
-        }
-        for (ItemStack stackI : copies) {
-            if (stackI.getItem() == finder) {
-                FinderHitResultTicker.handleHitResult(player, stackI, false);
-            }
-        }
-    }
 }

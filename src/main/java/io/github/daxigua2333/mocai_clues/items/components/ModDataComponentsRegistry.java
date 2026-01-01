@@ -29,22 +29,6 @@ public class ModDataComponentsRegistry {
             .networkSynchronized(WAND_MODE_STREAM)      // sync to client
         );
 
-    public static final Codec<FinderHitResult> FINDER_HIT_RESULT_CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    Codec.BOOL.fieldOf("prev").forGetter(FinderHitResult::prev),
-                    Codec.BOOL.fieldOf("current").forGetter(FinderHitResult::current)
-            ).apply(instance, FinderHitResult::new));
-    public static final StreamCodec<ByteBuf, FinderHitResult> FINDER_HIT_RESULT_STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL, FinderHitResult::prev,
-            ByteBufCodecs.BOOL, FinderHitResult::current,
-            FinderHitResult::new
-    );
-    public static final Supplier<DataComponentType<FinderHitResult>> FINDER_HIT_RESULT = DATA_COMPONENTS.registerComponentType(
-            "finder_hit_result", builder -> builder
-                    .persistent(FINDER_HIT_RESULT_CODEC)
-                    .networkSynchronized(FINDER_HIT_RESULT_STREAM_CODEC)
-    );
-
     public static final Supplier<DataComponentType<AttachingObject>> ATTACHING_OBJECT =
         DATA_COMPONENTS.registerComponentType("attaching_object", builder -> builder
             .persistent(AttachingObject.CODEC)
