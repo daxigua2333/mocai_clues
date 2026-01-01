@@ -6,7 +6,9 @@ import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.networks.LeftButtonPressedPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -14,6 +16,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
+@OnlyIn(value = Dist.CLIENT)
 @EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public class WandLeftClickHandler {
 
@@ -21,7 +24,7 @@ public class WandLeftClickHandler {
     public static void onMouse(InputEvent.MouseButton.Pre event){
         if(event.getButton() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return;
 
-        LocalPlayer player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if(player == null) return;
         if(Minecraft.getInstance().screen != null) return;
         if(player.getMainHandItem().getItem() != ModItemsRegistry.CLUE_WAND_ITEM.get()) return;

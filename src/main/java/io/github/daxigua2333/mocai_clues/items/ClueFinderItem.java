@@ -1,7 +1,14 @@
 package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEvent;
+import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
+import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventRegistry;
+import io.github.daxigua2333.mocai_clues.component.world.interact.handler.PlaySound;
+import io.github.daxigua2333.mocai_clues.component.world.interact.predicate.FinderHit;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryInfiniteMenu;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
@@ -17,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
@@ -40,36 +48,63 @@ public class ClueFinderItem extends Item {
         super(props);
     }
 
+    private static boolean prevDoFound = false;
     // texture reflection
     public static void registerTextureChange(){
-        ItemProperties.register(ModItemsRegistry.CLUE_FINDER_ITEM.get(),
-        ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "found"),
-        (ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int id) -> {
-            if (!(entity instanceof Player player)) return 0.0f;
-            if (player != Minecraft.getInstance().player) return 0f;
+        ItemProperties.register(
+                ModItemsRegistry.CLUE_FINDER_ITEM.get(),
+                ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "found"),
+                (ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int id) -> {
+                    if (!(entity instanceof Player player)) return 0.0f;
+                    if (player != Minecraft.getInstance().player) return 0f;
 
-            boolean inHand = ItemStack.isSameItem(player.getMainHandItem(), stack) ||
-                    ItemStack.isSameItem(player.getOffhandItem(), stack);
+                    // finder in hand
+                    boolean inHand = ItemStack.isSameItem(player.getMainHandItem(), stack) ||
+                            ItemStack.isSameItem(player.getOffhandItem(), stack);
 
-            HitResult hr = Minecraft.getInstance().hitResult;
-            if (hr == null) return 0f;
-            List<ClueObject> data;
-            switch (hr.getType()) {
-                case BLOCK -> {
-                    BlockHitResult bhr = (BlockHitResult) hr;
-                    data = ClientAccessor.retrieveByBlockPos(bhr.getBlockPos());
-                }
-                case ENTITY -> {
-                    EntityHitResult ehr = (EntityHitResult) hr;
-                    data = ClientAccessor.retrieveByEntity(ehr.getEntity());
-                }
-                default -> {
-                    return 0f;
-                }
-            }
-            return (inHand && !data.isEmpty()) ? 1f : 0f;
-        });
-    };
+                    // finder hit predicate
+                    HitResult hr = Minecraft.getInstance().hitResult;  // TODO: performance issues
+                    if (hr == null) return 0f;
+                    List<ClueObject> data;
+                    switch (hr.getType()) {
+                        case BLOCK -> {
+                            BlockHitResult bhr = (BlockHitResult) hr;
+                            data = ClientAccessor.retrieveByBlockPos(bhr.getBlockPos());
+                        }
+                        case ENTITY -> {
+                            EntityHitResult ehr = (EntityHitResult) hr;
+                            data = ClientAccessor.retrieveByEntity(ehr.getEntity());
+                        }
+                        default -> {
+                            return 0f;
+                        }
+                    }
+
+        //            boolean doFound = false;
+        //            for (ClueObject obj : data) {
+        //                InteractEventHolder compo = obj.getComponent(ComponentType.INTERACT_EVENT_HOLDER);
+        //                if (compo == null) continue;
+        //                for (InteractEvent event : compo.getImmutable()) {
+        //                    InteractEvent.Context context = new InteractEvent.Context(InteractEventRegistry.EntryType.RAY_TRACE, player, obj);
+        //                    if (event.getPredicate() instanceof FinderHit doHit && event.getHandler() instanceof PlaySound play && doHit.test(context)) {
+        //                        play.handle(context);
+        //                        doFound = true;
+        //                        return (inHand && doFound) ? 1f : 0f;
+        //                    }
+        //                }
+        //            }
+        //
+        //            return (inHand && doFound) ? 1f : 0f;
+                    if (inHand && !data.isEmpty()) {
+                        if (!prevDoFound) player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+                        prevDoFound = true;
+                        return 1f;
+                    } else {
+                        prevDoFound = false;
+                        return 0f;
+                    }
+                });
+    }
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {

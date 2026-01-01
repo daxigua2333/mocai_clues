@@ -7,6 +7,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.ModRenderPassRegistry;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -14,6 +15,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 
 import java.util.EnumMap;
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@OnlyIn(value = Dist.CLIENT)
 public class ChunkRenderBatch {
     // One buffer per RenderType you support
     private final Map<ComponentType, VertexBuffer> buffers = new HashMap<>();
@@ -48,13 +52,14 @@ public class ChunkRenderBatch {
         VertexBuffer vbo = buffers.get(type);
         if (vbo == null || vbo.isInvalid()) {return;}
 
-        BasePass passCompo = ComponentType.getPass(type);
+        BasePass passCompo = ModRenderPassRegistry.getPass(type);
         if (passCompo == null) {
             MoCaiClues.LOGGER.error("ComponentType: '{}' should not appear in render batch.", type, new NullPointerException("Undefined Pass component type."));
             return;
         }
         if (! passCompo.doRender(Minecraft.getInstance())) return;
-        RenderType rType = passCompo.renderType();
+        RenderType rType = ModRenderPassRegistry.getRenderType(type);
+        if (rType == null) throw new RuntimeException("Unregistered render type for pass component type: " + type);
 
         rType.setupRenderState();
         passCompo.setupRenderState();

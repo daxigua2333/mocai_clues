@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -24,8 +26,38 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+@OnlyIn(value = Dist.CLIENT)
 @EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public class FootprintRenderer {
+    public static final RenderType FOOTPRINT_RENDER_TYPE = RenderType.create(
+            "footprint_render_type",
+                DefaultVertexFormat.POSITION_COLOR,  // smaller vertex format, no UVs, no lightmap
+                VertexFormat.Mode.QUADS,
+                RenderType.SMALL_BUFFER_SIZE,  // plenty for footprints
+                false, // affectsCrumbling – no
+                false, // sortOnUpload – we don’t care about strict translucency order
+                RenderType.CompositeState.builder()
+                        // Simple position+color shader (no UV, no normals)
+                        .setShaderState(RenderType.POSITION_COLOR_SHADER)
+                        // No texture sampling at all
+                        .setTextureState(RenderType.NO_TEXTURE)
+                        // Basic depth test so footprints don’t show through walls
+                        .setDepthTestState(RenderType.LEQUAL_DEPTH_TEST)
+                        // Don’t use lightmap or overlay – cheaper
+                        .setLightmapState(RenderType.NO_LIGHTMAP)
+                        .setOverlayState(RenderType.NO_OVERLAY)
+                        // Don’t mess with special layering
+                        .setLayeringState(RenderType.NO_LAYERING)
+                        // We want translucency so alpha on the footprint actually works
+                        .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
+                        // Don’t write to depth, only color – lets the ground control depth
+                        .setWriteMaskState(RenderType.COLOR_WRITE)
+                        // Safer for quads that might flip; you *can* change to CULL for a tiny win
+                        .setCullState(RenderType.NO_CULL)
+                        .createCompositeState(false)
+    );
+
+
     @SubscribeEvent
     public static void render(RenderLevelStageEvent event) {
         if (!Config.CLIENT.FOOTPRINT_DO_RENDER.getAsBoolean()) {return;}
@@ -49,7 +81,7 @@ public class FootprintRenderer {
         Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         poseStack.translate(-cameraPos.x(), -cameraPos.y(), -cameraPos.z());
 
-        VertexConsumer vc = bufferSource.getBuffer(ModFootprintRegistry.FOOTPRINT_RENDER_TYPE);
+        VertexConsumer vc = bufferSource.getBuffer(FOOTPRINT_RENDER_TYPE);
 
 //        PoseStack.Pose pose = poseStack.last();
         PoseStack.Pose modelView = poseStack.last();

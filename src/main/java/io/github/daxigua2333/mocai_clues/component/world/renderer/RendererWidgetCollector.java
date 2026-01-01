@@ -5,17 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.gui.editable.MultiChoiceList;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
 import io.github.daxigua2333.mocai_clues.networks.WandSwitchToAttachModePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +46,7 @@ public class RendererWidgetCollector extends ClueComponent{
                 }).bounds(0, 0, 0, 20).build(),
                 new MultiChoiceList(0, 0, 0, 20, list,
                         (added) -> {
-                            var compo = ComponentType.getPass(added);
+                            var compo = ModRenderPassRegistry.getPass(added);
                             if (compo == null) throw new RuntimeException("unsupported renderer component type: " + added.toString());
                             this.owner.addComponent(compo);
                         },

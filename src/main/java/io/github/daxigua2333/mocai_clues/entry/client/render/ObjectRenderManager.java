@@ -6,6 +6,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.ModRenderPassRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import net.minecraft.Util;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -32,6 +34,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+@OnlyIn(value = Dist.CLIENT)
 @EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public class ObjectRenderManager {
     private static final Map<ChunkPos, ChunkRenderBatch> CHUNK_BATCHES = new ConcurrentHashMap<>();
@@ -139,7 +142,8 @@ public class ObjectRenderManager {
                 for (ClueComponent compo : obj.getComponents()) {
                     if (compo instanceof BasePass passCompo) {
                         ComponentType type = passCompo.type();
-                        RenderType rType = passCompo.renderType();
+                        RenderType rType = ModRenderPassRegistry.getRenderType(type);
+                        if (rType == null) throw new RuntimeException("Unregistered render type for pass component type: " + type);
                         BufferBuilder builder = builders.computeIfAbsent(type, t -> new BufferBuilder(bbb, rType.mode(), rType.format()));
 
                         // Build the geometry (Lines, Quads, etc.)

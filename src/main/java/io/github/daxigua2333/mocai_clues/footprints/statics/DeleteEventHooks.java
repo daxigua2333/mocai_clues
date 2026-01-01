@@ -14,7 +14,7 @@ public final class DeleteEventHooks {
     @SubscribeEvent
     public static void onBecameAir(BlockBecameAirEvent event) {
         if (!HookToggle.isEnabled()) {return;}
-        FootprintServerHelper.deleteByBlockPos(event.getLevel(), event.getPos());
+//        FootprintServerHelper.deleteByBlockPos(event.getLevel(), event.getPos());
     }
 
     @SubscribeEvent
@@ -22,7 +22,7 @@ public final class DeleteEventHooks {
         if (!HookToggle.isEnabled()) {return;}
         // TODO: .......... 我处理不好.............
         if (event.getNew().is(Blocks.WATER)) {
-            FootprintServerHelper.deleteByBlockPos(event.getLevel(), event.getPos().below());
+//            FootprintServerHelper.deleteByBlockPos(event.getLevel(), event.getPos().below());
         }
     }
 }

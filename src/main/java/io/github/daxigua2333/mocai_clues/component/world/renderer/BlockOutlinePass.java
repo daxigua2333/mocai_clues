@@ -2,18 +2,12 @@ package io.github.daxigua2333.mocai_clues.component.world.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -21,7 +15,6 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.OptionalDouble;
 
 public class BlockOutlinePass extends BasePass {
     private static final int ARGB = 0xFF000000;
@@ -31,31 +24,6 @@ public class BlockOutlinePass extends BasePass {
         return ComponentType.BLOCK_OUTLINE_PASS;
     }
 
-    @Override
-    public RenderType renderType() {
-        return RenderType.create(
-                MoCaiClues.MODID +":overlay_lines",
-    //            DefaultVertexFormat.POSITION_COLOR,
-                DefaultVertexFormat.POSITION_COLOR_NORMAL,
-                VertexFormat.Mode.LINES,
-    //            1536, // Buffer size
-                256,
-                false, // useDelegate
-                false, // isAlbum
-                RenderType.CompositeState.builder()
-    //                    .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
-    //                    .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
-                        .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLinesShader))
-                        .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(3.0D))) // Line thickness
-                        .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING) // Prevents Z-fighting
-                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                        .setDepthTestState(RenderStateShard.NO_DEPTH_TEST) // THIS makes it X-Ray
-    //                    .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .createCompositeState(false)
-        );
-    }
 
     @Override
     public void setupRenderState() {

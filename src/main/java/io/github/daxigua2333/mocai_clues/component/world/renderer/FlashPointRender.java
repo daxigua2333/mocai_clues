@@ -13,11 +13,6 @@ import java.util.List;
 public class FlashPointRender extends BasePass {
 
     @Override
-    public RenderType renderType() {
-        return null;
-    }
-
-    @Override
     public void addToMesh(BufferBuilder builder) {
 
     }
