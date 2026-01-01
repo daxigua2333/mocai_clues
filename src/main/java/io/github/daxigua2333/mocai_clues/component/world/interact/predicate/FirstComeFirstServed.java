@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEvent;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventRegistry;
-import io.github.daxigua2333.mocai_clues.component.world.interact.handler.PlaySound;
 
 public class FirstComeFirstServed extends BasePredicate {
     private int remain;

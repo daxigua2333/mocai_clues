@@ -10,7 +10,7 @@ public class DefaultPredicate extends BasePredicate{
         return InteractEventRegistry.PredicateType.DEFAULT;
     }
 
-    public static final MapCodec<FinderHit> CODEC = MapCodec.unit(new FinderHit());
+    public static final MapCodec<DefaultPredicate> CODEC = MapCodec.unit(new DefaultPredicate());
 
     @Override
     public boolean test(InteractEvent.Context context) {

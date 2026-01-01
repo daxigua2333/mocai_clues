@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DetailData extends ClueComponent {
@@ -68,11 +69,11 @@ public class DetailData extends ClueComponent {
 
 
     // ==== getter ====
-    private String getName() {
+    public String getName() {
         return name;
     }
-    private List<String> getDetails() {
-        return details;
+    public List<String> getDetails() {
+        return Collections.unmodifiableList(details);
     }
     public void add(String item) {
         this.details.add(item);

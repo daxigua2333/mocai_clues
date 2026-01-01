@@ -1,7 +1,11 @@
 package io.github.daxigua2333.mocai_clues.component;
 
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
+import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEvent;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
+import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventRegistry;
+import io.github.daxigua2333.mocai_clues.component.world.interact.handler.SendClue;
+import io.github.daxigua2333.mocai_clues.component.world.interact.predicate.DefaultPredicate;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BlockOutlinePass;
@@ -26,7 +30,7 @@ public class Assembler {
                 PassType.BLOCK_OUTLINE
         )));
         object.addComponent(new InteractEventHolder(List.of(
-//                new InteractEvent(new FinderHit(), new PlaySound())  // finder
+                new InteractEvent(InteractEventRegistry.EntryType.CLICK, new DefaultPredicate(), new SendClue())
         )));
         return object;
     }

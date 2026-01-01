@@ -44,25 +44,25 @@ neoForge {
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
-        client {
+        client1 {
             client()
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-//            gameDirectory = file("run/client1")
-//            programArguments.addAll("--username", "Dev1")
+            gameDirectory = file("run/client1")
+            programArguments.addAll("--username", "Dev1")
         }
-//
-//        client2 {
-//            client()
-//            gameDirectory = file("run/client2")
-//            programArguments.addAll("--username", "Dev2")
-//        }
+
+        client2 {
+            client()
+            gameDirectory = file("run/client2")
+            programArguments.addAll("--username", "Dev2")
+        }
 
         server {
             server()
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-//            gameDirectory = file("run/server")
+            gameDirectory = file("run/server")
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.

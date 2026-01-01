@@ -1,14 +1,7 @@
 package io.github.daxigua2333.mocai_clues.items;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEvent;
-import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
-import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventRegistry;
-import io.github.daxigua2333.mocai_clues.component.world.interact.handler.PlaySound;
-import io.github.daxigua2333.mocai_clues.component.world.interact.predicate.FinderHit;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryInfiniteMenu;
 import io.github.daxigua2333.mocai_clues.guis.ClueInventoryMenu;
@@ -25,7 +18,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
