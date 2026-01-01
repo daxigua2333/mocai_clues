@@ -4,15 +4,10 @@ import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BlockOutlinePass;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.FlashPointRender;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
 import java.util.Map;
-import java.util.Set;
 
 /** Registry for components */
 public enum ComponentType {
@@ -22,9 +17,7 @@ public enum ComponentType {
     // world renderer
     RENDERER_WIDGET_COLLECTOR,
     BLOCK_POS_SET,
-
-    BLOCK_OUTLINE_PASS,
-    FLASH_POINT_PASS,
+    RENDERER_HOLDER,
 
     // interact
     INTERACT_EVENT_HOLDER,
@@ -38,11 +31,10 @@ public enum ComponentType {
                     ComponentType.CODEC,
                     key -> switch (key) {  // TODO
                         case DETAIL_DATA -> DetailData.CODEC;
-                        case BLOCK_OUTLINE_PASS -> BlockOutlinePass.CODEC;
                         case BLOCK_POS_SET -> BlockPosSet.CODEC;
                         case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
-                        case FLASH_POINT_PASS -> FlashPointRender.CODEC;
                         case INTERACT_EVENT_HOLDER -> InteractEventHolder.CODEC;
+                        case RENDERER_HOLDER -> RendererHolder.CODEC;
                     }
             );
 

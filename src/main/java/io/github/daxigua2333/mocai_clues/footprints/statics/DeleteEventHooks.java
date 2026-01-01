@@ -11,6 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 @EventBusSubscriber(modid = MoCaiClues.MODID)
 public final class DeleteEventHooks {
 
+    // TODO: cannot run on dedicate server when creating a new world
     @SubscribeEvent
     public static void onBecameAir(BlockBecameAirEvent event) {
         if (!HookToggle.isEnabled()) {return;}

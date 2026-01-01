@@ -5,8 +5,9 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.BasePass;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.ModRenderPassRegistry;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import net.minecraft.Util;
@@ -83,7 +84,7 @@ public class ObjectRenderManager {
 
     @SubscribeEvent
     public static void onJoin(ClientPlayerNetworkEvent.LoggingIn event) {
-        for (int i=0; i<POOL_SIZE; i++) {
+        for (int i=POOL.size(); i<POOL_SIZE; i++) {
             POOL.add(new ByteBufferBuilder(CAPACITY));
         }
     }
@@ -121,7 +122,7 @@ public class ObjectRenderManager {
         }
     }
 
-    record PendingMesh(ByteBufferBuilder builder, Map<ComponentType, MeshData> meshMap) {}
+    record PendingMesh(ByteBufferBuilder builder, Map<PassType, MeshData> meshMap) {}
     private static PendingMesh buildChunkMesh(ChunkPos chunkPos) {
 
         // 1. Get your data from Chunk Attachment
@@ -130,8 +131,8 @@ public class ObjectRenderManager {
 //        var dataMap = chunk.getData(MyAttachments.CHUNK_DATA_MAP);
         List<ClueObject> data = ClientAccessor.retrieveByChunkPos(chunkPos);  // TODO;
 
-        Map<ComponentType, BufferBuilder> builders = new EnumMap<>(ComponentType.class);
-        Map<ComponentType, MeshData> result = new EnumMap<>(ComponentType.class);
+        Map<PassType, BufferBuilder> builders = new EnumMap<>(PassType.class);
+        Map<PassType, MeshData> result = new EnumMap<>(PassType.class);
         // because it's async, so cannot reuse same buffer. must one buffer per worker
 //        int perSize = DefaultVertexFormat.POSITION_COLOR_NORMAL.getVertexSize();
 //        ByteBufferBuilder pool = new ByteBufferBuilder(data.size() * 64 * perSize);
@@ -139,18 +140,18 @@ public class ObjectRenderManager {
         try {
             ByteBufferBuilder bbb = POOL.take();
             data.forEach(obj -> {
-                for (ClueComponent compo : obj.getComponents()) {
-                    if (compo instanceof BasePass passCompo) {
-                        ComponentType type = passCompo.type();
-                        RenderType rType = ModRenderPassRegistry.getRenderType(type);
-                        if (rType == null) throw new RuntimeException("Unregistered render type for pass component type: " + type);
-                        BufferBuilder builder = builders.computeIfAbsent(type, t -> new BufferBuilder(bbb, rType.mode(), rType.format()));
+                RendererHolder holder = obj.getComponent(ComponentType.RENDERER_HOLDER);
+                for (PassType type : holder.getImmutable()) {
+                    BasePass pass = PassType.getPass(type);
+                    RenderType rType = pass.getRenderType();
+                    if (rType == null) throw new RuntimeException("Unregistered render type for pass component type: " + type);
+                    BufferBuilder builder = builders.computeIfAbsent(type, t -> new BufferBuilder(bbb, rType.mode(), rType.format()));
 
-                        // Build the geometry (Lines, Quads, etc.)
-                        // TODO: Coordinates should be relative to Chunk (0-15)
-                        // to prevent floating point jitter at high coordinates
-                        passCompo.addToMesh(builder);
-                    }
+                    // Build the geometry (Lines, Quads, etc.)
+                    // TODO: Coordinates should be relative to Chunk (0-15)
+                    // to prevent floating point jitter at high coordinates
+                    pass.addToMesh(new BasePass.Context(builder, obj));
+
                 }
             });
             // Finalize meshes

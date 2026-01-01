@@ -1,9 +1,10 @@
 package io.github.daxigua2333.mocai_clues.component;
 
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public abstract class ClueComponent {
@@ -18,8 +19,10 @@ public abstract class ClueComponent {
 
 
     // ======= gui part ========
+    @OnlyIn(Dist.CLIENT)
     @Nullable
     public abstract List<AbstractWidget> getEditable();
+    @OnlyIn(Dist.CLIENT)
     @Nullable
     public abstract List<AbstractWidget> getUneditable();
 

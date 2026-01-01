@@ -1,29 +1,64 @@
-package io.github.daxigua2333.mocai_clues.component.world.renderer;
+package io.github.daxigua2333.mocai_clues.component.world.renderer.pass;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.List;
+import java.util.OptionalDouble;
 
+@OnlyIn(Dist.CLIENT)
 public class BlockOutlinePass extends BasePass {
     private static final int ARGB = 0xFF000000;
 
     @Override
-    public ComponentType type() {
-        return ComponentType.BLOCK_OUTLINE_PASS;
+    public PassType getPassType() {
+        return PassType.BLOCK_OUTLINE;
     }
 
+    @Override
+    public RenderType getRenderType() {
+        return RenderType.create(
+                MoCaiClues.MODID +":overlay_lines",
+//                    DefaultVertexFormat.POSITION_COLOR,
+                DefaultVertexFormat.POSITION_COLOR_NORMAL,
+                VertexFormat.Mode.LINES,
+//                    1536, // Buffer size
+                256,
+                false, // useDelegate
+                false, // isAlbum
+                RenderType.CompositeState.builder()
+//                            .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
+//                            .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
+                        .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLinesShader))
+                        .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(3.0D))) // Line thickness
+                        .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING) // Prevents Z-fighting
+                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                        .setDepthTestState(RenderStateShard.NO_DEPTH_TEST) // THIS makes it X-Ray
+//                            .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setCullState(RenderStateShard.NO_CULL)
+                        .createCompositeState(false)
+        );
+    }
 
     @Override
     public void setupRenderState() {
@@ -48,8 +83,11 @@ public class BlockOutlinePass extends BasePass {
 
 
     @Override
-    public void addToMesh(BufferBuilder builder) {
-        BlockPosSet compo = this.owner.getComponent(ComponentType.BLOCK_POS_SET);
+    public void addToMesh(Context context) {
+        BufferBuilder builder = context.builder();
+        ClueObject obj = context.obj();
+
+        BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
         if (compo != null) {
             for (var pos : compo.getImmutable()) {
                 box(builder, pos);
@@ -105,17 +143,5 @@ public class BlockOutlinePass extends BasePass {
 
 
     public static Codec<BlockOutlinePass> CODEC = Codec.unit(BlockOutlinePass::new);
-
-    @Nullable
-    @Override
-    public List<AbstractWidget> getEditable() {
-        return List.of();
-    }
-
-    @Nullable
-    @Override
-    public List<AbstractWidget> getUneditable() {
-        return List.of();
-    }
 
 }

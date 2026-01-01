@@ -10,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RendererWidgetCollector extends ClueComponent{
-    private final List<ComponentType> list;
-    public List<ComponentType> getList() {
+    private final List<PassType> list;
+    public List<PassType> getList() {
         return list;
     }
 
-    public RendererWidgetCollector(List<ComponentType> list) {
+    public RendererWidgetCollector(List<PassType> list) {
         this.list = list;
     }
 
@@ -32,7 +34,7 @@ public class RendererWidgetCollector extends ClueComponent{
     }
 
     public static final Codec<RendererWidgetCollector> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ComponentType.CODEC.listOf().fieldOf("list").forGetter(RendererWidgetCollector::getList)
+            PassType.CODEC.listOf().fieldOf("list").forGetter(RendererWidgetCollector::getList)
     ).apply(instance, RendererWidgetCollector::new));
 
     @Nullable
@@ -43,14 +45,14 @@ public class RendererWidgetCollector extends ClueComponent{
                     // TODO:
                     PacketDistributor.sendToServer(new WandSwitchToAttachModePayload(this.owner));
                     Minecraft.getInstance().setScreen(null);
-                }).bounds(0, 0, 0, 20).build(),
-                new MultiChoiceList(0, 0, 0, 20, list,
-                        (added) -> {
-                            var compo = ModRenderPassRegistry.getPass(added);
-                            if (compo == null) throw new RuntimeException("unsupported renderer component type: " + added.toString());
-                            this.owner.addComponent(compo);
-                        },
-                        (removed) -> this.owner.removeComponent(removed))
+                }).bounds(0, 0, 0, 20).build()
+//                new MultiChoiceList(0, 0, 0, 20, list,
+//                        (added) -> {
+//                            var compo = PassType.getPass(added);
+//                            if (compo == null) throw new RuntimeException("unsupported renderer component type: " + added.toString());
+//                            this.owner.addComponent(compo);
+//                        },
+//                        (removed) -> this.owner.removeComponent(removed))
         );
     }
 
