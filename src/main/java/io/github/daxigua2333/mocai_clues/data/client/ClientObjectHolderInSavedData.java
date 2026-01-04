@@ -37,14 +37,12 @@ public final class ClientObjectHolderInSavedData {
 //        holder.clear();
 //        fullCopy.forEachValue(holder::put); // however your API looks
 //        holder.resetChangeTracking();       // client should track changes only if you want UI diff, etc.
-        NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Pre(null));
         this.holder = fullCopy;  // I think this replaceAll process has been done in the decode process
-        NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Post(null));
+        NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Full<>(null, fullCopy));
     }
 
     public void applyDelta(ObjectHolder.DeltaPayload<ClueObject> payload) {
-        NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Pre(null));
+        NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Delta<>(null, holder, payload));
         holder.applyDeltaPayload(payload);
-        NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Post(null));
     }
 }

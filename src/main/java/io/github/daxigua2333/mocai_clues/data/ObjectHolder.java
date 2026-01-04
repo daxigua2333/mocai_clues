@@ -187,6 +187,8 @@ public final class ObjectHolder<T> {
      *  - boolean cleared
      *  - varInt changedCount, then changedCount * T
      *  - varInt removedCount, then removedCount * UUID
+     *
+     *  ** This is the same as delta payload buf
      */
     public void encodeDelta(ByteBuf buf) {
         buf.writeBoolean(cleared);
@@ -353,5 +355,10 @@ public final class ObjectHolder<T> {
         }
 
         resetChangeTracking();
+    }
+
+    // TODO: index things  hook priority
+    public void queryTypes(){
+
     }
 }

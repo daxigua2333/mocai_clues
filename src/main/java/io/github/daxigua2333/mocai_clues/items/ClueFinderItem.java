@@ -44,8 +44,14 @@ public class ClueFinderItem extends Item {
                 ModItemsRegistry.CLUE_FINDER_ITEM.get(),
                 ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "found"),
                 (ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int id) -> {
-                    if (!(entity instanceof Player player)) return 0.0f;
-                    if (player != Minecraft.getInstance().player) return 0f;
+                    if (!(entity instanceof Player player)) {
+                        prevDoFound = false;
+                        return 0f;
+                    }
+                    if (player != Minecraft.getInstance().player) {
+                        prevDoFound = false;
+                        return 0f;
+                    }
 
                     // finder in hand
                     boolean inHand = ItemStack.isSameItem(player.getMainHandItem(), stack) ||
@@ -53,7 +59,10 @@ public class ClueFinderItem extends Item {
 
                     // finder hit predicate
                     HitResult hr = Minecraft.getInstance().hitResult;  // TODO: performance issues
-                    if (hr == null) return 0f;
+                    if (hr == null) {
+                        prevDoFound = false;
+                        return 0f;
+                    }
                     List<ClueObject> data;
                     switch (hr.getType()) {
                         case BLOCK -> {
@@ -65,6 +74,7 @@ public class ClueFinderItem extends Item {
                             data = ClientAccessor.retrieveByEntity(ehr.getEntity());
                         }
                         default -> {
+                            prevDoFound = false;
                             return 0f;
                         }
                     }

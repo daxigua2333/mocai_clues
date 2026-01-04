@@ -54,20 +54,19 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
     public ObjectHolder<T> read(IAttachmentHolder holder,
                                  RegistryFriendlyByteBuf buf,
                                  ObjectHolder<T> previousValue) {
-        NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Pre(holder));
-
         if (previousValue == null) {
             // Client had no prior data for this attachment, so we expect a full payload.
             ObjectHolder<T> map = new ObjectHolder<>(idGetter, elementCodec, elementStreamCodec);
             map.decodeFull(buf);
 
-            NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Post(holder));
+            NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Full<>(holder, map));
             return map;
         } else {
             // Client already has data; apply delta.
-            previousValue.applyDelta(buf);
+            ObjectHolder.DeltaPayload<T> delta = ObjectHolder.DeltaPayload.deltaStreamCodec(elementStreamCodec).decode(buf);
+            NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Delta<>(holder, previousValue, delta));
 
-            NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Post(holder));
+            previousValue.applyDelta(buf);
             return previousValue;
         }
     }

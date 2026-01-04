@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.component.world.renderer;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BlockOutlinePass;
 import net.neoforged.api.distmarker.Dist;
@@ -21,8 +22,14 @@ public enum PassType {
         };
     }
 
-    // just use singletons
+    // TODO: just use singletons
 //    @OnlyIn(value = Dist.CLIENT)
 //    private static final BlockOutlinePass boPass = new BlockOutlinePass();
+
+    public MapCodec<? extends BasePass> codec() {
+        return switch (this) {
+            case BLOCK_OUTLINE -> BlockOutlinePass.CODEC;
+        };
+    }
 }
 

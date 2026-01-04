@@ -6,24 +6,30 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
+import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.OptionalDouble;
+import java.util.*;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockOutlinePass extends BasePass {
@@ -34,36 +40,39 @@ public class BlockOutlinePass extends BasePass {
         return PassType.BLOCK_OUTLINE;
     }
 
-    @Override
-    public RenderType getRenderType() {
-        return RenderType.create(
-                MoCaiClues.MODID +":overlay_lines",
+    private static final RenderType OVERLAY_LINE = RenderType.create(
+            MoCaiClues.MODID +":overlay_lines",
 //                    DefaultVertexFormat.POSITION_COLOR,
-                DefaultVertexFormat.POSITION_COLOR_NORMAL,
-                VertexFormat.Mode.LINES,
+            DefaultVertexFormat.POSITION_COLOR_NORMAL,
+            VertexFormat.Mode.LINES,
 //                    1536, // Buffer size
-                256,
-                false, // useDelegate
-                false, // isAlbum
-                RenderType.CompositeState.builder()
+            256,
+            false, // useDelegate
+            false, // isAlbum
+            RenderType.CompositeState.builder()
 //                            .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
 //                            .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
-                        .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLinesShader))
-                        .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(3.0D))) // Line thickness
-                        .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING) // Prevents Z-fighting
-                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                        .setDepthTestState(RenderStateShard.NO_DEPTH_TEST) // THIS makes it X-Ray
+//                    .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLinesShader))
+                    .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
+                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(3.0D))) // Line thickness
+                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING) // Prevents Z-fighting
+                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                    .setDepthTestState(RenderStateShard.NO_DEPTH_TEST) // THIS makes it X-Ray
 //                            .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .createCompositeState(false)
-        );
+                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .createCompositeState(false)
+    );
+    @Override
+    public RenderType getRenderType() {
+        return OVERLAY_LINE;
     }
 
     @Override
     public void setupRenderState() {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
+//        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
         RenderSystem.setShaderColor(1f,1f,1f,1f);
     }
 
@@ -81,23 +90,34 @@ public class BlockOutlinePass extends BasePass {
 //        return true;
     }
 
+//    @Override
+//    public ShaderInstance getShader() {
+//        return GameRenderer.getRendertypeLinesShader();
+//    }
 
     @Override
-    public void addToMesh(Context context) {
-        BufferBuilder builder = context.builder();
-        ClueObject obj = context.obj();
+    public void addToMesh(BufferBuilder builder, ChunkPos chunkPos) {
+        // 1. Get your data from Chunk Attachment
+        Level level = Minecraft.getInstance().level;
+//        LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
+//        var dataMap = chunk.getData(MyAttachments.CHUNK_DATA_MAP);
+        List<ClueObject> data = ClientAccessor.retrieveByChunkPos(chunkPos);  // TODO;
 
-        BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-        if (compo != null) {
-            for (var pos : compo.getImmutable()) {
-                box(builder, pos);
-            }
-        } else {
-//            throw new RuntimeException("ClueObject should contain WorldBlockPos");
+        Set<BlockPos> poses = new HashSet<>();
+        for (var obj : data) {
+            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
+            if (compo == null) continue;
+            poses.addAll(compo.getImmutable());
+        }
+
+        for (var pos : poses) {
+            if (!chunkPos.equals(new ChunkPos(pos))) continue;
+            box(builder, pos);
         }
     }
 
     // Create a box slightly larger than the block to avoid z-fighting with block faces
+    @OnlyIn(Dist.CLIENT)
     private static void box(BufferBuilder builder, BlockPos pos) {
 //        LevelRenderer.renderLineBox(builder, pos.getX(), pos.getY(), pos.getZ(), pos.getX()+1, pos.getY()+1, pos.getZ()+1,
 //                1f, 1f, 0f, 1f);
@@ -127,6 +147,7 @@ public class BlockOutlinePass extends BasePass {
         line(builder, minX, minY, maxZ, minX, maxY, maxZ, ARGB);
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static void line(BufferBuilder builder, float x1, float y1, float z1, float x2, float y2, float z2, int argb) {
         float dx = x2 - x1;
         float dy = y2 - y1;
@@ -142,6 +163,6 @@ public class BlockOutlinePass extends BasePass {
     }
 
 
-    public static Codec<BlockOutlinePass> CODEC = Codec.unit(BlockOutlinePass::new);
+    public static MapCodec<BlockOutlinePass> CODEC = MapCodec.unit(BlockOutlinePass::new);
 
 }

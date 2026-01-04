@@ -23,7 +23,6 @@ public class SendClue extends BaseHandler {
         Player player = context.player();
         if (player == null) return;
         if (player.level().isClientSide) return;
-        MoCaiClues.LOGGER.debug("111: {}", context.entryType());
 
         ClueObject object = context.object();
         DetailData compo = object.getComponent(ComponentType.DETAIL_DATA);
