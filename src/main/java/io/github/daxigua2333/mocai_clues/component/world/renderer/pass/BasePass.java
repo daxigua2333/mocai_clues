@@ -11,25 +11,21 @@ import net.minecraft.world.level.ChunkPos;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class BasePass {
     // statics
-    @OnlyIn(Dist.CLIENT) public abstract PassType getPassType();
-    @OnlyIn(Dist.CLIENT) public abstract RenderType getRenderType();
-    @OnlyIn(Dist.CLIENT) public abstract void setupRenderState();
-    @OnlyIn(Dist.CLIENT) public abstract void clearRenderState();
+    public abstract PassType getPassType();
+    public abstract RenderType getRenderType();
+    public abstract void setupRenderState();
+    public abstract void clearRenderState();
 //    @OnlyIn(Dist.CLIENT) public abstract ShaderInstance getShader();
-    @OnlyIn(Dist.CLIENT) public abstract boolean doRender(Minecraft mc);
+    public abstract boolean doRender(Minecraft mc);
 
-    @OnlyIn(Dist.CLIENT) public abstract void addToMesh(BufferBuilder builder, ChunkPos chunkPos);
+    public abstract void addToMesh(BufferBuilder builder, ChunkPos chunkPos);
 //    public record Context(
 //            BufferBuilder builder,
 //            ClueObject obj
 //    ) {}
 //    public abstract void addToMesh(Context context);
 
-    public static final Codec<BasePass> CODEC = PassType.CODEC.dispatch(
-            "type",
-            BasePass::getPassType,
-            PassType::codec
-    );
 }

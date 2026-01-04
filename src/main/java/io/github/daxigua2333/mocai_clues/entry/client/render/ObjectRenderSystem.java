@@ -8,6 +8,7 @@ import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BaseRendererData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
 import net.minecraft.Util;
@@ -102,17 +103,19 @@ public class ObjectRenderSystem {
     private static void markDirtyByObjectAndChunkPos(ClueObject obj, ChunkPos chunkPos) {
         RendererHolder rCompo = obj.getComponent(ComponentType.RENDERER_HOLDER);
         if (rCompo == null) return;
-        for (PassType type : rCompo.getImmutable()) {
-            DIRTY.computeIfAbsent(type, t -> new HashSet<>()).add(chunkPos);
+        for (BaseRendererData pass : rCompo.getImmutable()) {
+            DIRTY.computeIfAbsent(pass.getPassType(), t -> new HashSet<>()).add(chunkPos);
         }
     }
 
     private static void markDirtyByObject(ClueObject obj) {
         // get types
-        Set<PassType> types;
+        Set<PassType> types = new HashSet<>();
         RendererHolder rCompo = obj.getComponent(ComponentType.RENDERER_HOLDER);
         if (rCompo == null) return;
-        types = new HashSet<>(rCompo.getImmutable());
+        for (BaseRendererData pass : rCompo.getImmutable()) {
+            types.add(pass.getPassType());
+        }
 
         // get chunks
         Set<ChunkPos> chunks = new HashSet<>();

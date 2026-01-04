@@ -8,6 +8,7 @@ import io.github.daxigua2333.mocai_clues.component.world.interact.handler.SendCl
 import io.github.daxigua2333.mocai_clues.component.world.interact.predicate.DefaultPredicate;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BlockOutlinePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
 
@@ -27,7 +28,7 @@ public class Assembler {
 //        test.add(new BlockPos(0, -60, 0));
 //        object.addComponent(test);
         object.addComponent(new RendererHolder(List.of(
-                PassType.BLOCK_OUTLINE
+                new BlockOutlineData()
         )));
         object.addComponent(new InteractEventHolder(List.of(
                 new InteractEvent(InteractEventRegistry.EntryType.CLICK, new DefaultPredicate(), new SendClue())

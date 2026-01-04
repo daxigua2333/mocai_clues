@@ -117,7 +117,6 @@ public class BlockOutlinePass extends BasePass {
     }
 
     // Create a box slightly larger than the block to avoid z-fighting with block faces
-    @OnlyIn(Dist.CLIENT)
     private static void box(BufferBuilder builder, BlockPos pos) {
 //        LevelRenderer.renderLineBox(builder, pos.getX(), pos.getY(), pos.getZ(), pos.getX()+1, pos.getY()+1, pos.getZ()+1,
 //                1f, 1f, 0f, 1f);
@@ -147,7 +146,6 @@ public class BlockOutlinePass extends BasePass {
         line(builder, minX, minY, maxZ, minX, maxY, maxZ, ARGB);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static void line(BufferBuilder builder, float x1, float y1, float z1, float x2, float y2, float z2, int argb) {
         float dx = x2 - x1;
         float dy = y2 - y1;
@@ -161,8 +159,5 @@ public class BlockOutlinePass extends BasePass {
         builder.addVertex(x1, y1, z1).setColor(argb).setNormal(dx, dy, dz);
         builder.addVertex(x2, y2, z2).setColor(argb).setNormal(dx, dy, dz);
     }
-
-
-    public static MapCodec<BlockOutlinePass> CODEC = MapCodec.unit(BlockOutlinePass::new);
 
 }

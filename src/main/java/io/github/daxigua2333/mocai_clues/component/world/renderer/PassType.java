@@ -2,6 +2,8 @@ package io.github.daxigua2333.mocai_clues.component.world.renderer;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BaseRendererData;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BlockOutlinePass;
 import net.neoforged.api.distmarker.Dist;
@@ -26,9 +28,9 @@ public enum PassType {
 //    @OnlyIn(value = Dist.CLIENT)
 //    private static final BlockOutlinePass boPass = new BlockOutlinePass();
 
-    public MapCodec<? extends BasePass> codec() {
+    public MapCodec<? extends BaseRendererData> codec() {
         return switch (this) {
-            case BLOCK_OUTLINE -> BlockOutlinePass.CODEC;
+            case BLOCK_OUTLINE -> BlockOutlineData.CODEC;
         };
     }
 }
