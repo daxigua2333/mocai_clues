@@ -143,9 +143,9 @@ public class ClueWandItem extends Item {
                     }
                     BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
                     compo.add(clickedPos);
-                    // TODO:
-                    SD.setDirty();
+                    // TODO: pay attention to the markDirty order
                     holder.markDirty(obj);
+                    SD.setDirty();
 
                     player.sendSystemMessage(Component.translatable("Attaching successfully"));
                     return InteractionResult.sidedSuccess(level.isClientSide());
