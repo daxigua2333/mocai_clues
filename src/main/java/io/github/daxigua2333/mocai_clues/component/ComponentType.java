@@ -3,6 +3,9 @@ package io.github.daxigua2333.mocai_clues.component;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
+import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
+import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
+import io.github.daxigua2333.mocai_clues.component.world.finder.SendClue;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
@@ -22,6 +25,11 @@ public enum ComponentType {
     // interact
     INTERACT_EVENT_HOLDER,
 
+    // finder
+    FINDER_STATE,
+    SEND_CLUE,
+    FLASH_DOT_SET,
+
     ;
 
     public static final Codec<ComponentType> CODEC =
@@ -35,6 +43,9 @@ public enum ComponentType {
                         case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
                         case INTERACT_EVENT_HOLDER -> InteractEventHolder.CODEC;
                         case RENDERER_HOLDER -> RendererHolder.CODEC;
+                        case FINDER_STATE -> FinderState.CODEC;
+                        case SEND_CLUE -> SendClue.CODEC;
+                        case FLASH_DOT_SET -> FlashDotSet.CODEC;
                     }
             );
 

@@ -25,6 +25,7 @@ import java.util.UUID;
 public class ClueObject {
     private final UUID id;
     private final ClueType type;
+    // TODO: use List + index Map to allow multi components and fast lookup
     private final Map<ComponentType, ClueComponent> components;
 
     // ==== constructor(codec part) ====

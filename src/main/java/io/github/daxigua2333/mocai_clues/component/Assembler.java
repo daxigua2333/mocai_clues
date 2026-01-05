@@ -1,16 +1,20 @@
 package io.github.daxigua2333.mocai_clues.component;
 
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
+import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
+import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
+import io.github.daxigua2333.mocai_clues.component.world.finder.SendClue;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEvent;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventRegistry;
-import io.github.daxigua2333.mocai_clues.component.world.interact.handler.SendClue;
 import io.github.daxigua2333.mocai_clues.component.world.interact.predicate.DefaultPredicate;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BlockOutlinePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +34,14 @@ public class Assembler {
         object.addComponent(new RendererHolder(List.of(
                 new BlockOutlineData()
         )));
-        object.addComponent(new InteractEventHolder(List.of(
-                new InteractEvent(InteractEventRegistry.EntryType.CLICK, new DefaultPredicate(), new SendClue())
-        )));
+//        object.addComponent(new InteractEventHolder(List.of(
+//                new InteractEvent(InteractEventRegistry.EntryType.CLICK, new DefaultPredicate(), new SendClue())
+//        )));
+        object.addComponent(new FinderState(-1, List.of("Dev2")));
+        object.addComponent(new SendClue());
+        var dotSet = new FlashDotSet();
+        dotSet.add(new BlockPos(0, -60, 0), Direction.UP);
+        object.addComponent(dotSet);
         return object;
     }
     public static ClueObject createManualClue() {

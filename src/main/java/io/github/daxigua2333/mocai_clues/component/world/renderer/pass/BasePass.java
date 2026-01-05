@@ -1,12 +1,9 @@
 package io.github.daxigua2333.mocai_clues.component.world.renderer.pass;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.serialization.Codec;
-import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.level.ChunkPos;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
