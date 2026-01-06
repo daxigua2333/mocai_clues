@@ -78,6 +78,13 @@ public class ClueObject {
         return (T) components.get(type);
     }
 
+    public <T extends ClueComponent> T getComponentOrCreate(ComponentType type, T defaultCompo) {
+        if (! hasComponent(type)) {
+            addComponent(defaultCompo);
+        }
+        return getComponent(type);
+    }
+
     public Collection<ClueComponent> getComponents() {
         return components.values();
     }

@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -13,6 +14,7 @@ import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +31,7 @@ public class FlashDotSet extends ClueComponent {
     private Set<BlockPosFace> backing = new HashSet<>();
 
     private FlashDotSet(Set<BlockPosFace> backing) {
-        this.backing = backing;
+        this.backing = new HashSet<>(backing);
     }
     public FlashDotSet() {
         this(new HashSet<>());
@@ -54,6 +56,10 @@ public class FlashDotSet extends ClueComponent {
     }
 
     public void spawn(ClientLevel level) {
+        FinderState sCompo = owner.getComponent(ComponentType.FINDER_STATE);
+        if (sCompo == null) throw new RuntimeException("ClueObject#" + this.owner.getId() + " has no FinderState component");
+        if (! sCompo.isAccessible(Minecraft.getInstance().player.getScoreboardName())) return;
+
         for (BlockPosFace entry : backing) {
             spawnOne(level, entry.pos(), entry.face());
         }

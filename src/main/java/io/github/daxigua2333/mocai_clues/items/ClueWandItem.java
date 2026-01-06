@@ -4,6 +4,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
+import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
@@ -14,6 +15,7 @@ import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -58,6 +60,7 @@ public class ClueWandItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
+        Direction clickedFace = context.getClickedFace();
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
 
@@ -138,11 +141,12 @@ public class ClueWandItem extends Item {
                     ObjectHolder<ClueObject> holder = SD.holder();
                     ClueObject obj = holder.get(attaching.id());
 
-                    if (! obj.hasComponent(ComponentType.BLOCK_POS_SET)) {
-                        obj.addComponent(new BlockPosSet());
-                    }
-                    BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-                    compo.add(clickedPos);
+                    BlockPosSet bCompo = obj.getComponentOrCreate(ComponentType.BLOCK_POS_SET, new BlockPosSet());
+                    bCompo.add(clickedPos);
+
+                    FlashDotSet fCompo = obj.getComponentOrCreate(ComponentType.FLASH_DOT_SET, new FlashDotSet());
+                    fCompo.add(clickedPos, clickedFace);
+
                     // TODO: pay attention to the markDirty order
                     holder.markDirty(obj);
                     SD.setDirty();

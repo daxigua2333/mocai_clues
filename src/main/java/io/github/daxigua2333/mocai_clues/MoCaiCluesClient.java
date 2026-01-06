@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues;
 
-import io.github.daxigua2333.mocai_clues.items.ClueFinderItem;
+import io.github.daxigua2333.mocai_clues.entry.client.FinderTick;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -25,7 +25,7 @@ public class MoCaiCluesClient {
     static void onClientSetup(FMLClientSetupEvent event) {
         MoCaiClues.LOGGER.info("HELLO FROM CLIENT SETUP");
         MoCaiClues.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        event.enqueueWork(ClueFinderItem::registerTextureChange);
+        event.enqueueWork(FinderTick::registerTextureChange);
     }
 
 }

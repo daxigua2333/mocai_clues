@@ -1,0 +1,89 @@
+package io.github.daxigua2333.mocai_clues.entry.client;
+
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
+import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
+import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+public final class FinderTick {
+
+    private static boolean prevDoFound = false;
+    // texture reflection
+    public static void registerTextureChange(){
+        ItemProperties.register(
+                ModItemsRegistry.CLUE_FINDER_ITEM.get(),
+                ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "found"),
+                (ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int id) -> {
+                    if (!(entity instanceof Player player)) return returnWithUpdate(false);
+                    if (player != Minecraft.getInstance().player) return returnWithUpdate(false);
+
+                    // finder in hand
+                    boolean inHand = ItemStack.isSameItem(player.getMainHandItem(), stack) ||
+                            ItemStack.isSameItem(player.getOffhandItem(), stack);
+
+                    // finder hit predicate
+                    HitResult hr = Minecraft.getInstance().hitResult;  // TODO: performance issues
+                    if (hr == null) return returnWithUpdate(false);
+                    List<ClueObject> data;
+                    switch (hr.getType()) {
+                        case BLOCK -> {
+                            BlockHitResult bhr = (BlockHitResult) hr;
+                            data = ClientAccessor.retrieveByBlockPos(bhr.getBlockPos());
+                        }
+                        case ENTITY -> {
+                            EntityHitResult ehr = (EntityHitResult) hr;
+                            data = ClientAccessor.retrieveByEntity(ehr.getEntity());
+                        }
+                        default -> {
+                            return returnWithUpdate(false);
+                        }
+                    }
+
+                    boolean doFound = false;
+                    for (ClueObject obj : data) {
+                        FinderState compo = obj.getComponent(ComponentType.FINDER_STATE);
+                        if (compo == null) continue;
+                        if (compo.isAccessible(player.getScoreboardName())) {
+                            doFound = true;
+                            break;
+                        }
+                    }
+
+//                    if (inHand && !data.isEmpty()) {
+                    if (inHand && doFound) {
+                        if (!prevDoFound) player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+                        return returnWithUpdate(true);
+                    } else {
+                        return returnWithUpdate(false);
+                    }
+                });
+    }
+
+    private static float returnWithUpdate(boolean result) {
+        if (result) {
+            prevDoFound = true;
+            return 1f;
+        } else {
+            prevDoFound = false;
+            return 0f;
+        }
+    }
+
+
+}

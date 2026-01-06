@@ -37,11 +37,8 @@ public class Assembler {
 //        object.addComponent(new InteractEventHolder(List.of(
 //                new InteractEvent(InteractEventRegistry.EntryType.CLICK, new DefaultPredicate(), new SendClue())
 //        )));
-        object.addComponent(new FinderState(-1, List.of("Dev2")));
+        object.addComponent(new FinderState(-1, List.of("Dev2"), true));
         object.addComponent(new SendClue());
-        var dotSet = new FlashDotSet();
-        dotSet.add(new BlockPos(0, -60, 0), Direction.UP);
-        object.addComponent(dotSet);
         return object;
     }
     public static ClueObject createManualClue() {

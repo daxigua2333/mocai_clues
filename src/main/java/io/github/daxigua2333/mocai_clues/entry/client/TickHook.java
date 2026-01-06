@@ -27,7 +27,7 @@ public final class TickHook {
         // don’t spawn every tick; every 4 ticks is plenty for a “flash”
         if ( (level.getGameTime() & 3) != 0 ) return;
 
-        // TODO: maybe change the api in the future
+        // TODO: maybe change the api in the future, like byDistanceToPlayer. But seems like those out of render distance wont get rendered
         List<ClueObject> data = ClientAccessor.retrieveByClueType(ClueType.MANUAL);
         for (ClueObject obj : data) {
             FlashDotSet compo = obj.getComponent(ComponentType.FLASH_DOT_SET);

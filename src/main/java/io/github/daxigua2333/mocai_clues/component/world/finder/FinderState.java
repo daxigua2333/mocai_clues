@@ -14,13 +14,15 @@ public class FinderState extends ClueComponent {
     // these default value means no behavior
     private int remain = -1;  // only
     private List<String> allowedPlayers = null;
+    private boolean doRenderFlashDot = true;
 
-    public FinderState(int remain, List<String> allowedPlayers) {
+    public FinderState(int remain, List<String> allowedPlayers, boolean doRenderFlashDot) {
         this.remain = remain;
         this.allowedPlayers = allowedPlayers;
+        this.doRenderFlashDot = doRenderFlashDot;
     }
     public FinderState() {
-        this(-1, null);
+        this(-1, null, true);
     }
 
     private int getRemain() {
@@ -28,6 +30,9 @@ public class FinderState extends ClueComponent {
     }
     private List<String> getAllowedPlayers() {
         return allowedPlayers;
+    }
+    private boolean getDoRenderFlashDot() {
+        return doRenderFlashDot;
     }
 
     public boolean isAccessible(String playerName) {
@@ -62,11 +67,13 @@ public class FinderState extends ClueComponent {
                     .forGetter(d -> d.getRemain() == -1 ? Optional.empty() : Optional.of(d.getRemain())),
             // list: missing => null, encoding null => omit field (empty list still serializes)
             Codec.STRING.listOf().optionalFieldOf("allowedPlayers")
-                    .forGetter(d -> Optional.ofNullable(d.getAllowedPlayers()))
-    ).apply(inst, (intOpt, listOpt) ->
+                    .forGetter(d -> Optional.ofNullable(d.getAllowedPlayers())),
+            Codec.BOOL.optionalFieldOf("doRenderFlashDot").forGetter(d -> Optional.of(d.getDoRenderFlashDot()))
+    ).apply(inst, (intOpt, listOpt, boolOpt) ->
             new FinderState(
                     intOpt.orElse(-1),
-                    listOpt.orElse(null)
+                    listOpt.orElse(null),
+                    boolOpt.orElse(true)
             )
     ));
 
