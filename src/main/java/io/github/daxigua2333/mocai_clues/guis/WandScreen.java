@@ -5,6 +5,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanel;
+import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
 import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
 import net.minecraft.client.Minecraft;
@@ -25,7 +26,7 @@ public class WandScreen extends Screen {
 
     private DropdownWidget<ClueType> tab;
     private AutoUpdatedScrollableListWidget<ClueObject> list;
-    private DetailPanel details;
+    private DetailPanelNew details;
 
     private static final ResourceLocation BOOK_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "textures/gui/casebook.png");
@@ -114,12 +115,14 @@ public class WandScreen extends Screen {
         Button createButton = Button.builder(Component.literal("+"), btn -> {
             PacketDistributor.sendToServer(new ManualClueCreatePayload());
         }).bounds(
-                (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET + 20,
-                (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET - 16 -10,
-                60, 16
+//                (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET + 20,
+                (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET - 2 + 60,
+//                (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET - 16 -10,
+                (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET - 16,
+                20, 16
         ).build();
 
-        this.details = new DetailPanel(
+        this.details = new DetailPanelNew(
                 Minecraft.getInstance(),
                 DETAIL_WIDTH,
                 LIST_HEIGHT - 4,

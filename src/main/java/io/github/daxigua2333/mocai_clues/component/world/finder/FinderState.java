@@ -4,7 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
+import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -80,12 +84,24 @@ public class FinderState extends ClueComponent {
     @Nullable
     @Override
     public List<AbstractWidget> getEditable() {
-        return List.of();
+        return List.of(); // TODO
     }
 
     @Nullable
     @Override
     public List<AbstractWidget> getUneditable() {
-        return List.of();
+        return List.of(
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("FinderState"), 1.2f),
+                new SplitLineRow(0, 0, 100, 100, 2, 2),
+                // flash dot
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("doRenderFlashDot"), 1.1f),
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable(String.format("%b", doRenderFlashDot)), 1f),
+                // remaining
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("remaining"), 1.1f),
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal(String.format("%d", remain)), 1f),
+                // allowed players
+                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("allowedPlayers"), 1.1f),
+                new TextListWithIndexRow(0, 0, 100, 100, 2, 2, allowedPlayers, 2)
+        );
     }
 }
