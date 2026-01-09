@@ -37,7 +37,8 @@ public class Assembler {
 //        object.addComponent(new InteractEventHolder(List.of(
 //                new InteractEvent(InteractEventRegistry.EntryType.CLICK, new DefaultPredicate(), new SendClue())
 //        )));
-        object.addComponent(new FinderState(-1, List.of("Dev2"), true));
+//        object.addComponent(new FinderState(-1, List.of("Dev2"), true));
+        object.addComponent(new FinderState());
         object.addComponent(new SendClue());
         return object;
     }

@@ -1,9 +1,9 @@
 package io.github.daxigua2333.mocai_clues.component.gui.editable;
 
 
+import io.github.daxigua2333.mocai_clues.component.gui.FlexibleContainer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class StringListWidget extends AbstractContainerWidget {
+public class StringListWidget extends FlexibleContainer {
 
     private final Font font;
     private final List<Row> rows = new ArrayList<>();
@@ -49,7 +49,8 @@ public class StringListWidget extends AbstractContainerWidget {
             }
         }
 
-        relayout();
+//        relayout();
+        markDirty();
     }
 
     /** Optional: called whenever rows are added/removed or text changes. */
@@ -82,7 +83,8 @@ public class StringListWidget extends AbstractContainerWidget {
             }
         }
 
-        relayout();
+//        relayout();
+        markDirty();
         onChanged();
     }
 
@@ -128,7 +130,8 @@ public class StringListWidget extends AbstractContainerWidget {
         this.children.add(editBox);
         this.children.add(deleteButton);
 
-        relayout();
+//        relayout();
+        markDirty();
         onChanged();
     }
 
@@ -145,12 +148,15 @@ public class StringListWidget extends AbstractContainerWidget {
         if (this.rows.isEmpty()) {
             addRow("");
         } else {
-            relayout();
+//            relayout();
+            markDirty();
             onChanged();
         }
     }
 
-    private void relayout() {
+    // ========= layout ============
+    @Override
+    protected void reLayout() {
         int x = this.getX();
         int y = this.getY();
 
@@ -198,34 +204,10 @@ public class StringListWidget extends AbstractContainerWidget {
         }
     }
 
-    // ========= layout ============
-    @Override
-    public void setX(int x) {
-        super.setX(x);
-        relayout();
-    }
-
-    @Override
-    public void setY(int y) {
-        super.setY(y);
-        relayout();
-    }
-
-    @Override
-    public void setWidth(int width) {
-        super.setWidth(width);
-        relayout();
-    }
-
-    @Override
-    public void setHeight(int height) {
-        super.setHeight(height);
-        relayout();
-    }
 
     // ========= ticker ============
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderTick(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Background or border could be drawn here if you want.
         // For now, we just render children.
         for (AbstractWidget child : children) {
@@ -251,6 +233,7 @@ public class StringListWidget extends AbstractContainerWidget {
             }
         }
         return false;
+//        return super.charTyped(codePoint, modifiers);
     }
 
     @Override

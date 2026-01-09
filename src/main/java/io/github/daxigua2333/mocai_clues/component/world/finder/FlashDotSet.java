@@ -58,7 +58,12 @@ public class FlashDotSet extends ClueComponent {
     public void spawn(ClientLevel level) {
         FinderState sCompo = owner.getComponent(ComponentType.FINDER_STATE);
         if (sCompo == null) throw new RuntimeException("ClueObject#" + this.owner.getId() + " has no FinderState component");
-        if (! sCompo.isAccessible(Minecraft.getInstance().player.getScoreboardName())) return;
+        if (!sCompo.isDoRenderFlashDot()) {
+            return;
+        }
+        if (!sCompo.isAccessible(Minecraft.getInstance().player.getScoreboardName())) {
+            return;
+        }
 
         for (BlockPosFace entry : backing) {
             spawnOne(level, entry.pos(), entry.face());
