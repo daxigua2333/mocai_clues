@@ -154,6 +154,11 @@ public class StringListWidget extends FlexibleContainer {
         }
     }
 
+    @Override
+    protected void processDirty() {
+
+    }
+
     // ========= layout ============
     @Override
     protected void reLayout() {

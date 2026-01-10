@@ -62,6 +62,11 @@ public class CollapsibleCheckbox extends FlexibleContainer {
     }
 
 
+    @Override
+    protected void processDirty() {
+
+    }
+
     // layout part
     @Override
     protected void reLayout(){

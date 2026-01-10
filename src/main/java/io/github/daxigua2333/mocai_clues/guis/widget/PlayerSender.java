@@ -1,0 +1,71 @@
+package io.github.daxigua2333.mocai_clues.guis.widget;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractContainerWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.chat.Component;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+public class PlayerSender extends AbstractContainerWidget {
+    private PlayerInfo selected;
+
+    private static final Font FONT = Minecraft.getInstance().font;
+    private final DropdownWidget<PlayerInfo> dropdown;
+    private final Button button;
+
+    private static final int BUTTON_WIDTH = 30;
+
+    public PlayerSender(
+            int x, int y, int z, int width, int height,
+            Consumer<PlayerInfo> onSend) {
+        super(x, y, width, height, Component.empty());
+
+        int prefixWidth = FONT.width(Component.translatable("send to"));
+        dropdown = new DropdownWidget<>(x + prefixWidth + 2, y, z, width-prefixWidth-BUTTON_WIDTH-4, height, 0,
+                () -> {
+                    ClientPacketListener conn = Minecraft.getInstance().getConnection();
+                    if (conn == null) return List.of();
+                    return List.copyOf(conn.getOnlinePlayers());
+                },
+                info -> {
+                    var tabName = info.getTabListDisplayName();
+                    if (tabName == null) {  // single player
+                        return Component.literal(info.getProfile().getName());
+                    } else {
+                        return info.getTabListDisplayName();
+                    }
+                },
+                info -> selected = info);
+
+        button = Button.builder(Component.translatable("send"),
+                btn -> onSend.accept(selected))
+                .bounds(x+width+-BUTTON_WIDTH, y, BUTTON_WIDTH, height)
+                .build();
+
+    }
+
+    @Override
+    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.drawString(FONT, Component.translatable("send to"), getX(), getY()+height/2-FONT.lineHeight/2, 0xFFFFFFFF, false);
+        dropdown.render(graphics, mouseX, mouseY, partialTick);
+        button.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+
+    }
+
+    @Override
+    public List<? extends GuiEventListener> children() {
+        return List.of(dropdown, button);
+    }
+}

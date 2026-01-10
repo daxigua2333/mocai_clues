@@ -15,6 +15,11 @@ public abstract class FlexibleContainer extends AbstractContainerWidget {
     protected void markDirty() {
         this.dirty = true;
     }
+    private void processDirtyWithReLayout() {
+        reLayout();
+        processDirty();
+    }
+    protected abstract void processDirty();
 
     public FlexibleContainer(int x, int y, int width, int height, Component component) {
         super(x, y, width, height, component);
@@ -60,7 +65,7 @@ public abstract class FlexibleContainer extends AbstractContainerWidget {
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (dirty) {
-            reLayout();
+            processDirtyWithReLayout();
             dirty = false;
         }
         renderTick(graphics, mouseX, mouseY, partialTick);
