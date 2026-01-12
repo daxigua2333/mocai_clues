@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class DetailData extends ClueComponent {
-    private String name;
     private List<String> details;  // TODO: info merge
 
     @Override
@@ -27,17 +26,15 @@ public class DetailData extends ClueComponent {
     }
 
     // ===== constructors ====
-    public DetailData(String name, List<String> details) {
-        this.name = name;
+    public DetailData(List<String> details) {
         this.details = details;
     }
     public DetailData() {
-        this("default name", new ArrayList<>());
+        this(new ArrayList<>());
     }
 
     // ==== codec ====
     public static final Codec<DetailData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("name").forGetter(DetailData::getName),
             Codec.STRING.listOf().fieldOf("details").forGetter(DetailData::getDetails)
     ).apply(instance, DetailData::new));
 
@@ -48,12 +45,6 @@ public class DetailData extends ClueComponent {
         stringList.setChangeListener(list -> this.details = list);
 
         return List.of(   // TODO
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("name:"), 1.1f),
-                EditBoxRow.stringBox(0, 0, 100, 20, 2, 2,
-//                        EditBoxRow.MutableValue.of(this.name),
-                        () -> this.name, (str) -> this.name = str,
-                        v -> true,
-                        Component.literal("String")),
                 new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("details:"), 1.1f),
                 stringList
         );
@@ -61,17 +52,12 @@ public class DetailData extends ClueComponent {
     @Override
     public List<AbstractWidget> getUneditable() {
         return List.of(
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal(name), 1.2f),
-                new SplitLineRow(0, 0, 100, 100, 2, 2),
                 new TextListWithIndexRow(0, 0, 100, 100, 2, 2, details, 2)
         );
     }
 
 
     // ==== getter ====
-    public String getName() {
-        return name;
-    }
     public List<String> getDetails() {
         return Collections.unmodifiableList(details);
     }

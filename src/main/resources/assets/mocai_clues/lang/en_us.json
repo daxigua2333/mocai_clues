@@ -9,5 +9,9 @@
   "mocai_clues.configuration.items": "Item List",
   "mocai_clues.configuration.logDirtBlock": "Log Dirt Block",
   "mocai_clues.configuration.magicNumberIntroduction": "Magic Number Text",
-  "mocai_clues.configuration.magicNumber": "Magic Number"
+  "mocai_clues.configuration.magicNumber": "Magic Number",
+
+  "mocai_clue.finder.source.pos": "Found at pos: ",
+  "mocai_clue.finder.source.entity": "Found on entity: %s",
+  "mocai_clue.finder.source.player": "Found on player: %s"
 }

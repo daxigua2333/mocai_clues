@@ -27,7 +27,7 @@ public class SendClue extends BaseHandler {
         ClueObject object = context.object();
         DetailData compo = object.getComponent(ComponentType.DETAIL_DATA);
         if (compo == null) return;
-        player.sendSystemMessage(Component.literal(compo.getName()));
+//        player.sendSystemMessage(Component.literal(compo.getName()));
         compo.getDetails().forEach(s -> {
             player.sendSystemMessage(Component.literal(s));
         });

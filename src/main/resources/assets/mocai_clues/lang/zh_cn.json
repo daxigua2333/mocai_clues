@@ -9,5 +9,10 @@
   "mocai_clues.configuration.items": "Item List",
   "mocai_clues.configuration.logDirtBlock": "Log Dirt Block",
   "mocai_clues.configuration.magicNumberIntroduction": "Magic Number Text",
-  "mocai_clues.configuration.magicNumber": "Magic Number"
+  "mocai_clues.configuration.magicNumber": "Magic Number",
+
+  "mocai_clue.finder.source.pos": "发现于坐标: ",
+  "mocai_clue.finder.source.entity": "发现于实体: %s 上",
+  "mocai_clue.finder.source.player": "发现于玩家: %s 上"
+
 }

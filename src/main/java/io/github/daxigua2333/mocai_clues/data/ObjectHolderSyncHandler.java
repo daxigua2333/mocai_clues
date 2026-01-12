@@ -66,7 +66,8 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
             ObjectHolder.DeltaPayload<T> delta = ObjectHolder.DeltaPayload.deltaStreamCodec(elementStreamCodec).decode(buf);
             NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Delta<>(holder, previousValue, delta));
 
-            previousValue.applyDelta(buf);
+//            previousValue.applyDelta(buf);
+            previousValue.applyDeltaPayload(delta);
             return previousValue;
         }
     }

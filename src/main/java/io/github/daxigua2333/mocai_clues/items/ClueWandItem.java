@@ -124,7 +124,7 @@ public class ClueWandItem extends Item {
 //                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
 //                    DataSelectionScreen.open(list);
                     WandScreen.open(  // TODO
-                            () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT, ClueType.FOOTPRINT1, ClueType.FOOTPRINT2, ClueType.FOOTPRINT3, ClueType.FOOTPRINT4, ClueType.FOOTPRINT6, ClueType.FOOTPRINT7),
+                            () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT),
                             (type) -> ClientAccessor.retrieveByClueType(type)
                     );
                 }

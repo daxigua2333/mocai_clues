@@ -1,13 +1,13 @@
 package io.github.daxigua2333.mocai_clues.guis;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelInClueBook;
-import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelNew;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -63,11 +63,15 @@ public class ClueBookScreen extends Screen {
                 1,
                 LIST_WIDTH, LIST_HEIGHT,
                 ENTRY_HEIGHT,
-//                () -> getHolder() == null ? List.of() : new ArrayList<>(getHolder().values()),
-                () -> List.of(Assembler.createManualClue()),
+                () -> getHolder() == null ? List.of() : new ArrayList<>(getHolder().values()),
                 (obj) -> obj.getId(),
 //                Component::literal,
-                (clue) -> Component.literal(clue.getId().toString()),  // TODO
+                (clue) -> {
+//                    Component.literal(clue.getId().toString());
+                    InfoData compo = clue.getComponent(ComponentType.INFO_DATA);
+                    if (compo == null) return Component.empty();
+                    return Component.literal(compo.getName());
+                },
                 (clueObject) -> {  /// TODO
                     if (clueObject == null) return;
                     details.updateObject(clueObject);
@@ -83,7 +87,7 @@ public class ClueBookScreen extends Screen {
     private ObjectHolder<ClueObject> getHolder() {
         Player p = Minecraft.getInstance().player;
         if (p == null) return null;
-        return p.getData(ModAttachmentRegistry.CASE_BOOK);
+        return p.getData(ModAttachmentRegistry.CLUE_BOOK);
     }
 
     @Override

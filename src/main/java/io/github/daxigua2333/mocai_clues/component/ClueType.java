@@ -5,15 +5,8 @@ import com.mojang.serialization.Codec;
 public enum ClueType {
     // TODO
     MANUAL,
+//    CLUE_BOOK,
     FOOTPRINT,
-    FOOTPRINT1,
-    FOOTPRINT2,
-    FOOTPRINT3,
-    FOOTPRINT4,
-    FOOTPRINT5,
-    FOOTPRINT6,
-    FOOTPRINT7,
-    FOOTPRINT8,
     ;
 
     public static final Codec<ClueType> CODEC =

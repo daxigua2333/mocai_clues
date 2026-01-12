@@ -2,9 +2,6 @@ package io.github.daxigua2333.mocai_clues.data;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.footprints.data.FootprintAttachedPosIndexMap;
-import io.github.daxigua2333.mocai_clues.footprints.data.FootprintMainMap;
-import io.github.daxigua2333.mocai_clues.footprints.data.FootprintSyncHandler;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -23,8 +20,8 @@ public final class ModAttachmentRegistry {
                     .sync(new ObjectHolderSyncHandler<>(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC))
                     .build()
     );
-    public static final Supplier<AttachmentType<ObjectHolder<ClueObject>>> CASE_BOOK = ATTACHMENTS_TYPES.register(
-            "case_book",
+    public static final Supplier<AttachmentType<ObjectHolder<ClueObject>>> CLUE_BOOK = ATTACHMENTS_TYPES.register(
+            "clue_book",
             () -> AttachmentType.builder( () -> new ObjectHolder<>(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC))
                     .serialize(ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC))
 //                    .sync(FootprintMainMap.STREAM_CODEC)

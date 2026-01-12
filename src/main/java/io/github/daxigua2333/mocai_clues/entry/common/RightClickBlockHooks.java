@@ -3,11 +3,12 @@ package io.github.daxigua2333.mocai_clues.entry.common;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.finder.SendClue;
+import io.github.daxigua2333.mocai_clues.component.world.finder.ClickWithFinder;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -31,9 +32,9 @@ public final class RightClickBlockHooks {
 
         if (!player.level().isClientSide) {
             for (ClueObject obj : data) {
-                SendClue compo = obj.getComponent(ComponentType.SEND_CLUE);
+                ClickWithFinder compo = obj.getComponent(ComponentType.SEND_CLUE);
                 if (compo == null) continue;
-                compo.send(player);
+                compo.send((ServerPlayer) player, pos);
             }
         }
     }

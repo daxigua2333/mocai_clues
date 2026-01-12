@@ -13,10 +13,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * should contain fields: UUID, type
@@ -43,6 +40,10 @@ public class ClueObject {
                 type,
                 new EnumMap<>(ComponentType.class)
         );
+    }
+    /** only copy id and type*/
+    public ClueObject(ClueObject other) {
+        this(other.id, other.type, new EnumMap<>(ComponentType.class));
     }
 
 
