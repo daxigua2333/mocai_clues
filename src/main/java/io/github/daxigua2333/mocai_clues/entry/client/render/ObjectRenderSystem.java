@@ -29,6 +29,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
@@ -158,6 +159,9 @@ public class ObjectRenderSystem {
                 throw new RuntimeException(e);
             }
         }
+        // close others
+        BUILDING.clear();
+        DIRTY.clear();
     }
 
     @SubscribeEvent
@@ -190,31 +194,34 @@ public class ObjectRenderSystem {
         }
     }
 
-    record PendingMesh(ByteBufferBuilder builder, MeshData mesh) {}
+    record PendingMesh(@Nullable ByteBufferBuilder  builder, @Nullable MeshData mesh) {}
     private static PendingMesh buildBatchMesh(PassType pType, ChunkPos chunkPos) {
-        BufferBuilder builder;
         MeshData result = null;
+        ByteBufferBuilder bbb = null;
 
         try {
-            ByteBufferBuilder bbb = POOL.take();
+            bbb = POOL.take();
 
             // get BufferBuilder
             BasePass pass = PassType.getPass(pType);
             RenderType rType = pass.getRenderType();
             if (rType == null) throw new RuntimeException("Unregistered render type for pass type: " + pType);
-            builder = new BufferBuilder(bbb, rType.mode(), rType.format());
+            BufferBuilder builder = new BufferBuilder(bbb, rType.mode(), rType.format());
 
             // TODO: Coordinates should be relative to Chunk (0-15)
             // to prevent floating point jitter at high coordinates
             pass.addToMesh(builder, chunkPos);
 
             // Finalize meshes
-            result = builder.buildOrThrow();
+//            result = builder.buildOrThrow();  // this shit only add a null check to #build()....
+            result = builder.build();
             return new PendingMesh(bbb, result);
 
         } catch (Throwable t) {
             if (result != null) result.close();
-            throw new RuntimeException(t);
+//            throw new RuntimeException(t);
+            MoCaiClues.LOGGER.error("Off main thread building mesh fails in batch: PassType#{}, ChunkPos#{}", pType, chunkPos, t);
+            return new PendingMesh(bbb, null);
         } finally {
 //            pool.close();
         }
@@ -226,18 +233,26 @@ public class ObjectRenderSystem {
         try {
             if (throwable != null) {
                 MoCaiClues.LOGGER.error("Failed to build batch mesh of (chunk: {}, passType: {})", chunkPos, pType, throwable);
-            } else if (mesh != null) {
-                // Success: Upload the mesh
-                VertexBuffer vbo = BUFFERS.computeIfAbsent(pType, k -> new ConcurrentHashMap<>())
-                        .computeIfAbsent(chunkPos, k -> new VertexBuffer(VertexBuffer.Usage.DYNAMIC));
-                vbo.bind();
-                vbo.upload(mesh);
-                VertexBuffer.unbind();
+            } else {
+                if (mesh != null) { // Success: Upload the mesh
+                    VertexBuffer vbo = BUFFERS.computeIfAbsent(pType, k -> new ConcurrentHashMap<>())
+                            .computeIfAbsent(chunkPos, k -> new VertexBuffer(VertexBuffer.Usage.DYNAMIC));
+                    vbo.bind();
+                    vbo.upload(mesh);
+                    VertexBuffer.unbind();
+                } else {  // If empty mesh, close(clear) it
+                    VertexBuffer vbo = BUFFERS.getOrDefault(pType, new HashMap<>()).remove(chunkPos);
+                    if (vbo != null) {
+                        vbo.close();
+                    }
+                }
             }
         } finally {
             // ALWAYS remove from the building set, even if it crashed
             BUILDING.get(pType).remove(chunkPos);
-            POOL.offer(pending.builder);
+            if (pending.builder != null) {
+                POOL.offer(pending.builder);
+            }
         }
     }
 
