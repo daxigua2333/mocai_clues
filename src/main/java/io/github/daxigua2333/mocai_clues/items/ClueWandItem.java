@@ -24,7 +24,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class ClueWandItem extends Item {
     public ClueWandItem(Properties props) {
@@ -123,9 +127,11 @@ public class ClueWandItem extends Item {
 //                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
 //                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
 //                    DataSelectionScreen.open(list);
+                    // do some if things like clicking air / clicking block / entity
+                    Map<ClueType, Supplier<List<ClueObject>>> map = new HashMap<>(Map.of(ClueType.MANUAL, ClientAccessor::retrieveAllSavedData, ClueType.FOOTPRINT, List::of));
                     WandScreen.open(  // TODO
-                            () -> List.of(ClueType.MANUAL, ClueType.FOOTPRINT),
-                            (type) -> ClientAccessor.retrieveByClueType(type)
+                            () -> new ArrayList<>(map.keySet()),
+                            (type) -> map.get(type).get()
                     );
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());

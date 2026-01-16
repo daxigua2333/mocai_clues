@@ -1,14 +1,16 @@
 package io.github.daxigua2333.mocai_clues.data.client.api;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
+import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
+import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
+import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
 import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.*;
 
@@ -17,66 +19,62 @@ import java.util.*;
  */
 public class ClientAccessor {
 
-    public static List<ClueObject> retrieveByClueType(ClueType type) {
-        List<ClueObject> result = new ArrayList<>();
-        result.addAll(ClientSavedDataAccessor.queryClueObjectByClueType(type));
-//        result.addAll();
-//        NitriteMyObjectStore store = MyObjectSync.client().store();
-//        String field = NitriteMyObjectStore.clueField("type");
-//        result = store.retrieve(FluentFilter.where(field).eq(type.toString()));
-        return result;
+    // TODO:: some route
+    public static List<ClueObject> retrieveAllSavedData() {
+        return new ArrayList<>(ClientObjectHolderInSavedData.getInstance().getHolder().values());
     }
+    // TODO: also some distance culling, and traverse nearby chunks and get attachments
 
+    // very frequent query in discovery system
+    @SuppressWarnings("unchecked")
     public static List<ClueObject> retrieveByBlockPos(BlockPos pos) {
         List<ClueObject> result = new ArrayList<>();
 
-        var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
-        for (var obj : holder.values()) {
-            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-            if (compo == null) continue;
-            if (compo.getImmutable().contains(pos)) {
-                result.add(obj);
+        // chunk attachment
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
+            LevelChunk chunk = level.getChunkAt(pos);
+            ObjectHolder<ClueObject> holder = chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+            var index = (ObjectHolder<ClueObject>.Index<BlockPos>) holder.getIndex(ClientIndexManager.BY_BLOCK_POS);
+            if (index != null) {
+                result.addAll(index.values(pos));
             }
+        }
+        // saved data
+        ObjectHolder<ClueObject> holder = ClientObjectHolderInSavedData.getInstance().getHolder();
+        var index = (ObjectHolder<ClueObject>.Index<BlockPos>) holder.getIndex(ClientIndexManager.BY_BLOCK_POS);
+        if (index != null) {
+            result.addAll(index.values(pos));
         }
 
         return result;
     }
 
-    public static List<ClueObject> retrieveByChunkPos(ChunkPos chunkPos) {  // TODO: optimize
+    // very frequent query in render system, building batch mesh
+    @SuppressWarnings("unchecked")
+    public static List<ClueObject> retrieveByChunkPos(ChunkPos chunkPos) {
         List<ClueObject> result = new ArrayList<>();
 
+        // chunk
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
+            LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
+            result.addAll(chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
+        }
+
+        // saved data
         var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
-        for (var obj : holder.values()) {
-            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-            if (compo == null) continue;
-            for (var pos : compo.getImmutable()) {
-                if (chunkPos.equals(new ChunkPos(pos))) {
-                    result.add(obj);
-                    break;
-                }
-            }
+        var index = (ObjectHolder<ClueObject>.Index<ChunkPos>) holder.getIndex(ClientIndexManager.BY_CHUNK_POS);
+        if (index != null) {
+            result.addAll(index.values(chunkPos));
         }
 
         return result;
     }
 
     public static List<ClueObject> retrieveByEntity(Entity entity) {
-        return new ArrayList<>();
+        return new ArrayList<>(entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
     }
 
-    public static Set<ChunkPos> retrieveChunkPosInSavedData() {  // TODO: optimize
-        Set<ChunkPos> result = new HashSet<>();
-
-        var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
-        for (ClueObject obj : holder.values()) {
-            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-            if (compo == null) continue;
-            for (var pos : compo.getImmutable()) {
-                result.add(new ChunkPos(pos));
-            }
-        }
-
-        return result;
-    }
 
 }

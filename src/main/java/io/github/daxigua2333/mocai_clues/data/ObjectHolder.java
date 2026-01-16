@@ -1,12 +1,10 @@
 package io.github.daxigua2333.mocai_clues.data;
 
 import com.mojang.serialization.Codec;
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -16,6 +14,7 @@ import java.util.function.Function;
  *  - normal map-like APIs
  *  - full codec & stream codec
  *  - delta tracking for AttachmentSyncHandler
+ *  - derived secondary indexes (in-memory only, not serialized)
  */
 public final class ObjectHolder<T> {
 
@@ -29,6 +28,22 @@ public final class ObjectHolder<T> {
     private final Set<UUID> dirty = new LinkedHashSet<>();
     private final Set<UUID> removed = new LinkedHashSet<>();
     private boolean cleared;
+
+    // ---------------------------------------------------------------------
+    // Secondary indexes (derived, not serialized)
+    // ---------------------------------------------------------------------
+
+    /** Derived secondary indexes, kept in sync with the backing map. Not serialized. */
+    private final Map<String, Index<?>> indexes = new LinkedHashMap<>();
+
+    public enum DuplicateKeyHandling {
+        /** Throw when a unique index sees the same key mapped to a different UUID. */
+        THROW,
+        /** Keep the existing mapping; the new element will not be reachable via that key. */
+        KEEP_EXISTING,
+        /** Replace the existing mapping; the new element wins. */
+        REPLACE_EXISTING
+    }
 
     public ObjectHolder(Function<T, UUID> idGetter,
                         Codec<T> elementCodec,
@@ -45,6 +60,15 @@ public final class ObjectHolder<T> {
         this(idGetter, elementCodec, elementStreamCodec);
         this.backing.putAll(initialValues);
     }
+
+//    /** type declare helper */
+//    public <U> Optional<ObjectHolder<U>> asType(Class<U> targetType) {
+//        var set = backing.values();
+//        if (!set.isEmpty() && targetType.isInstance(set.toArray()[0])) {
+//            return Optional.of((ObjectHolder<U>) this);
+//        }
+//        return Optional.empty();  // but even if its empty, it should have type
+//    }
 
     // ---------------------------------------------------------------------
     // Basic Map-like API
@@ -86,6 +110,18 @@ public final class ObjectHolder<T> {
 
     /** Put with explicit UUID key (still assumed to match T’s own UUID). */
     public T put(UUID id, T value) {
+        UUID actualId = idGetter.apply(value);
+        if (!id.equals(actualId)) {
+            throw new IllegalArgumentException("put(UUID, T): key id " + id + " does not match value id " + actualId);
+        }
+
+        // Update indexes first so unique-index failures don't leave the backing map half-updated.
+        if (!indexes.isEmpty()) {
+            for (Index<?> index : indexes.values()) {
+                index.onPut(id, value);
+            }
+        }
+
         T previous = backing.put(id, value);
         markAddedOrUpdated(id);
         return previous;
@@ -94,6 +130,11 @@ public final class ObjectHolder<T> {
     public T remove(UUID id) {
         T previous = backing.remove(id);
         if (previous != null) {
+            if (!indexes.isEmpty()) {
+                for (Index<?> index : indexes.values()) {
+                    index.onRemove(id);
+                }
+            }
             markRemoved(id);
         }
         return previous;
@@ -102,6 +143,11 @@ public final class ObjectHolder<T> {
     public void clear() {
         if (!backing.isEmpty()) {
             backing.clear();
+            if (!indexes.isEmpty()) {
+                for (Index<?> index : indexes.values()) {
+                    index.onClear();
+                }
+            }
             markCleared();
         }
     }
@@ -110,10 +156,28 @@ public final class ObjectHolder<T> {
      * Call this if you mutate an existing T in-place without going through put().
      */
     public void markDirty(T value) {
-        UUID id = idGetter.apply(value);
-        if (backing.containsKey(id)) {
-            markAddedOrUpdated(id);
+        markDirty(idGetter.apply(value));
+    }
+
+    /**
+     * Call this if you mutate an existing T in-place without going through put().
+     * This will also re-index the entry for all registered indexes.
+     */
+    public void markDirty(UUID id) {
+        if (!backing.containsKey(id)) {
+            return;
         }
+
+        if (!indexes.isEmpty()) {
+            T current = backing.get(id);
+            if (current != null) {
+                for (Index<?> index : indexes.values()) {
+                    index.onPut(id, current);
+                }
+            }
+        }
+
+        markAddedOrUpdated(id);
     }
 
     // ---------------------------------------------------------------------
@@ -147,12 +211,304 @@ public final class ObjectHolder<T> {
     }
 
     // ---------------------------------------------------------------------
+    // Index API
+    // ---------------------------------------------------------------------
+
+    /**
+     * Create a (non-unique) index where each element contributes at most one key.
+     * The index is derived-only (not serialized) and kept in sync automatically.
+     */
+    public <K> Index<K> createIndex(String name, Function<T, K> keyExtractor) {
+        Objects.requireNonNull(keyExtractor, "keyExtractor");
+        return createIndexInternal(
+                name,
+                false,
+                DuplicateKeyHandling.REPLACE_EXISTING,
+                value -> {
+                    K key = keyExtractor.apply(value);
+                    return key == null ? List.of() : List.of(key);
+                }
+        );
+    }
+
+    /**
+     * Create a UNIQUE index where each key should map to at most one UUID.
+     *
+     * <p>Default policy is {@link DuplicateKeyHandling#REPLACE_EXISTING} (last write wins),
+     * to avoid crashing from bad/old data during sync/load.</p>
+     */
+    public <K> Index<K> createUniqueIndex(String name, Function<T, K> keyExtractor) {
+        return createUniqueIndex(name, keyExtractor, DuplicateKeyHandling.REPLACE_EXISTING);
+    }
+
+    public <K> Index<K> createUniqueIndex(String name, Function<T, K> keyExtractor, DuplicateKeyHandling duplicateKeyHandling) {
+        Objects.requireNonNull(keyExtractor, "keyExtractor");
+        return createIndexInternal(
+                name,
+                true,
+                duplicateKeyHandling,
+                value -> {
+                    K key = keyExtractor.apply(value);
+                    return key == null ? List.of() : List.of(key);
+                }
+        );
+    }
+
+    /** Create a (non-unique) index where each element can contribute multiple keys (e.g., tags). */
+    public <K> Index<K> createMultiIndex(String name, Function<T, ? extends Collection<K>> keysExtractor) {
+        return createIndexInternal(name, false, DuplicateKeyHandling.REPLACE_EXISTING, keysExtractor);
+    }
+
+    /** Create a UNIQUE multi-key index. */
+    public <K> Index<K> createUniqueMultiIndex(String name,
+                                               Function<T, ? extends Collection<K>> keysExtractor,
+                                               DuplicateKeyHandling duplicateKeyHandling) {
+        return createIndexInternal(name, true, duplicateKeyHandling, keysExtractor);
+    }
+
+    private <K> Index<K> createIndexInternal(String name,
+                                             boolean unique,
+                                             DuplicateKeyHandling duplicateKeyHandling,
+                                             Function<T, ? extends Collection<K>> keysExtractor) {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(keysExtractor, "keysExtractor");
+        Objects.requireNonNull(duplicateKeyHandling, "duplicateKeyHandling");
+
+        if (indexes.containsKey(name)) {
+            throw new IllegalArgumentException("Index already exists: " + name);
+        }
+
+        Index<K> index = new Index<>(name, unique, duplicateKeyHandling, keysExtractor);
+        indexes.put(name, index);
+        index.rebuild();
+        return index;
+    }
+
+    public Set<String> indexNames() {
+        return Collections.unmodifiableSet(indexes.keySet());
+    }
+
+    @Nullable
+    public Index<?> getIndex(String name) {
+        return indexes.get(name);
+    }
+
+    public void dropIndex(String name) {
+        Index<?> removed = indexes.remove(name);
+        if (removed != null) {
+            removed.clear();
+        }
+    }
+
+    /** Rebuild every registered index from the current backing map. */
+    public void rebuildAllIndexes() {
+        for (Index<?> index : indexes.values()) {
+            index.rebuild();
+        }
+    }
+
+    public final class Index<K> {
+        private final String name;
+        private final boolean unique;
+        private final DuplicateKeyHandling duplicateKeyHandling;
+        private final Function<T, ? extends Collection<K>> keysExtractor;
+
+        // key -> ids (multiple ids for non-unique; for unique should be 0/1 ids)
+        private final Map<K, LinkedHashSet<UUID>> idsByKey = new LinkedHashMap<>();
+
+        // id -> keys (reverse mapping, for efficient updates/removals)
+        private final Map<UUID, LinkedHashSet<K>> keysById = new HashMap<>();
+
+        private Index(String name,
+                      boolean unique,
+                      DuplicateKeyHandling duplicateKeyHandling,
+                      Function<T, ? extends Collection<K>> keysExtractor) {
+            this.name = name;
+            this.unique = unique;
+            this.duplicateKeyHandling = duplicateKeyHandling;
+            this.keysExtractor = keysExtractor;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        public boolean unique() {
+            return unique;
+        }
+
+        public DuplicateKeyHandling duplicateKeyHandling() {
+            return duplicateKeyHandling;
+        }
+
+        /** All indexed keys (live view). */
+        public Set<K> keySet() {
+            return Collections.unmodifiableSet(idsByKey.keySet());
+        }
+
+        /** UUIDs that match this key (may be empty). */
+        public Set<UUID> ids(K key) {
+            LinkedHashSet<UUID> ids = idsByKey.get(key);
+            return ids == null ? Set.of() : Collections.unmodifiableSet(ids);
+        }
+
+        /** Values that match this key (may be empty). */
+        public List<T> values(K key) {
+            LinkedHashSet<UUID> ids = idsByKey.get(key);
+            if (ids == null || ids.isEmpty()) {
+                return List.of();
+            }
+            ArrayList<T> result = new ArrayList<>(ids.size());
+            for (UUID id : ids) {
+                T value = backing.get(id);
+                if (value != null) {
+                    result.add(value);
+                }
+            }
+            return List.copyOf(result);
+        }
+
+        /** The keys this UUID is currently indexed under (may be empty). */
+        public Set<K> keys(UUID id) {
+            LinkedHashSet<K> keys = keysById.get(id);
+            return keys == null ? Set.of() : Collections.unmodifiableSet(keys);
+        }
+
+        public void clear() {
+            idsByKey.clear();
+            keysById.clear();
+        }
+
+        public void rebuild() {
+            clear();
+            for (var entry : backing.entrySet()) {
+                onPut(entry.getKey(), entry.getValue());
+            }
+        }
+
+        private void onClear() {
+            clear();
+        }
+
+        private void onRemove(UUID id) {
+            LinkedHashSet<K> keys = keysById.remove(id);
+            if (keys == null) {
+                return;
+            }
+            for (K key : keys) {
+                unlink(key, id);
+            }
+        }
+
+        private void onPut(UUID id, T value) {
+            LinkedHashSet<K> desiredKeys = extractKeys(value);
+            LinkedHashSet<K> oldKeys = keysById.get(id);
+
+            // No changes
+            if (oldKeys != null && oldKeys.equals(desiredKeys)) {
+                return;
+            }
+
+            // Remove old keys that are no longer present
+            if (oldKeys != null) {
+                for (K oldKey : oldKeys) {
+                    if (!desiredKeys.contains(oldKey)) {
+                        unlink(oldKey, id);
+                    }
+                }
+            }
+
+            // Add new keys (respect unique policy)
+            LinkedHashSet<K> actualKeys = new LinkedHashSet<>();
+            for (K key : desiredKeys) {
+                if (link(key, id)) {
+                    actualKeys.add(key);
+                }
+            }
+
+            if (actualKeys.isEmpty()) {
+                keysById.remove(id);
+            } else {
+                keysById.put(id, actualKeys);
+            }
+        }
+
+        private LinkedHashSet<K> extractKeys(T value) {
+            Collection<K> raw = keysExtractor.apply(value);
+            if (raw == null || raw.isEmpty()) {
+                return new LinkedHashSet<>();
+            }
+            LinkedHashSet<K> keys = new LinkedHashSet<>();
+            for (K key : raw) {
+                if (key != null) {
+                    keys.add(key);
+                }
+            }
+            return keys;
+        }
+
+        /**
+         * @return true if the key was linked to this id; false if skipped (KEEP_EXISTING case on unique conflict)
+         */
+        private boolean link(K key, UUID id) {
+            if (key == null) {
+                return false;
+            }
+
+            LinkedHashSet<UUID> ids = idsByKey.computeIfAbsent(key, k -> new LinkedHashSet<>());
+            if (ids.contains(id)) {
+                return true;
+            }
+
+            // Non-unique (or unique and currently empty): just add.
+            if (!unique || ids.isEmpty()) {
+                ids.add(id);
+                return true;
+            }
+
+            // Unique conflict: key already mapped to a different id.
+            return switch (duplicateKeyHandling) {
+                case THROW -> throw new IllegalStateException(
+                        "Unique index '" + name + "' duplicate key '" + key + "' for id=" + id + " (already mapped to " + ids + ")"
+                );
+                case KEEP_EXISTING -> false;
+                case REPLACE_EXISTING -> {
+                    // Remove this key from whoever previously had it (index-level replace only).
+                    for (UUID oldId : new ArrayList<>(ids)) {
+                        LinkedHashSet<K> oldIdKeys = keysById.get(oldId);
+                        if (oldIdKeys != null) {
+                            oldIdKeys.remove(key);
+                            if (oldIdKeys.isEmpty()) {
+                                keysById.remove(oldId);
+                            }
+                        }
+                    }
+                    ids.clear();
+                    ids.add(id);
+                    yield true;
+                }
+            };
+        }
+
+        private void unlink(K key, UUID id) {
+            LinkedHashSet<UUID> ids = idsByKey.get(key);
+            if (ids == null) {
+                return;
+            }
+            ids.remove(id);
+            if (ids.isEmpty()) {
+                idsByKey.remove(key);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------
     // Full encode/decode (for persistence or full sync)
     // ---------------------------------------------------------------------
 
     /**
      * Full binary encode with the element StreamCodec.
-     * Layout: varInt size, then that many T elements.
+     * Layout: int size, then that many T elements.
      */
     public void encodeFull(ByteBuf buf) {
         buf.writeInt(backing.size());
@@ -166,11 +522,27 @@ public final class ObjectHolder<T> {
      */
     public void decodeFull(ByteBuf buf) {
         backing.clear();
+
+        boolean hasIndexes = !indexes.isEmpty();
+        if (hasIndexes) {
+            for (Index<?> index : indexes.values()) {
+                index.onClear();
+            }
+        }
+
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
             T value = elementStreamCodec.decode(buf);
-            backing.put(idGetter.apply(value), value);
+            UUID id = idGetter.apply(value);
+            backing.put(id, value);
+
+            if (hasIndexes) {
+                for (Index<?> index : indexes.values()) {
+                    index.onPut(id, value);
+                }
+            }
         }
+
         resetChangeTracking();
     }
 
@@ -185,8 +557,8 @@ public final class ObjectHolder<T> {
      *
      * Layout:
      *  - boolean cleared
-     *  - varInt changedCount, then changedCount * T
-     *  - varInt removedCount, then removedCount * UUID
+     *  - int changedCount, then changedCount * T
+     *  - int removedCount, then removedCount * UUID
      *
      *  ** This is the same as delta payload buf
      */
@@ -213,20 +585,40 @@ public final class ObjectHolder<T> {
      */
     public void applyDelta(ByteBuf buf) {
         boolean cleared = buf.readBoolean();
+        boolean hasIndexes = !indexes.isEmpty();
+
         if (cleared) {
             backing.clear();
+            if (hasIndexes) {
+                for (Index<?> index : indexes.values()) {
+                    index.onClear();
+                }
+            }
         }
 
         int changed = buf.readInt();
         for (int i = 0; i < changed; i++) {
             T value = elementStreamCodec.decode(buf);
-            backing.put(idGetter.apply(value), value);
+            UUID id = idGetter.apply(value);
+            backing.put(id, value);
+
+            if (hasIndexes) {
+                for (Index<?> index : indexes.values()) {
+                    index.onPut(id, value);
+                }
+            }
         }
 
         int removedCount = buf.readInt();
         for (int i = 0; i < removedCount; i++) {
             UUID id = UUIDUtil.STREAM_CODEC.decode(buf);
             backing.remove(id);
+
+            if (hasIndexes) {
+                for (Index<?> index : indexes.values()) {
+                    index.onRemove(id);
+                }
+            }
         }
 
         resetChangeTracking();
@@ -238,7 +630,7 @@ public final class ObjectHolder<T> {
     // These are static so you can build the codecs where you register things.
 
     /**
-     * Full Codec for persistence (JSON/NBT etc.). We just serialize as a list&lt;T&gt;.
+     * Full Codec for persistence (JSON/NBT etc.). We just serialize as a list<T>.
      * T’s own codec is expected to include its UUID id.
      */
     public static <T> Codec<ObjectHolder<T>> codec(
@@ -283,7 +675,7 @@ public final class ObjectHolder<T> {
     public record DeltaPayload<T>(boolean cleared, List<T> dirty, List<UUID> removed) {
         public static <T> StreamCodec<ByteBuf, DeltaPayload<T>> deltaStreamCodec(
                 StreamCodec<ByteBuf, T> elementStreamCodec
-        ){
+        ) {
             return StreamCodec.of(
                     (ByteBuf buf, DeltaPayload<T> payload) -> {
                         buf.writeBoolean(payload.cleared());
@@ -305,26 +697,25 @@ public final class ObjectHolder<T> {
 
                         List<T> dirty = new ArrayList<>();
                         int changed = buf.readInt();
-                        for (int i=0; i<changed; i++) {
+                        for (int i = 0; i < changed; i++) {
                             T obj = elementStreamCodec.decode(buf);
                             dirty.add(obj);
                         }
 
                         List<UUID> removed = new ArrayList<>();
                         int removedCount = buf.readInt();
-                        for (int i=0; i<removedCount; i++) {
+                        for (int i = 0; i < removedCount; i++) {
                             UUID id = UUIDUtil.STREAM_CODEC.decode(buf);
                             removed.add(id);
                         }
 
-                        return new DeltaPayload<T>(
+                        return new DeltaPayload<>(
                                 cleared,
                                 dirty,
                                 removed
                         );
                     }
             );
-
         }
     }
 
@@ -342,23 +733,38 @@ public final class ObjectHolder<T> {
     }
 
     public void applyDeltaPayload(DeltaPayload<T> payload) {
+        boolean hasIndexes = !indexes.isEmpty();
+
         if (payload.cleared()) {
             backing.clear();
+            if (hasIndexes) {
+                for (Index<?> index : indexes.values()) {
+                    index.onClear();
+                }
+            }
         }
 
         for (var obj : payload.dirty()) {
-            backing.put(idGetter.apply(obj), obj);
+            UUID id = idGetter.apply(obj);
+            backing.put(id, obj);
+
+            if (hasIndexes) {
+                for (Index<?> index : indexes.values()) {
+                    index.onPut(id, obj);
+                }
+            }
         }
 
         for (var id : payload.removed()) {
             backing.remove(id);
+
+            if (hasIndexes) {
+                for (Index<?> index : indexes.values()) {
+                    index.onRemove(id);
+                }
+            }
         }
 
         resetChangeTracking();
-    }
-
-    // TODO: index things  hook priority
-    public void queryTypes(){
-
     }
 }

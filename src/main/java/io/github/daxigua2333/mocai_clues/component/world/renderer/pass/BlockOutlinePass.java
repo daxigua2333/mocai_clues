@@ -2,11 +2,8 @@ package io.github.daxigua2333.mocai_clues.component.world.renderer.pass;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
@@ -15,14 +12,11 @@ import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -97,11 +91,7 @@ public class BlockOutlinePass extends BasePass {
 
     @Override
     public void addToMesh(BufferBuilder builder, ChunkPos chunkPos) {
-        // 1. Get your data from Chunk Attachment
-        Level level = Minecraft.getInstance().level;
-//        LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
-//        var dataMap = chunk.getData(MyAttachments.CHUNK_DATA_MAP);
-        List<ClueObject> data = ClientAccessor.retrieveByChunkPos(chunkPos);  // TODO;
+        List<ClueObject> data = ClientAccessor.retrieveByChunkPos(chunkPos);
 
         Set<BlockPos> poses = new HashSet<>();
         for (var obj : data) {

@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -42,7 +41,7 @@ public final class FinderTick {
                             ItemStack.isSameItem(player.getOffhandItem(), stack);
 
                     // finder hit predicate
-                    HitResult hr = Minecraft.getInstance().hitResult;  // TODO: performance issues
+                    HitResult hr = Minecraft.getInstance().hitResult;  // TODO: performance issues: merge the rayTrace ticker
                     if (hr == null) return returnWithUpdate(false);
                     List<ClueObject> data;
                     switch (hr.getType()) {

@@ -4,13 +4,16 @@ import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
-import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
+import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
+import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,11 +60,34 @@ public final class ServerDataAccessor {
         holder.put(obj);
     }
 
-    public static void upsertInSD(MinecraftServer server, ClueObject obj) {
+    public static void upsert(MinecraftServer server, ClueObject obj) {
         ClueObjectHolderInSavedData.getInstance(server).put(obj);
     }
+    public static void upsert(ServerLevel level, ChunkPos pos, ClueObject obj) {
+        LevelChunk chunk = level.getChunk(pos.x, pos.z);
+        ObjectHolder<ClueObject> holder = chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        holder.put(obj);
+    }
+    public static void upsert(ServerLevel level, UUID entityId, ClueObject obj) {
+        Entity entity = level.getEntity(entityId);
+        if (entity == null) return;
+        ObjectHolder<ClueObject> holder = entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        holder.put(obj);
+    }
 
-    public static void deleteInSD(MinecraftServer server, UUID id) {
+
+    public static void delete(MinecraftServer server, UUID id) {
         ClueObjectHolderInSavedData.getInstance(server).remove(id);
+    }
+    public static void delete(ServerLevel level, ChunkPos pos, UUID id) {
+        LevelChunk chunk = level.getChunk(pos.x, pos.z);
+        ObjectHolder<ClueObject> holder = chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        holder.remove(id);
+    }
+    public static void delete(ServerLevel level, UUID entityId, UUID id) {
+        Entity entity = level.getEntity(entityId);
+        if (entity == null) return;
+        ObjectHolder<ClueObject> holder = entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        holder.remove(id);
     }
 }

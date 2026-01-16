@@ -3,8 +3,7 @@ package io.github.daxigua2333.mocai_clues.guis.widget;
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.networks.ClueObjectDeletePayload;
-import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpsertPayload;
+import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpdatePayload;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -51,10 +50,14 @@ public class DetailPanelNew extends AbstractContainerWidget {
 
         page = new ScrollPage(mc, width, height, top, left);
 
-        // top buttons  TODO: cancel, delete
+        // top buttons
         int y = top - 20;
         this.applyButton = Button.builder(Component.translatable("apply"), btn -> {
-            PacketDistributor.sendToServer(new ClueObjectUpsertPayload(copy));
+//            PacketDistributor.sendToServer(new ClueObjectUpdatePayload(copy));
+            PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                    new ClueObjectUpdatePayload.Location(),
+                    new ClueObjectUpdatePayload.Data(copy)
+            ));
             this.setState(State.READONLY);
         }).bounds(left+width-80, y, 40, 20).build();
         this.cancelButton = Button.builder(Component.translatable("cancel"), btn -> {
@@ -72,7 +75,11 @@ public class DetailPanelNew extends AbstractContainerWidget {
                 (BooleanConsumer) confirmed -> {
                     mc.popGuiLayer();
                     if (confirmed) {
-                        PacketDistributor.sendToServer(new ClueObjectDeletePayload(object.getId()));
+//                        PacketDistributor.sendToServer(new ClueObjectDeletePayload(object.getId()));
+                        PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                                new ClueObjectUpdatePayload.Location(), // TODO: attachment location
+                                new ClueObjectUpdatePayload.Data(object.getId())
+                        ));
                         this.updateObject(null);
                     }
                 },

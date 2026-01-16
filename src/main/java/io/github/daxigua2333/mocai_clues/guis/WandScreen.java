@@ -4,7 +4,6 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanel;
 import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
 import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
@@ -87,14 +86,14 @@ public class WandScreen extends Screen {
                 (obj) -> obj.getId(),
 //                Component::literal,
                 (clue) -> Component.literal(clue.getId().toString()),  // TODO
-                (clueObject) -> {  /// TODO
+                (clueObject) -> {
                     if (clueObject == null) return;
                     this.details.updateObject(clueObject);
                 }
         );
 
         this.tab = new DropdownWidget<>(   // TODO: test sync
-                (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET - 2,  // TODO: pos
+                (this.width - TEXTURE_WIDTH) / 2 + LIST_X_OFFSET - 2,
                 (this.height - TEXTURE_HEIGHT) / 2 + LIST_Y_OFFSET - 16,
                 2,
                 60,

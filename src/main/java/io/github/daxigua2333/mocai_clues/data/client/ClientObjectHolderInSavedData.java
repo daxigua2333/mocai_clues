@@ -38,6 +38,7 @@ public final class ClientObjectHolderInSavedData {
 //        fullCopy.forEachValue(holder::put); // however your API looks
 //        holder.resetChangeTracking();       // client should track changes only if you want UI diff, etc.
         this.holder = fullCopy;  // I think this replaceAll process has been done in the decode process
+        ClientIndexManager.savedDataEnsure(holder);
         NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Full<>(null, fullCopy));
     }
 

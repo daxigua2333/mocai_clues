@@ -72,7 +72,7 @@ public class ClueBookScreen extends Screen {
                     if (compo == null) return Component.empty();
                     return Component.literal(compo.getName());
                 },
-                (clueObject) -> {  /// TODO
+                (clueObject) -> {
                     if (clueObject == null) return;
                     details.updateObject(clueObject);
                 }

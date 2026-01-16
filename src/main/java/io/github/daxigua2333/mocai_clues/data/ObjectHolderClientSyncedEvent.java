@@ -6,7 +6,6 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import org.jetbrains.annotations.Nullable;
 
-// TODO: more context
 public class ObjectHolderClientSyncedEvent extends Event {
 
     /** null if it is in SavedData env */

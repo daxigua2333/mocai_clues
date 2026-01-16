@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.data.server;
 
+import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.data.networks.ClueObjectHolderDeltaPayload;
 import io.github.daxigua2333.mocai_clues.data.networks.ClueObjectHolderFullPayload;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 // Server-only, attached to overworld or per-dimension
 public class ClueObjectHolderInSavedData extends SavedData {
@@ -42,6 +44,13 @@ public class ClueObjectHolderInSavedData extends SavedData {
         this.holder = holder;
     }
 
+    public static final Codec<ObjectHolder<ClueObject>> CLUE_HOLDER_CODEC =
+        ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
+            .xmap(
+                holder -> { ServerIndexManager.savedDataEnsure(holder); return holder; }, // decode
+                Function.identity()
+            );
+
     // Load from NBT. (persistence)
     public static ClueObjectHolderInSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
         if (!tag.contains("ClueObjectHolder")) {
@@ -50,7 +59,7 @@ public class ClueObjectHolderInSavedData extends SavedData {
 
         // If your ClueObject.CODEC is registry-free, NbtOps is fine.
         // If it uses registries (items, blocks, etc.), use RegistryOps instead (see note below).
-        var dataResult = ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
+        var dataResult = CLUE_HOLDER_CODEC
             .parse(NbtOps.INSTANCE, tag.get("ClueObjectHolder"));
 
         ObjectHolder<ClueObject> holder = dataResult
@@ -63,7 +72,7 @@ public class ClueObjectHolderInSavedData extends SavedData {
     // Save to NBT. (persistence)
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        var dataResult = ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
+        var dataResult = CLUE_HOLDER_CODEC
             .encodeStart(NbtOps.INSTANCE, this.holder);
 
         dataResult

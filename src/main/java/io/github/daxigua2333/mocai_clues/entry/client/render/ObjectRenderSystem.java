@@ -10,7 +10,9 @@ import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BaseRendererData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
+import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
+import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -45,7 +47,7 @@ public class ObjectRenderSystem {
     private static final Map<PassType, Set<ChunkPos>> DIRTY = new ConcurrentHashMap<>();
     private static final Map<PassType, Set<ChunkPos>> BUILDING = new ConcurrentHashMap<>();
     private static final Map<PassType, Map<ChunkPos, VertexBuffer>> BUFFERS = new ConcurrentHashMap<>();
-    /* TODO: optimize, type index in chunk attachment
+    /* TODO: maybe optimize, type index in chunk attachment
     * Current structure treats per type per chunk as a batch, which means when building batch mesh,
     * each chunk data will be separately iterated by per type, which is unnecessarily repeated.
     * But for now, the PassType is like only O(10), so... whatever
@@ -71,11 +73,16 @@ public class ObjectRenderSystem {
             }
         }
     }
+    @SuppressWarnings("unchecked")
     @SubscribeEvent
     public static void onDeltaSync(ObjectHolderClientSyncedEvent.Delta<ClueObject> event) {
         if (event.attachmentHolder instanceof LevelChunk chunk) {
             if (event.delta.cleared()) {
-                event.prev.queryTypes();
+                ObjectHolder<ClueObject> holder = event.prev;
+                var index = (ObjectHolder<ClueObject>.Index<PassType>) holder.getIndex(ClientIndexManager.BY_PASS_TYPE);
+                if (index != null) {
+                    index.keySet().forEach(pType -> markDirty(pType, chunk.getPos()));
+                }
             }
             for (ClueObject obj : event.delta.dirty()) {
                 markDirtyByObjectAndChunkPos(obj, chunk.getPos());
@@ -105,7 +112,8 @@ public class ObjectRenderSystem {
         RendererHolder rCompo = obj.getComponent(ComponentType.RENDERER_HOLDER);
         if (rCompo == null) return;
         for (BaseRendererData pass : rCompo.getImmutable()) {
-            DIRTY.computeIfAbsent(pass.getPassType(), t -> new HashSet<>()).add(chunkPos);
+//            DIRTY.computeIfAbsent(pass.getPassType(), t -> new HashSet<>()).add(chunkPos);
+            markDirty(pass.getPassType(), chunkPos);
         }
     }
 

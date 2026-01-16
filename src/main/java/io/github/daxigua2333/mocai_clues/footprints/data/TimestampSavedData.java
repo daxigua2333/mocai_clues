@@ -63,7 +63,8 @@ public class TimestampSavedData extends SavedData {
     /*
     * query ALL the level chunks and execute DELETE
     * which means there are *loaded* and *unloaded* chunks
-    * TODO: I think here we should use lazy delete for unloaded ones,
+    * TODO: optimize the process of level.getChunk(),getData(attach)
+    * I think here we should use lazy delete for unloaded ones,
     * but idk whether it is reliable..... like generating new chunk / loading chunk from disk seems to be 2 events
     * */
     public void tick(ServerLevel level) {

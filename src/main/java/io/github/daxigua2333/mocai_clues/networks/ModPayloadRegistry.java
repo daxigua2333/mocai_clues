@@ -1,13 +1,13 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,8 +16,6 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-
-import java.util.*;
 
 @EventBusSubscriber(modid=MoCaiClues.MODID)
 public class ModPayloadRegistry {
@@ -37,24 +35,30 @@ public class ModPayloadRegistry {
 
 
         // ====== ClueObject =====
-        // TODO: database api
+        // TODO: database api of routing
         registrar.playToServer(
-                ClueObjectUpsertPayload.TYPE,
-                ClueObjectUpsertPayload.STREAM_CODEC,
-                (final ClueObjectUpsertPayload payload, final IPayloadContext context) -> {
+                ClueObjectUpdatePayload.TYPE,
+                ClueObjectUpdatePayload.STREAM_CODEC,
+                (final ClueObjectUpdatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
 //                        MyObjectSync.server().store().serverUpsert(payload.object());
-                        ServerDataAccessor.upsertInSD(context.player().level().getServer(), payload.object());
-                    });
-                }
-        );
-        registrar.playToServer(
-                ClueObjectDeletePayload.TYPE,
-                ClueObjectDeletePayload.STREAM_CODEC,
-                (final ClueObjectDeletePayload payload, final IPayloadContext context) -> {
-                    context.enqueueWork(() -> {
-//                        MyObjectSync.server().store().serverDelete(payload.id().toString());
-                        ServerDataAccessor.deleteInSD(context.player().level().getServer(), payload.id());
+//                        ServerDataAccessor.upsert(context.player().level().getServer(), payload.object());
+                        switch (payload.data().mode()) {
+                            case DELETE -> {
+                                switch (payload.location().type()) {
+                                    case SD -> ServerDataAccessor.delete(context.player().getServer(), payload.data().id());
+                                    case CHUNK -> ServerDataAccessor.delete((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().id());
+                                    case ENTITY -> ServerDataAccessor.delete((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().id());
+                                }
+                            }
+                            case UPSERT -> {
+                                switch (payload.location().type()) {
+                                    case SD -> ServerDataAccessor.upsert(context.player().getServer(), payload.data().obj());
+                                    case CHUNK -> ServerDataAccessor.upsert((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().obj());
+                                    case ENTITY -> ServerDataAccessor.upsert((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().obj());
+                                }
+                            }
+                        }
                     });
                 }
         );
@@ -77,7 +81,7 @@ public class ModPayloadRegistry {
                 (final WandSwitchToAttachModePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
                         // update Database
-                        ServerDataAccessor.upsertInSD(context.player().level().getServer(), payload.object());
+                        ServerDataAccessor.upsert(context.player().level().getServer(), payload.object());
                         // update main hand
                         Player player = context.player();
                         ItemStack stack = player.getMainHandItem();

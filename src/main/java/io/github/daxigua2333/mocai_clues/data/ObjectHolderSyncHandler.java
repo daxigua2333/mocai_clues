@@ -1,6 +1,8 @@
 package io.github.daxigua2333.mocai_clues.data;
 
 import com.mojang.serialization.Codec;
+import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,15 +29,15 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
         this.elementStreamCodec = elementStreamCodec;
     }
 
-    /** Convenience: full persistence codec for the attachment. */
-    public Codec<ObjectHolder<T>> codec() {
-        return ObjectHolder.codec(idGetter, elementCodec, elementStreamCodec);
-    }
-
-    /** Convenience: full stream codec (no deltas). */
-    public StreamCodec<ByteBuf, ObjectHolder<T>> streamCodec() {
-        return ObjectHolder.streamCodec(idGetter, elementCodec, elementStreamCodec);
-    }
+//    /** Convenience: full persistence codec for the attachment. */
+//    public Codec<ObjectHolder<T>> codec() {
+//        return ObjectHolder.codec(idGetter, elementCodec, elementStreamCodec);
+//    }
+//
+//    /** Convenience: full stream codec (no deltas). */
+//    public StreamCodec<ByteBuf, ObjectHolder<T>> streamCodec() {
+//        return ObjectHolder.streamCodec(idGetter, elementCodec, elementStreamCodec);
+//    }
 
     @Override
     public void write(RegistryFriendlyByteBuf buf, ObjectHolder<T> attachment, boolean initialSync) {
@@ -58,6 +60,8 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
             // Client had no prior data for this attachment, so we expect a full payload.
             ObjectHolder<T> map = new ObjectHolder<>(idGetter, elementCodec, elementStreamCodec);
             map.decodeFull(buf);
+
+            ClientIndexManager.attachmentHolderEnsure(map);
 
             NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Full<>(holder, map));
             return map;
