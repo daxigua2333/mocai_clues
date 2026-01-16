@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues.component.world.finder;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.daxigua2333.mocai_clues.Config;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import net.minecraft.client.Minecraft;
@@ -46,11 +47,15 @@ public class FlashDotSet extends ClueComponent {
     }
 
     private static void spawnOne(ClientLevel level, BlockPos pos, Direction face) {
-        final double EPS = 0.501; // slightly outside the block surface
+        final double EPS = 0.55; // slightly outside the block surface
         double x = pos.getX() + 0.5 + face.getStepX() * EPS;
         double y = pos.getY() + 0.5 + face.getStepY() * EPS;
         double z = pos.getZ() + 0.5 + face.getStepZ() * EPS;
-        var dust = new DustParticleOptions(new Vector3f(1.0f, 0.9f, 0.2f), 1f);  //TODO: config color
+        float r = Config.CLIENT.FLASH_DOT_R.getAsInt() / 255f;
+        float g = Config.CLIENT.FLASH_DOT_G.getAsInt() / 255f;
+        float b = Config.CLIENT.FLASH_DOT_B.getAsInt() / 255f;
+//        var dust = new DustParticleOptions(new Vector3f(1.0f, 0.9f, 0.2f), 1f);
+        var dust = new DustParticleOptions(new Vector3f(r, g, b), 1f);
         // "true" = alwaysRender (ignores “Minimal” particles setting)
         level.addParticle(dust, true, x, y, z, 0.0, 0.0, 0.0);
     }

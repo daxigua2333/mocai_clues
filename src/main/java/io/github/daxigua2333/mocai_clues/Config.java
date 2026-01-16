@@ -34,6 +34,10 @@ public class Config {
         public final ModConfigSpec.IntValue FOOTPRINT_G;
         public final ModConfigSpec.IntValue FOOTPRINT_B;
 
+        public final ModConfigSpec.IntValue FLASH_DOT_R;
+        public final ModConfigSpec.IntValue FLASH_DOT_G;
+        public final ModConfigSpec.IntValue FLASH_DOT_B;
+
         Client(ModConfigSpec.Builder builder) {
             builder.push("footprint");
             FOOTPRINT_DO_RENDER = builder
@@ -51,7 +55,18 @@ public class Config {
             FOOTPRINT_B = builder
                     .comment("footprint color: B")
                     .defineInRange("footprintB", 0, 0, 255);
+            builder.pop();
 
+            builder.push("discovery");
+            FLASH_DOT_R = builder
+                    .comment("flash dot color: R")
+                    .defineInRange("flashDotR", 0, 0, 255);
+            FLASH_DOT_G = builder
+                    .comment("flash dot color: G")
+                    .defineInRange("flashDotG", 0, 0, 255);
+            FLASH_DOT_B = builder
+                    .comment("flash dot color: B")
+                    .defineInRange("flashDotB", 0, 0, 255);
             builder.pop();
         }
     }
