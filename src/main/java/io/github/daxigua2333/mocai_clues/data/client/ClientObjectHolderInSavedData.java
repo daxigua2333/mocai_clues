@@ -3,8 +3,6 @@ package io.github.daxigua2333.mocai_clues.data.client;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
-import io.github.daxigua2333.mocai_clues.data.ObjectHolderDataChangeEvent;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;

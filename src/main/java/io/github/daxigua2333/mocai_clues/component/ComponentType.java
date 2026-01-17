@@ -6,7 +6,6 @@ import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;
-import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
 
@@ -23,9 +22,6 @@ public enum ComponentType {
     BLOCK_POS_SET,
     ATTACHED_ENTITY_SET,
     RENDERER_HOLDER,
-
-    // interact
-    INTERACT_EVENT_HOLDER,
 
     // finder
     FINDER_STATE,
@@ -46,7 +42,6 @@ public enum ComponentType {
                         case DETAIL_DATA -> DetailData.CODEC;
                         case BLOCK_POS_SET -> BlockPosSet.CODEC;
                         case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
-                        case INTERACT_EVENT_HOLDER -> InteractEventHolder.CODEC;
                         case RENDERER_HOLDER -> RendererHolder.CODEC;
                         case FINDER_STATE -> FinderState.CODEC;
                         case SEND_CLUE -> ClickWithFinder.CODEC;

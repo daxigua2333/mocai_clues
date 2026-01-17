@@ -9,7 +9,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
+import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -18,7 +18,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -91,7 +90,7 @@ public class BlockOutlinePass extends BasePass {
 
     @Override
     public void addToMesh(BufferBuilder builder, ChunkPos chunkPos) {
-        List<ClueObject> data = ClientAccessor.retrieveByChunkPos(chunkPos);
+        List<ClueObject> data = ClientDataManager.retrieveByChunkPos(chunkPos);
 
         Set<BlockPos> poses = new HashSet<>();
         for (var obj : data) {

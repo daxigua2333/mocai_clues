@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.entry.client;
+package io.github.daxigua2333.mocai_clues.entry.common;
 
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
@@ -11,9 +11,9 @@ import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.finder.ClickWithFinder;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
-import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
+import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
-import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
+import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.guis.WandScreen;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
@@ -26,7 +26,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -44,7 +43,7 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        handleWand(event, () -> ClientAccessor.retrieveByBlockPos(event.getPos()), () -> {
+        handleWand(event, () -> ClientDataManager.retrieveByBlockPos(event.getPos()), () -> {
             if (!event.getLevel().isClientSide()) {
                 attachManualClue(event.getEntity(), event.getItemStack(),
                         obj -> addPos(obj, event.getPos(), event.getFace())
@@ -52,7 +51,7 @@ public final class ItemInteractHooks {
             }
         }, success);
 
-        handleFinder(event, () -> ServerDataAccessor.retrieveByBlockPos(event.getLevel(), event.getPos()), obj -> {
+        handleFinder(event, () -> ServerDataManager.retrieveByBlockPos(event.getLevel(), event.getPos()), obj -> {
             ClickWithFinder compo = obj.getComponent(ComponentType.SEND_CLUE);
             if (compo == null) return;
             compo.send((ServerPlayer) event.getEntity(),
@@ -68,7 +67,7 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        handleWand(event, () -> ClientAccessor.retrieveByEntity(event.getTarget()), () -> {
+        handleWand(event, () -> ClientDataManager.retrieveByEntity(event.getTarget()), () -> {
             if (!event.getLevel().isClientSide()) {
                 attachManualClue(event.getEntity(), event.getItemStack(),
                         obj -> addEntityUUID(obj, event.getTarget().getUUID())
@@ -76,7 +75,7 @@ public final class ItemInteractHooks {
             }
         }, success);
 
-        handleFinder(event, () -> ServerDataAccessor.retrieveByEntity(event.getTarget()), obj -> {
+        handleFinder(event, () -> ServerDataManager.retrieveByEntity(event.getTarget()), obj -> {
             ClickWithFinder compo = obj.getComponent(ComponentType.SEND_CLUE);
             if (compo == null) return;
             compo.send((ServerPlayer) event.getEntity(),
@@ -92,7 +91,7 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        handleWand(event, ClientAccessor::retrieveAllSavedData, () -> {}, success);
+        handleWand(event, ClientDataManager::retrieveAllSavedData, () -> {}, success);
 
     }
 

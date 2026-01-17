@@ -4,7 +4,7 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
-import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
+import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -47,11 +47,11 @@ public final class FinderTick {
                     switch (hr.getType()) {
                         case BLOCK -> {
                             BlockHitResult bhr = (BlockHitResult) hr;
-                            data = ClientAccessor.retrieveByBlockPos(bhr.getBlockPos());
+                            data = ClientDataManager.retrieveByBlockPos(bhr.getBlockPos());
                         }
                         case ENTITY -> {
                             EntityHitResult ehr = (EntityHitResult) hr;
-                            data = ClientAccessor.retrieveByEntity(ehr.getEntity());
+                            data = ClientDataManager.retrieveByEntity(ehr.getEntity());
                         }
                         default -> {
                             return returnWithUpdate(false);

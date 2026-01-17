@@ -7,10 +7,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
+@OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public final class ScreenInitHook {
     @SubscribeEvent

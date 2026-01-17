@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.entry.client.render;
+package io.github.daxigua2333.mocai_clues.entry.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -148,8 +147,13 @@ public class ObjectRenderSystem {
 //        MoCaiClues.LOGGER.debug("tick verification: {}", DIRTY_CHUNKS);
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
 
+        Minecraft mc = Minecraft.getInstance();
+        mc.getProfiler().push("mocai_clues:render");
+
         processDirty();
         render(event);
+
+        mc.getProfiler().pop();
     }
 
     // avoid leaking GPU buffers when leaving a world/server

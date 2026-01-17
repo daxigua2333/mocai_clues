@@ -1,12 +1,10 @@
-package io.github.daxigua2333.mocai_clues.data.client.api;
+package io.github.daxigua2333.mocai_clues.data.client;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
-import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
-import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -19,7 +17,7 @@ import java.util.*;
 /**
  * entry to access all the client data
  */
-public class ClientAccessor {
+public class ClientDataManager {
 
     // TODO:: some route
     public static List<ClueObject> retrieveAllSavedData() {

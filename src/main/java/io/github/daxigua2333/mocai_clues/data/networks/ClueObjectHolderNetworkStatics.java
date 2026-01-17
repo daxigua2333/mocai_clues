@@ -1,8 +1,6 @@
 package io.github.daxigua2333.mocai_clues.data.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
-import io.github.daxigua2333.mocai_clues.data.ObjectHolderDataChangeEvent;
 import io.github.daxigua2333.mocai_clues.data.client.ClientObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.netty.buffer.ByteBuf;

@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.data.server.api;
+package io.github.daxigua2333.mocai_clues.data.server;
 
 import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
@@ -7,7 +7,6 @@ import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
-import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 // TODO: route to SD or something...
-public final class ServerDataAccessor {
+public final class ServerDataManager {
 
     // ======== retrieve =========
     // TODO: mutable and mark dirty issues......

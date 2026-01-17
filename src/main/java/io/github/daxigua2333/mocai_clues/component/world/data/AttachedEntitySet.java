@@ -20,6 +20,7 @@ public class AttachedEntitySet extends ClueComponent {
         this(Set.of());
     }
 
+    // TODO: entity lifecycle
     public void add(UUID id) {
         set.add(id);
     }

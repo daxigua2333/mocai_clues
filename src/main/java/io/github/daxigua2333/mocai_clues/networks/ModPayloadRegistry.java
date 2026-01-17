@@ -1,7 +1,7 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
+import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
@@ -46,16 +46,16 @@ public class ModPayloadRegistry {
                         switch (payload.data().mode()) {
                             case DELETE -> {
                                 switch (payload.location().type()) {
-                                    case SD -> ServerDataAccessor.delete(context.player().getServer(), payload.data().id());
-                                    case CHUNK -> ServerDataAccessor.delete((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().id());
-                                    case ENTITY -> ServerDataAccessor.delete((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().id());
+                                    case SD -> ServerDataManager.delete(context.player().getServer(), payload.data().id());
+                                    case CHUNK -> ServerDataManager.delete((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().id());
+                                    case ENTITY -> ServerDataManager.delete((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().id());
                                 }
                             }
                             case UPSERT -> {
                                 switch (payload.location().type()) {
-                                    case SD -> ServerDataAccessor.upsert(context.player().getServer(), payload.data().obj());
-                                    case CHUNK -> ServerDataAccessor.upsert((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().obj());
-                                    case ENTITY -> ServerDataAccessor.upsert((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().obj());
+                                    case SD -> ServerDataManager.upsert(context.player().getServer(), payload.data().obj());
+                                    case CHUNK -> ServerDataManager.upsert((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().obj());
+                                    case ENTITY -> ServerDataManager.upsert((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().obj());
                                 }
                             }
                         }
@@ -71,7 +71,7 @@ public class ModPayloadRegistry {
                 ManualClueCreatePayload.STREAM_CODEC,
                 (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-                        ServerDataAccessor.createDefault(context.player().level());
+                        ServerDataManager.createDefault(context.player().level());
                     });
                 }
         );
@@ -81,7 +81,7 @@ public class ModPayloadRegistry {
                 (final WandSwitchToAttachModePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
                         // update Database
-                        ServerDataAccessor.upsert(context.player().level().getServer(), payload.object());
+                        ServerDataManager.upsert(context.player().level().getServer(), payload.object());
                         // update main hand
                         Player player = context.player();
                         ItemStack stack = player.getMainHandItem();
