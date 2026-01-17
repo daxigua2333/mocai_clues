@@ -2,15 +2,18 @@ package io.github.daxigua2333.mocai_clues.entry.client;
 
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
+import io.github.daxigua2333.mocai_clues.component.world.finder.ClickWithFinder;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
+import io.github.daxigua2333.mocai_clues.data.server.api.ServerDataAccessor;
 import io.github.daxigua2333.mocai_clues.guis.WandScreen;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
@@ -19,6 +22,7 @@ import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -31,25 +35,14 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = MoCaiClues.MODID)
 public final class ItemInteractHooks {
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-//        if (!event.getItemStack().is(ModItemsRegistry.CLUE_WAND_ITEM.get())) return;
-//        Level level = event.getLevel();
-//
-//        if (!level.isClientSide) {
-//            event.getEntity().swing(event.getHand());
-//        }
-//        if (level.isClientSide) {
-//            BlockPos pos = event.getPos();
-////                    LevelChunk chunk = level.getChunkAt(pos);
-////                    processHolder(chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER));
-//            openWandScreen(() -> ClientAccessor.retrieveByBlockPos(pos));
-//
-//        }
-//        event.setCanceled(true);
-//        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
+        Runnable success = () -> {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
+        };
 
         handleWand(event, () -> ClientAccessor.retrieveByBlockPos(event.getPos()), () -> {
             if (!event.getLevel().isClientSide()) {
@@ -57,29 +50,23 @@ public final class ItemInteractHooks {
                         obj -> addPos(obj, event.getPos(), event.getFace())
                 );
             }
-        }, () -> {
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
-        });
+        }, success);
+
+        handleFinder(event, () -> ServerDataAccessor.retrieveByBlockPos(event.getLevel(), event.getPos()), obj -> {
+            ClickWithFinder compo = obj.getComponent(ComponentType.SEND_CLUE);
+            if (compo == null) return;
+            compo.send((ServerPlayer) event.getEntity(),
+                    old -> Assembler.createClueBookClue(old, event.getPos()));
+        }, success);
 
     }
 
     @SubscribeEvent
     public static void onRightClickEntity(PlayerInteractEvent.EntityInteract event) {
-//        if (!event.getItemStack().is(ModItemsRegistry.CLUE_WAND_ITEM.get())) return;
-//        Level level = event.getLevel();
-//
-//        if (!level.isClientSide) {
-//            event.getEntity().swing(event.getHand());
-//        }
-//        if (level.isClientSide) {
-//            Entity target = event.getTarget();
-//
-////            processHolder(target.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER));
-//            openWandScreen(() -> ClientAccessor.retrieveByEntity(target));
-//        }
-//        event.setCanceled(true);
-//        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
+        Runnable success = () -> {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
+        };
 
         handleWand(event, () -> ClientAccessor.retrieveByEntity(event.getTarget()), () -> {
             if (!event.getLevel().isClientSide()) {
@@ -87,33 +74,38 @@ public final class ItemInteractHooks {
                         obj -> addEntityUUID(obj, event.getTarget().getUUID())
                 );
             }
-        }, () -> {
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
-        });
+        }, success);
+
+        handleFinder(event, () -> ServerDataAccessor.retrieveByEntity(event.getTarget()), obj -> {
+            ClickWithFinder compo = obj.getComponent(ComponentType.SEND_CLUE);
+            if (compo == null) return;
+            compo.send((ServerPlayer) event.getEntity(),
+                    old -> Assembler.createClueBookClue(old, event.getTarget()));
+        }, success);
 
     }
 
     @SubscribeEvent
     public static void onRightClickAir(PlayerInteractEvent.RightClickItem event) {
-//        if (!event.getItemStack().is(ModItemsRegistry.CLUE_WAND_ITEM.get())) return;
-//        Level level = event.getLevel();
-//
-//        if (!level.isClientSide) {
-//            event.getEntity().swing(event.getHand());
-//        }
-//        if (level.isClientSide) {
-////            processHolder(ClientObjectHolderInSavedData.getInstance().getHolder());
-//            openWandScreen(() -> ClientAccessor.retrieveAllSavedData());
-//        }
-//        event.setCanceled(true);
-//        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
-
-        handleWand(event, ClientAccessor::retrieveAllSavedData, () -> {}, () -> {
+        Runnable success = () -> {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
-        });
+        };
 
+        handleWand(event, ClientAccessor::retrieveAllSavedData, () -> {}, success);
+
+    }
+
+
+    private static void handleFinder(PlayerInteractEvent event, Supplier<List<ClueObject>> dataSupplier, Consumer<ClueObject> objHandler, Runnable sidedSuccess) {
+        if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
+        if (!event.getLevel().isClientSide()) {
+            List<ClueObject> data = dataSupplier.get();
+            for (ClueObject obj : data) {
+                objHandler.accept(obj);
+            }
+        }
+        sidedSuccess.run();
     }
 
 
@@ -125,7 +117,6 @@ public final class ItemInteractHooks {
                 if (event.getLevel().isClientSide()) {
                     openWandScreen(editorSupplier);
                 }
-
             }
             case ATTACH -> caseAttach.run();
         }

@@ -11,9 +11,9 @@ import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder
 import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.List;
 

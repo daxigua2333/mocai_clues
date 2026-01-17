@@ -32,9 +32,10 @@ public final class ServerDataAccessor {
         // chunk attach
         List<ClueObject> result = new ArrayList<>(level.getChunkAt(pos).getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
 
+
         // saved data
         var server = level.getServer();
-        if (server == null) {
+        if (server != null) {
             var holder = ClueObjectHolderInSavedData.getInstance(server).holder();
             for (var obj : holder.values()) {
                 BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);

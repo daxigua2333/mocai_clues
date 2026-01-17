@@ -9,10 +9,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
 
 public class FoundSource extends ClueComponent {
