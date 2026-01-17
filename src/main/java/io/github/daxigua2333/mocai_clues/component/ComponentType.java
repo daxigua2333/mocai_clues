@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.component;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
+import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;
 import io.github.daxigua2333.mocai_clues.component.world.interact.InteractEventHolder;
@@ -20,6 +21,7 @@ public enum ComponentType {
     // world renderer
     RENDERER_WIDGET_COLLECTOR,
     BLOCK_POS_SET,
+    ATTACHED_ENTITY_SET,
     RENDERER_HOLDER,
 
     // interact
@@ -51,6 +53,7 @@ public enum ComponentType {
                         case FLASH_DOT_SET -> FlashDotSet.CODEC;
                         case FOUND_SOURCE -> FoundSource.CODEC;
                         case DETAIL_WITH_COMPLETENESS -> DetailWithCompleteness.CODEC;
+                        case ATTACHED_ENTITY_SET -> AttachedEntitySet.CODEC;
                     }
             );
 

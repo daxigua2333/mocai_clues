@@ -26,6 +26,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.List;
 
+@Deprecated
 @EventBusSubscriber(modid = MoCaiClues.MODID)
 public class InteractHooks {
 

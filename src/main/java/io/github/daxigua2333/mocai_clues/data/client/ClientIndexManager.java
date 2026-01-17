@@ -18,6 +18,7 @@ public final class ClientIndexManager {
     public static final String BY_BLOCK_POS = "by_block_pos";
     public static final String BY_CHUNK_POS = "by_chunk_pos";
     public static final String BY_PASS_TYPE = "by_pass_type";
+    public static final String BY_CLUE_TYPE = "by_clue_type";
 
     private static void commonEnsure(ObjectHolder<ClueObject> holder) {
 //        egs:
@@ -32,6 +33,10 @@ public final class ClientIndexManager {
                 }
                 return compo.getImmutable();
             });
+        }
+
+        if (holder.getIndex(BY_CLUE_TYPE) == null) {
+            holder.createIndex(BY_CLUE_TYPE, ClueObject::type);
         }
     }
 

@@ -34,30 +34,30 @@ public class DropdownWidget<T> extends AbstractWidget {
             Consumer<T> onChange
     ) {
         super(x, y, width, height, Component.empty());
-        List<T> options = optionsSupplier.get(); ///////
-        if (options.isEmpty()) {
-            throw new IllegalArgumentException("DropdownWidget options list cannot be empty");
-        }
-        this.optionsSupplier = optionsSupplier; //////
-        this.options = options;
+//        List<T> options = optionsSupplier.get(); ///////
+//        if (options.isEmpty()) {
+//            throw new IllegalArgumentException("DropdownWidget options list cannot be empty");
+//        }
+        this.optionsSupplier = optionsSupplier;
+        this.options = optionsSupplier.get();
         this.labelFunc = labelFunc;
         this.onChange = onChange;
         this.selectedIndex = Math.max(0, Math.min(initialIndex, options.size() - 1));
         this.baseHeight = height;
-        this.setMessage(labelFunc.apply(options.get(this.selectedIndex)));
+//        this.setMessage(labelFunc.apply(options.get(this.selectedIndex)));
         this.z = z;
     }
 
-    public T getSelected() {
-        return options.get(selectedIndex);
-    }
-
-    public void setSelectedIndex(int index) {
-        if (index >= 0 && index < options.size()) {
-            this.selectedIndex = index;
-            this.setMessage(labelFunc.apply(options.get(selectedIndex)));
-        }
-    }
+//    public T getSelected() {
+//        return options.get(selectedIndex);
+//    }
+//
+//    public void setSelectedIndex(int index) {
+//        if (index >= 0 && index < options.size()) {
+//            this.selectedIndex = index;
+//            this.setMessage(labelFunc.apply(options.get(selectedIndex)));
+//        }
+//    }
 
     // ========= sync part =======
     private void syncIfNeeded() {
@@ -91,7 +91,7 @@ public class DropdownWidget<T> extends AbstractWidget {
 
         // current label
         var font = Minecraft.getInstance().font;
-        Component currentLabel = labelFunc.apply(options.get(selectedIndex));
+        Component currentLabel = options.isEmpty() ? Component.literal("") : labelFunc.apply(options.get(selectedIndex));
         int textX = x + 4;
         int textY = y + (h - font.lineHeight) / 2;
         graphics.drawString(font, currentLabel, textX, textY, 0xFFFFFFFF, false);

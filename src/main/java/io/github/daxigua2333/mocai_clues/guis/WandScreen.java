@@ -82,7 +82,10 @@ public class WandScreen extends Screen {
                 1,
                 LIST_WIDTH, LIST_HEIGHT,
                 ENTRY_HEIGHT,
-                () -> this.clueSupplier.apply(this.typeSupplier.get().getFirst()),
+                () -> {
+                    List<ClueType> types = this.typeSupplier.get();
+                    return this.clueSupplier.apply(types.isEmpty() ? null : types.getFirst());
+                },
                 (obj) -> obj.getId(),
 //                Component::literal,
                 (clue) -> Component.literal(clue.getId().toString()),  // TODO

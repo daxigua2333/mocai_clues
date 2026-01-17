@@ -1,17 +1,7 @@
 package io.github.daxigua2333.mocai_clues.items;
 
-import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
-import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
-import io.github.daxigua2333.mocai_clues.data.client.api.ClientAccessor;
-import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
 import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
-import io.github.daxigua2333.mocai_clues.guis.WandScreen;
-import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.core.BlockPos;
@@ -24,11 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public class ClueWandItem extends Item {
     public ClueWandItem(Properties props) {
@@ -111,60 +96,9 @@ public class ClueWandItem extends Item {
                     }
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide());
-            case EDITOR:  // TODO: use on air
-                if (level.isClientSide) {
-//                    Minecraft.getInstance().setScreen(new ExampleListScreen());
-//                    List<DataSelectionScreen.ListEntryData> list = new ArrayList<>();
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("地下室1"), Component.literal("subtitle"), Component.literal("details\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("诺亚的尸体"), Component.literal("subtitle2"), Component.literal("details2\n1\n1"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    list.add(new DataSelectionScreen.ListEntryData(Component.literal("title2"), Component.literal("subtitle2"), Component.literal("details2\n222"), ItemStack.EMPTY));
-//                    DataSelectionScreen.open(list);
-                    // do some if things like clicking air / clicking block / entity
-                    Map<ClueType, Supplier<List<ClueObject>>> map = new HashMap<>(Map.of(ClueType.MANUAL, ClientAccessor::retrieveAllSavedData, ClueType.FOOTPRINT, List::of));
-                    WandScreen.open(  // TODO
-                            () -> new ArrayList<>(map.keySet()),
-                            (type) -> map.get(type).get()
-                    );
-                }
-                return InteractionResult.sidedSuccess(level.isClientSide());
-            case ATTACH:
-                if (!level.isClientSide() && player != null) {
-                    AttachingObject attaching = stack.get(ModDataComponentsRegistry.ATTACHING_OBJECT.get());
-                    if (attaching == null) {
-                        player.sendSystemMessage(Component.translatable("No attachment data"));
-                        return InteractionResult.sidedSuccess(level.isClientSide());
-                    }
-                    // TODO: route to SD or something...
-                    var SD = ClueObjectHolderInSavedData.getInstance(player.level().getServer());
-                    ObjectHolder<ClueObject> holder = SD.holder();
-                    ClueObject obj = holder.get(attaching.id());
-
-                    BlockPosSet bCompo = obj.getComponentOrCreate(ComponentType.BLOCK_POS_SET, new BlockPosSet());
-                    bCompo.add(clickedPos);
-
-                    FlashDotSet fCompo = obj.getComponentOrCreate(ComponentType.FLASH_DOT_SET, new FlashDotSet());
-                    fCompo.add(clickedPos, clickedFace);
-
-                    // TODO: pay attention to the markDirty order
-                    holder.markDirty(obj);
-                    SD.setDirty();
-
-                    player.sendSystemMessage(Component.translatable("Attaching successfully"));
-                    return InteractionResult.sidedSuccess(level.isClientSide());
-                }
-                return InteractionResult.sidedSuccess(level.isClientSide());
             case null, default:
                 return InteractionResult.PASS;
         }
     }
-
 
 }

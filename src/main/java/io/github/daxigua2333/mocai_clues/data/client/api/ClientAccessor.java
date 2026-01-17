@@ -1,6 +1,8 @@
 package io.github.daxigua2333.mocai_clues.data.client.api;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
@@ -73,7 +75,20 @@ public class ClientAccessor {
     }
 
     public static List<ClueObject> retrieveByEntity(Entity entity) {
-        return new ArrayList<>(entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
+        // entity attachment
+        List<ClueObject> result = new ArrayList<>(entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
+
+        // saved data, TODO: optimize: I think this has no need to boost by index
+        ObjectHolder<ClueObject> holder = ClientObjectHolderInSavedData.getInstance().getHolder();
+        for (ClueObject obj : holder.values()) {
+            AttachedEntitySet compo = obj.getComponent(ComponentType.ATTACHED_ENTITY_SET);
+            if (compo == null) continue;
+            if (compo.getImmutable().contains(entity.getUUID())) {
+                result.add(obj);
+            }
+        }
+
+        return result;
     }
 
 

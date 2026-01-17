@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.data.server.api;
 import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
@@ -28,19 +29,18 @@ public final class ServerDataAccessor {
         return ClueObjectHolderInSavedData.getInstance(server).holder().get(id);
     }
     public static List<ClueObject> retrieveByBlockPos(Level level, BlockPos pos) {
-        List<ClueObject> result = new ArrayList<>();
+        // chunk attach
+        List<ClueObject> result = new ArrayList<>(level.getChunkAt(pos).getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
 
+        // saved data
         var server = level.getServer();
-        if (server == null) return new ArrayList<>();
-        var holder = ClueObjectHolderInSavedData.getInstance(server).holder();
-
-        for (var obj : holder.values()) {
-            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-            if (compo == null) continue;
-            for (var cPos : compo.getImmutable()) {
-                if (pos.equals(cPos)) {
+        if (server == null) {
+            var holder = ClueObjectHolderInSavedData.getInstance(server).holder();
+            for (var obj : holder.values()) {
+                BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
+                if (compo == null) continue;
+                if (compo.getImmutable().contains(pos)) {
                     result.add(obj);
-                    break;
                 }
             }
         }
@@ -48,7 +48,23 @@ public final class ServerDataAccessor {
         return result;
     }
     public static List<ClueObject> retrieveByEntity(Entity entity) {
-        return List.of();
+        // entity attachment
+        List<ClueObject> result = new ArrayList<>(entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
+
+        // TODO: optimize: I think this has no need to boost by index
+        var server = entity.getServer();
+        if (server != null) {
+            ObjectHolder<ClueObject> holder = ClueObjectHolderInSavedData.getInstance(server).holder();
+            for (ClueObject obj : holder.values()) {
+                AttachedEntitySet compo = obj.getComponent(ComponentType.ATTACHED_ENTITY_SET);
+                if (compo == null) continue;
+                if (compo.getImmutable().contains(entity.getUUID())) {
+                    result.add(obj);
+                }
+            }
+        }
+
+        return result;
     }
 
 

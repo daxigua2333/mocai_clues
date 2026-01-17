@@ -1,16 +1,7 @@
 package io.github.daxigua2333.mocai_clues.data.server;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
-import net.minecraft.world.level.ChunkPos;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public final class ServerIndexManager {
     private static void commonEnsure(ObjectHolder<ClueObject> holder) {

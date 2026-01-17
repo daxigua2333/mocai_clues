@@ -28,13 +28,12 @@ public final class RightClickBlockHooks {
         Player player = event.getEntity();
         Level level = event.getLevel();
 
-        List<ClueObject> data = level.isClientSide ? ClientAccessor.retrieveByBlockPos(pos) : ServerDataAccessor.retrieveByBlockPos(level, pos);
-
-        if (!player.level().isClientSide) {
+        if (!level.isClientSide) {
+            List<ClueObject> data = ServerDataAccessor.retrieveByBlockPos(level, pos);
             for (ClueObject obj : data) {
                 ClickWithFinder compo = obj.getComponent(ComponentType.SEND_CLUE);
                 if (compo == null) continue;
-                compo.send((ServerPlayer) player, pos);
+                compo.send((ServerPlayer) player, pos);  // TODO: merge, send message
             }
         }
     }
