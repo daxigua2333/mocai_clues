@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues.data.server;
 
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import io.github.daxigua2333.mocai_clues.data.networks.ClueObjectHolderDeltaPayload;
 import io.github.daxigua2333.mocai_clues.data.networks.ClueObjectHolderFullPayload;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
@@ -47,7 +48,7 @@ public class ClueObjectHolderInSavedData extends SavedData {
     public static final Codec<ObjectHolder<ClueObject>> CLUE_HOLDER_CODEC =
         ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
             .xmap(
-                holder -> { ServerIndexManager.savedDataEnsure(holder); return holder; }, // decode
+                holder -> { IndexManager.Server.savedDataEnsure(holder); return holder; }, // decode
                 Function.identity()
             );
 

@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.data;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import io.github.daxigua2333.mocai_clues.data.server.ServerIndexManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -20,13 +21,13 @@ public final class ModAttachmentRegistry {
     private static final Codec<ObjectHolder<ClueObject>> CLUE_HOLDER_CODEC =
         ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
             .xmap(
-                holder -> { ServerIndexManager.attachmentHolderEnsure(holder); return holder; }, // decode
+                holder -> { IndexManager.Server.attachmentHolderEnsure(holder); return holder; }, // decode
                 Function.identity()
             );
 
     private static ObjectHolder<ClueObject> createDefault() {
         var holder = new ObjectHolder<>(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC);
-        ServerIndexManager.attachmentHolderEnsure(holder);
+        IndexManager.Server.attachmentHolderEnsure(holder);
         return holder;
     }
 

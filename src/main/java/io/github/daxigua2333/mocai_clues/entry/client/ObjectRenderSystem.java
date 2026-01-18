@@ -13,6 +13,7 @@ import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
 import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
+import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -78,7 +79,7 @@ public class ObjectRenderSystem {
         if (event.attachmentHolder instanceof LevelChunk chunk) {
             if (event.delta.cleared()) {
                 ObjectHolder<ClueObject> holder = event.prev;
-                var index = (ObjectHolder<ClueObject>.Index<PassType>) holder.getIndex(ClientIndexManager.BY_PASS_TYPE);
+                var index = (ObjectHolder<ClueObject>.Index<PassType>) holder.getIndex(IndexManager.BY_PASS_TYPE);
                 if (index != null) {
                     index.keySet().forEach(pType -> markDirty(pType, chunk.getPos()));
                 }

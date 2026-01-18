@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.data;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
+import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -61,7 +62,7 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
             ObjectHolder<T> map = new ObjectHolder<>(idGetter, elementCodec, elementStreamCodec);
             map.decodeFull(buf);
 
-            ClientIndexManager.attachmentHolderEnsure(map);
+            IndexManager.Client.attachmentHolderEnsure(map);
 
             NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Full<>(holder, map));
             return map;

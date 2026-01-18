@@ -77,7 +77,7 @@ public class DetailPanelNew extends AbstractContainerWidget {
                     if (confirmed) {
 //                        PacketDistributor.sendToServer(new ClueObjectDeletePayload(object.getId()));
                         PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                                new ClueObjectUpdatePayload.Location(), // TODO: attachment location
+                                new ClueObjectUpdatePayload.Location(),
                                 new ClueObjectUpdatePayload.Data(object.getId())
                         ));
                         this.updateObject(null);

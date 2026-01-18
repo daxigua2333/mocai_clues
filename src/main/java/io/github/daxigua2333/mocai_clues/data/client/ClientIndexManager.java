@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 /** client index schema(whenever a holder is newed): when init syncing */
+@Deprecated
 public final class ClientIndexManager {
     public static final String BY_BLOCK_POS = "by_block_pos";
     public static final String BY_CHUNK_POS = "by_chunk_pos";

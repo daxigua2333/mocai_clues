@@ -5,6 +5,7 @@ import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
+import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -26,7 +27,6 @@ public class ClientDataManager {
     // TODO: also some distance culling, and traverse nearby chunks and get attachments
 
     // very frequent query in discovery system
-    @SuppressWarnings("unchecked")
     public static List<ClueObject> retrieveByBlockPos(BlockPos pos) {
         List<ClueObject> result = new ArrayList<>();
 
@@ -34,24 +34,21 @@ public class ClientDataManager {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
             LevelChunk chunk = level.getChunkAt(pos);
-            ObjectHolder<ClueObject> holder = chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
-            var index = (ObjectHolder<ClueObject>.Index<BlockPos>) holder.getIndex(ClientIndexManager.BY_BLOCK_POS);
-            if (index != null) {
-                result.addAll(index.values(pos));
-            }
+            result.addAll(IndexManager.byBlockPos(
+                    chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER),
+                    pos
+            ));
         }
         // saved data
-        ObjectHolder<ClueObject> holder = ClientObjectHolderInSavedData.getInstance().getHolder();
-        var index = (ObjectHolder<ClueObject>.Index<BlockPos>) holder.getIndex(ClientIndexManager.BY_BLOCK_POS);
-        if (index != null) {
-            result.addAll(index.values(pos));
-        }
+        result.addAll(IndexManager.byBlockPos(
+                ClientObjectHolderInSavedData.getInstance().getHolder(),
+                pos
+        ));
 
         return result;
     }
 
     // very frequent query in render system, building batch mesh
-    @SuppressWarnings("unchecked")
     public static List<ClueObject> retrieveByChunkPos(ChunkPos chunkPos) {
         List<ClueObject> result = new ArrayList<>();
 
@@ -63,11 +60,10 @@ public class ClientDataManager {
         }
 
         // saved data
-        var holder = ClientObjectHolderInSavedData.getInstance().getHolder();
-        var index = (ObjectHolder<ClueObject>.Index<ChunkPos>) holder.getIndex(ClientIndexManager.BY_CHUNK_POS);
-        if (index != null) {
-            result.addAll(index.values(chunkPos));
-        }
+        result.addAll(IndexManager.byChunkPos(
+                ClientObjectHolderInSavedData.getInstance().getHolder(),
+                chunkPos
+        ));
 
         return result;
     }

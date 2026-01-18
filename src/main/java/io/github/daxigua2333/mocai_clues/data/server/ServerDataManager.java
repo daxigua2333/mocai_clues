@@ -7,6 +7,8 @@ import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
+import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
+import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -14,54 +16,70 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
 
 // TODO: route to SD or something...
 public final class ServerDataManager {
 
     // ======== retrieve =========
     // TODO: mutable and mark dirty issues......
-    public static ClueObject retrieveByIDInSD(MinecraftServer server, UUID id) {
-        return ClueObjectHolderInSavedData.getInstance(server).holder().get(id);
-    }
-    public static List<ClueObject> retrieveByBlockPos(Level level, BlockPos pos) {
+    // idk.... maybe I ll still stick to this shit, or maybe turn to ESC in the future
+    public record RetrieveResult(List<ClueObject> objects, Consumer<ClueObject> markDirty) {}
+
+    public static List<RetrieveResult> retrieveByBlockPos(Level level, BlockPos pos) {
+
+        List<RetrieveResult> result = new ArrayList<>();
         // chunk attach
-        List<ClueObject> result = new ArrayList<>(level.getChunkAt(pos).getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
-
-
+        IAttachmentHolder chunk = level.getChunkAt(pos);
+        ObjectHolder<ClueObject> holder = chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        result.add(new RetrieveResult(IndexManager.byBlockPos(holder, pos), obj -> {
+            holder.markDirty(obj);
+            chunk.syncData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        }));
         // saved data
         var server = level.getServer();
         if (server != null) {
-            var holder = ClueObjectHolderInSavedData.getInstance(server).holder();
-            for (var obj : holder.values()) {
-                BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-                if (compo == null) continue;
-                if (compo.getImmutable().contains(pos)) {
-                    result.add(obj);
-                }
-            }
+            ClueObjectHolderInSavedData savedData = ClueObjectHolderInSavedData.getInstance(server);
+            ObjectHolder<ClueObject> holder1 = savedData.holder();
+            result.add(new RetrieveResult(IndexManager.byBlockPos(holder1, pos), obj -> {
+                holder1.markDirty(obj);
+                savedData.setDirty();
+            }));
         }
 
         return result;
     }
-    public static List<ClueObject> retrieveByEntity(Entity entity) {
+    public static List<RetrieveResult> retrieveByEntity(Entity entity) {
+        List<RetrieveResult> result = new ArrayList<>();
         // entity attachment
-        List<ClueObject> result = new ArrayList<>(entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER).values());
+        ObjectHolder<ClueObject> holder = entity.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        result.add(new RetrieveResult(new ArrayList<>(holder.values()), obj -> {
+            holder.markDirty(obj);
+            entity.syncData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
+        }));
 
-        // TODO: optimize: I think this has no need to boost by index
+        // TODO: optimize: I think there is no need to boost this by index
         var server = entity.getServer();
         if (server != null) {
-            ObjectHolder<ClueObject> holder = ClueObjectHolderInSavedData.getInstance(server).holder();
-            for (ClueObject obj : holder.values()) {
+            ClueObjectHolderInSavedData savedData = ClueObjectHolderInSavedData.getInstance(server);
+            ObjectHolder<ClueObject> holder1 = savedData.holder();
+
+            List<ClueObject> objs = new ArrayList<>();
+            for (ClueObject obj : holder1.values()) {
                 AttachedEntitySet compo = obj.getComponent(ComponentType.ATTACHED_ENTITY_SET);
                 if (compo == null) continue;
                 if (compo.getImmutable().contains(entity.getUUID())) {
-                    result.add(obj);
+                    objs.add(obj);
                 }
             }
+
+            result.add(new RetrieveResult(objs, obj -> {
+                holder1.markDirty(obj);
+                savedData.setDirty();
+            }));
         }
 
         return result;

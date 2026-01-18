@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.data.client;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
+import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
@@ -36,7 +37,7 @@ public final class ClientObjectHolderInSavedData {
 //        fullCopy.forEachValue(holder::put); // however your API looks
 //        holder.resetChangeTracking();       // client should track changes only if you want UI diff, etc.
         this.holder = fullCopy;  // I think this replaceAll process has been done in the decode process
-        ClientIndexManager.savedDataEnsure(holder);
+        IndexManager.Client.savedDataEnsure(holder);
         NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Full<>(null, fullCopy));
     }
 
