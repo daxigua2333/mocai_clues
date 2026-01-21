@@ -13,6 +13,10 @@
 
   "mocai_clue.finder.source.pos": "发现于坐标: ",
   "mocai_clue.finder.source.entity": "发现于实体: %s 上",
-  "mocai_clue.finder.source.player": "发现于玩家: %s 上"
+  "mocai_clue.finder.source.player": "发现于玩家: %s 上",
+
+  "mocai_clue.finder.result.new": "找到了一条新线索!",
+  "mocai_clue.finder.result.repeated": "你已找到过该线索",
+  "mocai_clue.finder.result.update": "线索书已更新"
 
 }

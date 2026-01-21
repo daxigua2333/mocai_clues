@@ -13,5 +13,10 @@
 
   "mocai_clue.finder.source.pos": "Found at pos: ",
   "mocai_clue.finder.source.entity": "Found on entity: %s",
-  "mocai_clue.finder.source.player": "Found on player: %s"
+  "mocai_clue.finder.source.player": "Found on player: %s",
+
+  "mocai_clue.finder.result.new": "You have found a new clue!",
+  "mocai_clue.finder.result.repeated": "You have already found this clue before",
+  "mocai_clue.finder.result.update": "Your clue book has been updated"
+
 }

@@ -129,7 +129,7 @@ public class ClueObject {
         if (this == o) return true;
         if (!(o instanceof ClueObject other)) return false;
 
-        // Codec-defined equality:
+        // TODO: optimize
         return this.toNbt().equals(other.toNbt());
     }
 

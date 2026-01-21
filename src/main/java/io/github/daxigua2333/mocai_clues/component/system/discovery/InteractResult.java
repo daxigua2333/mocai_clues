@@ -16,28 +16,36 @@ import net.minecraft.world.entity.Entity;
 import java.util.UUID;
 
 public final class InteractResult {
-    // TODO: dirty.  merge, send message callback
     public static void sendClue(ServerPlayer player, ClueObject obj, ObjectHolderLocation location) {
         SendClue compo = obj.getComponent(ComponentType.SEND_CLUE);
         if (compo == null) return;
 
+        // generate the copy in clue book
         ClueObject copy;
-        if (location.data() instanceof ObjectHolderLocation.BlockPosWithFace data) {
-            // chunk
+        if (location.data() instanceof ObjectHolderLocation.BlockPosWithFace data) {  // chunk
             copy = Assembler.createClueBookClue(obj, data.pos());
         } else if (location.data() instanceof BlockPos pos) {
             copy = Assembler.createClueBookClue(obj, pos);
-        } else if (location.data() instanceof UUID data) {
-            // entity
+        } else if (location.data() instanceof UUID data) {  // entity
             Entity e = ((ServerLevel) player.level()).getEntity(data);
             copy = Assembler.createClueBookClue(obj, e);
         } else {
             throw new RuntimeException("Invalid ObjectHolderLocation.");
         }
 
-        player.sendSystemMessage(Component.translatable("You have found a new clue!"));
         ObjectHolder<ClueObject> holder = player.getData(ModAttachmentRegistry.CLUE_BOOK);
-        holder.put(copy);
+        // TODO: merge logic, attention to dirty things
+        if (!holder.containsKey(copy.getId())) {  // new
+            holder.put(copy);
+            player.sendSystemMessage(Component.translatable("mocai_clue.finder.result.new"));
+        } else {
+            if (copy.equals(holder.get(copy.getId()))) {  // repeat
+                player.sendSystemMessage(Component.translatable("mocai_clue.finder.result.repeated"));
+            } else {  // merge
+                holder.put(copy);
+                player.sendSystemMessage(Component.translatable("mocai_clue.finder.result.update"));
+            }
+        }
         player.syncData(ModAttachmentRegistry.CLUE_BOOK);
 
     }
