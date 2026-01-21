@@ -29,6 +29,7 @@ public record ClueObjectUpdatePayload(Location location, Data data) implements C
 //                );
 //    }
 
+    // Shouldn't use generic because it's hard to serialize
     public record Location(Type type, ChunkPos chunkPos, UUID entityId) {
         enum Type {
             SD, CHUNK, ENTITY;

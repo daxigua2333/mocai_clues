@@ -25,10 +25,12 @@ public enum ComponentType {
 
     // finder
     FINDER_STATE,
-    SEND_CLUE,
     FLASH_DOT_SET,
     FOUND_SOURCE,
     DETAIL_WITH_COMPLETENESS,
+    CLICK_WITH_FINDER,
+    WALK_ON,
+    SEND_CLUE,
 
     ;
 
@@ -44,11 +46,13 @@ public enum ComponentType {
                         case RENDERER_WIDGET_COLLECTOR -> RendererWidgetCollector.CODEC;
                         case RENDERER_HOLDER -> RendererHolder.CODEC;
                         case FINDER_STATE -> FinderState.CODEC;
-                        case SEND_CLUE -> ClickWithFinder.CODEC;
+                        case SEND_CLUE -> SendClue.CODEC;
                         case FLASH_DOT_SET -> FlashDotSet.CODEC;
                         case FOUND_SOURCE -> FoundSource.CODEC;
                         case DETAIL_WITH_COMPLETENESS -> DetailWithCompleteness.CODEC;
                         case ATTACHED_ENTITY_SET -> AttachedEntitySet.CODEC;
+                        case CLICK_WITH_FINDER -> ClickWithFinder.CODEC;
+                        case WALK_ON -> WalkOn.CODEC;
                     }
             );
 

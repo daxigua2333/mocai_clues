@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
@@ -35,7 +36,6 @@ public class ModPayloadRegistry {
 
 
         // ====== ClueObject =====
-        // TODO: database api of routing
         registrar.playToServer(
                 ClueObjectUpdatePayload.TYPE,
                 ClueObjectUpdatePayload.STREAM_CODEC,
@@ -71,7 +71,7 @@ public class ModPayloadRegistry {
                 ManualClueCreatePayload.STREAM_CODEC,
                 (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
                     context.enqueueWork(() -> {
-                        ServerDataManager.createDefault(context.player().level());
+                        ServerDataManager.upsert(context.player().getServer(), Assembler.createManualClue());
                     });
                 }
         );
@@ -85,7 +85,7 @@ public class ModPayloadRegistry {
                         // update main hand
                         Player player = context.player();
                         ItemStack stack = player.getMainHandItem();
-                        if (stack.getItem() == ModItemsRegistry.CLUE_WAND_ITEM.get()) {
+                        if (stack.is(ModItemsRegistry.CLUE_WAND_ITEM.get())) {
                             // update mode
                             stack.update(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE, current -> WandMode.ATTACH);
                             player.displayClientMessage(Component.literal("Wand mode: " + WandMode.ATTACH.toString()), true);

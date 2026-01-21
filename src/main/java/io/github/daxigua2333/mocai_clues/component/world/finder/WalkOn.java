@@ -8,13 +8,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ClickWithFinder extends ClueComponent {
+public class WalkOn extends ClueComponent {
     @Override
     public ComponentType type() {
-        return ComponentType.CLICK_WITH_FINDER;
+        return ComponentType.WALK_ON;
     }
 
-    public static final Codec<ClickWithFinder> CODEC = Codec.unit(new ClickWithFinder());
+    public static final Codec<WalkOn> CODEC = Codec.unit(new WalkOn());
 
     @Nullable
     @Override

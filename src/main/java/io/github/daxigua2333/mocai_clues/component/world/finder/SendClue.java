@@ -8,13 +8,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ClickWithFinder extends ClueComponent {
+public class SendClue extends ClueComponent {
+
     @Override
     public ComponentType type() {
-        return ComponentType.CLICK_WITH_FINDER;
+        return ComponentType.SEND_CLUE;
     }
 
-    public static final Codec<ClickWithFinder> CODEC = Codec.unit(new ClickWithFinder());
+
+//    public static final Codec<ClickWithFinder> CODEC = Codec.unit(Unit.INSTANCE).xmap(
+//            u -> new ClickWithFinder(),
+//            v -> Unit.INSTANCE  // encode: no data
+//    );
+
+    public static final Codec<SendClue> CODEC = Codec.unit(new SendClue());
 
     @Nullable
     @Override

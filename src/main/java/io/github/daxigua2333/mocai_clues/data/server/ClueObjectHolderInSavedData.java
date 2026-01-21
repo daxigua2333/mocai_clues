@@ -1,11 +1,12 @@
 package io.github.daxigua2333.mocai_clues.data.server;
 
 import com.mojang.serialization.Codec;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import io.github.daxigua2333.mocai_clues.data.networks.ClueObjectHolderDeltaPayload;
 import io.github.daxigua2333.mocai_clues.data.networks.ClueObjectHolderFullPayload;
-import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -32,13 +33,13 @@ public class ClueObjectHolderInSavedData extends SavedData {
     // Empty (new) data
     public static ClueObjectHolderInSavedData create() {
         // Start empty; you can also pass some initial values
-        return new ClueObjectHolderInSavedData(
-            new ObjectHolder<>(
+        ObjectHolder<ClueObject> holder = new ObjectHolder<>(
                 ClueObject::getId,
                 ClueObject.CODEC,
                 ClueObject.STREAM_CODEC
-            )
         );
+        IndexManager.Server.savedDataEnsure(holder);
+        return new ClueObjectHolderInSavedData(holder);
     }
 
     private ClueObjectHolderInSavedData(ObjectHolder<ClueObject> holder) {
@@ -46,11 +47,14 @@ public class ClueObjectHolderInSavedData extends SavedData {
     }
 
     public static final Codec<ObjectHolder<ClueObject>> CLUE_HOLDER_CODEC =
-        ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
-            .xmap(
-                holder -> { IndexManager.Server.savedDataEnsure(holder); return holder; }, // decode
-                Function.identity()
-            );
+            ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
+                    .xmap(
+                            holder -> {
+                                IndexManager.Server.savedDataEnsure(holder);
+                                return holder;
+                            }, // decode
+                            Function.identity()
+                    );
 
     // Load from NBT. (persistence)
     public static ClueObjectHolderInSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
@@ -61,11 +65,12 @@ public class ClueObjectHolderInSavedData extends SavedData {
         // If your ClueObject.CODEC is registry-free, NbtOps is fine.
         // If it uses registries (items, blocks, etc.), use RegistryOps instead (see note below).
         var dataResult = CLUE_HOLDER_CODEC
-            .parse(NbtOps.INSTANCE, tag.get("ClueObjectHolder"));
+                .parse(NbtOps.INSTANCE, tag.get("ClueObjectHolder"));
 
         ObjectHolder<ClueObject> holder = dataResult
-            .resultOrPartial(System.err::println)
-            .orElseGet(() -> new ObjectHolder<>(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC));
+//                .resultOrPartial(System.err::println)
+                .resultOrPartial(MoCaiClues.LOGGER::error)
+                .orElseGet(() -> new ObjectHolder<>(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC));
 
         return new ClueObjectHolderInSavedData(holder);
     }
@@ -74,11 +79,12 @@ public class ClueObjectHolderInSavedData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         var dataResult = CLUE_HOLDER_CODEC
-            .encodeStart(NbtOps.INSTANCE, this.holder);
+                .encodeStart(NbtOps.INSTANCE, this.holder);
 
         dataResult
-            .resultOrPartial(System.err::println)
-            .ifPresent(encoded -> tag.put("ClueObjectHolder", (Tag) encoded));
+//                .resultOrPartial(System.err::println)
+                .resultOrPartial(MoCaiClues.LOGGER::error)
+                .ifPresent(encoded -> tag.put("ClueObjectHolder", (Tag) encoded));
 
         return tag;
     }
@@ -90,11 +96,12 @@ public class ClueObjectHolderInSavedData extends SavedData {
     public static ClueObjectHolderInSavedData getInstance(MinecraftServer server) {
         return ClueObjectHolderInSavedData.getInstance(server.overworld());
     }
+
     private static ClueObjectHolderInSavedData getInstance(ServerLevel level) {
         DimensionDataStorage storage = level.getDataStorage();
         return storage.computeIfAbsent(
-            new SavedData.Factory<>(ClueObjectHolderInSavedData::create, ClueObjectHolderInSavedData::load),
-            ID
+                new SavedData.Factory<>(ClueObjectHolderInSavedData::create, ClueObjectHolderInSavedData::load),
+                ID
         );
     }
 
@@ -108,10 +115,11 @@ public class ClueObjectHolderInSavedData extends SavedData {
 //        ServerLevel level = player.serverLevel();
 //        ClueObjectHolderInSavedData data = ClueObjectHolderInSavedData.getInstance(level);
         PacketDistributor.sendToPlayer(
-            player,
-            new ClueObjectHolderFullPayload(this.holder)
+                player,
+                new ClueObjectHolderFullPayload(this.holder)
         );
     }
+
     public void syncDeltaToAll() {
 //    public static void syncDeltaToAll(ServerLevel level) {
 //        var SD = ClueObjectHolderInSavedData.getInstance(level);
@@ -139,7 +147,9 @@ public class ClueObjectHolderInSavedData extends SavedData {
         setDirty();
     }
 
-    /** if deep mutable objects are mutated, don't forget to call this */
+    /**
+     * if deep mutable objects are mutated, don't forget to call this
+     */
     @Override
     public void setDirty() {
         super.setDirty();

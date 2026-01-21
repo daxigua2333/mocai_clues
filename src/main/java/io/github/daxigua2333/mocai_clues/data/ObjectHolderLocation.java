@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues.data;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,6 +28,9 @@ public record ObjectHolderLocation<T>(Type type, T data) {
                         Type::ordinal    // encode: enum -> int
                 );
     }
+
+    public record BlockPosWithFace(BlockPos pos, Direction face) {}
+
 
 //    public static <T> StreamCodec<ByteBuf, ObjectHolderLocation<T>> streamCodec(StreamCodec<ByteBuf, T> dataStreamCodec) {
 //        return StreamCodec.of(

@@ -2,10 +2,7 @@ package io.github.daxigua2333.mocai_clues.component;
 
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
-import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
-import io.github.daxigua2333.mocai_clues.component.world.finder.ClickWithFinder;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FoundSource;
+import io.github.daxigua2333.mocai_clues.component.world.finder.*;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
@@ -39,6 +36,8 @@ public class Assembler {
 //        object.addComponent(new FinderState(-1, List.of("Dev2"), true));
         object.addComponent(new FinderState());
         object.addComponent(new ClickWithFinder());
+        object.addComponent(new WalkOn());
+        object.addComponent(new SendClue());
         return object;
     }
     public static ClueObject createManualClue() {

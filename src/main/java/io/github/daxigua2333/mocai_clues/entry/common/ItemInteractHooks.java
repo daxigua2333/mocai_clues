@@ -2,16 +2,13 @@ package io.github.daxigua2333.mocai_clues.entry.common;
 
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractEvent;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
-import io.github.daxigua2333.mocai_clues.component.world.finder.ClickWithFinder;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
-import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
 import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
@@ -22,13 +19,8 @@ import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,9 +29,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @EventBusSubscriber(modid = MoCaiClues.MODID)
 public final class ItemInteractHooks {
@@ -50,13 +40,13 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        var location = new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, new BlockPosWithFace(event.getPos(), event.getFace()));
+        var location = new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, new ObjectHolderLocation.BlockPosWithFace(event.getPos(), event.getFace()));
         handleWand(event,
                 () -> ClientDataManager.retrieveByBlockPos(event.getPos()),
                 location,
                 success);
 
-        handleFinder(event,
+        InteractEvent.clickWithFinder(event,
                 () -> ServerDataManager.retrieveByBlockPos(event.getLevel(), event.getPos()),
                 location,
                 success);
@@ -77,7 +67,7 @@ public final class ItemInteractHooks {
                 location,
                 success);
 
-        handleFinder(event,
+        InteractEvent.clickWithFinder(event,
                 () -> ServerDataManager.retrieveByEntity(event.getTarget()),
                 location,
                 success);
@@ -95,59 +85,6 @@ public final class ItemInteractHooks {
 
     }
 
-
-    // ============= finder part =============
-    private static void handleFinder(PlayerInteractEvent event,
-                                     Supplier<List<ServerDataManager.RetrieveResult>> resultSupplier,
-                                     ObjectHolderLocation location, Runnable sidedSuccess) {
-        if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
-        if (!event.getLevel().isClientSide()) {
-            for (var res : resultSupplier.get()) {
-                Consumer<ClueObject> dirty = res.markDirty();
-                List<ClueObject> data = res.objects();
-
-                for (ClueObject obj : data) {
-                    // FinderState accessibility
-                    FinderState bCompo = obj.getComponent(ComponentType.FINDER_STATE);
-                    if (bCompo == null) throw new RuntimeException("ClueObject#" + obj.getId() + " has no FinderState component");
-                    if (!bCompo.isAccessible(event.getEntity().getScoreboardName())) continue;
-
-                    sendClue(event, obj, location);
-                    // give items ...
-
-                    bCompo.onFound();
-                    dirty.accept(obj);
-                }
-            }
-        }
-        sidedSuccess.run();
-    }
-
-    private record BlockPosWithFace(BlockPos pos, Direction face) {}
-
-    // TODO: dirty.  merge, send message callback
-    private static void sendClue(PlayerInteractEvent event, ClueObject obj, ObjectHolderLocation location) {
-        ClickWithFinder compo = obj.getComponent(ComponentType.SEND_CLUE);
-        if (compo == null) return;
-
-        ClueObject copy;
-        if (location.data() instanceof BlockPosWithFace data) {
-            // chunk
-            copy = Assembler.createClueBookClue(obj, data.pos());
-        } else if (location.data() instanceof UUID data) {
-            // entity
-            Entity e = ((ServerLevel) event.getLevel()).getEntity(data);
-            copy = Assembler.createClueBookClue(obj, e);
-        } else {
-            throw new RuntimeException("Invalid ObjectHolderLocation.");
-        }
-
-        ServerPlayer player = (ServerPlayer) event.getEntity();
-        ObjectHolder<ClueObject> holder = player.getData(ModAttachmentRegistry.CLUE_BOOK);
-        holder.put(copy);
-        player.syncData(ModAttachmentRegistry.CLUE_BOOK);
-
-    }
 
     // ================ wand part ==============
     private static void handleWand(PlayerInteractEvent event, Supplier<List<ClueObject>> editorSupplier, @Nullable ObjectHolderLocation location, Runnable sidedSuccess) {
@@ -181,6 +118,7 @@ public final class ItemInteractHooks {
         objects.get().forEach(obj -> types.add(obj.type()));
         return new ArrayList<>(types);
     }
+
     private static List<ClueObject> getObjectsByType(Supplier<List<ClueObject>> objects, ClueType type) {
         List<ClueObject> result = new ArrayList<>();
         for (var obj : objects.get()) {
@@ -228,9 +166,9 @@ public final class ItemInteractHooks {
         if (location.data() instanceof UUID data) {
             AttachedEntitySet eCompo = obj.getComponentOrCreate(ComponentType.ATTACHED_ENTITY_SET, new AttachedEntitySet());
             eCompo.add(data);
-        } else if (location.data() instanceof BlockPosWithFace data) {
+        } else if (location.data() instanceof ObjectHolderLocation.BlockPosWithFace data) {
             BlockPosSet bCompo = obj.getComponentOrCreate(ComponentType.BLOCK_POS_SET, new BlockPosSet());
-            bCompo.add(data.pos);
+            bCompo.add(data.pos());
 
             FlashDotSet fCompo = obj.getComponentOrCreate(ComponentType.FLASH_DOT_SET, new FlashDotSet());
             fCompo.add(data.pos(), data.face());

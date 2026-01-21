@@ -87,18 +87,12 @@ public final class ServerDataManager {
 
 
     // ========== upsert ==========
-
-    public static void createDefault(Level level) {
-        var obj = Assembler.createManualClue();
-        var holder = ClueObjectHolderInSavedData.getInstance(level.getServer());
-        holder.put(obj);
-    }
-
     public static void upsert(MinecraftServer server, ClueObject obj) {
         ClueObjectHolderInSavedData.getInstance(server).put(obj);
     }
     public static void upsert(ServerLevel level, ChunkPos pos, ClueObject obj) {
         LevelChunk chunk = level.getChunk(pos.x, pos.z);
+        // TODO: optimize: avoid loading unloaded chunks, maybe implement own cache pool
         ObjectHolder<ClueObject> holder = chunk.getData(ModAttachmentRegistry.CLUE_OBJECT_HOLDER);
         holder.put(obj);
     }
