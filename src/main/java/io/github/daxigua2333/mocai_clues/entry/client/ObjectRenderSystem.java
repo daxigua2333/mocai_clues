@@ -157,6 +157,9 @@ public class ObjectRenderSystem {
         mc.getProfiler().pop();
     }
 
+    // TODO: hook in chunk unloading, to clear unloaded batch vbo
+
+
     // avoid leaking GPU buffers when leaving a world/server
     @SubscribeEvent
     public static void onLeave(ClientPlayerNetworkEvent.LoggingOut event) {

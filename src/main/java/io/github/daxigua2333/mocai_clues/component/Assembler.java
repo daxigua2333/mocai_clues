@@ -5,11 +5,14 @@ import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
+import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
+import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,29 +20,28 @@ import java.util.List;
 public class Assembler {
 
     // ===== manual clue ===== TODO
-    private static ClueObject createManualClue(String name, List<String> details){
+    private static ClueObject createManualClue(String name, List<String> details) {
         ClueObject object = new ClueObject(ClueType.MANUAL);
         object.addComponent(new InfoData(name));
         object.addComponent(new DetailData(details));
         object.addComponent(new RendererWidgetCollector(List.of(
                 PassType.BLOCK_OUTLINE
         )));
-//        BlockPosSet test = new BlockPosSet();
-//        test.add(new BlockPos(0, -60, 0));
-//        object.addComponent(test);
         object.addComponent(new RendererHolder(List.of(
                 new BlockOutlineData()
         )));
-//        object.addComponent(new InteractEventHolder(List.of(
-//                new InteractEvent(InteractEventRegistry.EntryType.CLICK, new DefaultPredicate(), new SendClue())
-//        )));
-//        object.addComponent(new FinderState(-1, List.of("Dev2"), true));
         object.addComponent(new FinderState());
         object.addComponent(new ClickWithFinder());
         object.addComponent(new WalkOn());
         object.addComponent(new SendClue());
+        var test = new ItemClue();
+        test.setPos(new BlockPos(1, -60, 0));
+        test.setFace(Direction.UP);
+        test.setStack(new ItemStack(ModItemsRegistry.CLUE_FINDER_ITEM.get()));
+        object.addComponent(test);
         return object;
     }
+
     public static ClueObject createManualClue() {
         return Assembler.createManualClue("default name", new ArrayList<>());
     }
@@ -53,7 +55,8 @@ public class Assembler {
         // 2. generate details
         DetailWithCompleteness dCompo = switch (old.type()) {
             case MANUAL -> manualGenerate(old);
-            case null, default -> throw new RuntimeException("Unimplemented ClueBook detail component converter of ClueObject#" + old.getId());
+            case null, default ->
+                    throw new RuntimeException("Unimplemented ClueBook detail component converter of ClueObject#" + old.getId());
         };
         copy.addComponent(dCompo);
 
@@ -92,13 +95,13 @@ public class Assembler {
         var result = new DetailWithCompleteness();
 
         DetailData dCompo = old.getComponent(ComponentType.DETAIL_DATA);
-        if (dCompo == null) throw new RuntimeException("Invalid manual ClueObject: has no detail component, id#"+old.getId());
+        if (dCompo == null)
+            throw new RuntimeException("Invalid manual ClueObject: has no detail component, id#" + old.getId());
         for (String s : dCompo.getDetails()) {
             result.add(s, 1f);
         }
         return result;
     }
-
 
 
 }

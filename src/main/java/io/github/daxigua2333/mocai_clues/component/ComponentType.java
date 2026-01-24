@@ -31,6 +31,7 @@ public enum ComponentType {
     CLICK_WITH_FINDER,
     WALK_ON,
     SEND_CLUE,
+    ITEM_CLUE,
 
     ;
 
@@ -53,6 +54,7 @@ public enum ComponentType {
                         case ATTACHED_ENTITY_SET -> AttachedEntitySet.CODEC;
                         case CLICK_WITH_FINDER -> ClickWithFinder.CODEC;
                         case WALK_ON -> WalkOn.CODEC;
+                        case ITEM_CLUE -> ItemClue.CODEC;
                     }
             );
 

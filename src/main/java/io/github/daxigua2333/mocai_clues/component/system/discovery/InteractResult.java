@@ -50,4 +50,8 @@ public final class InteractResult {
 
     }
 
+    public static void sendItem() {
+
+    }
+
 }

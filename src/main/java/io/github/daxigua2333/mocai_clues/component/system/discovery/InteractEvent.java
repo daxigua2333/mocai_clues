@@ -40,7 +40,7 @@ public final class InteractEvent {
                     if (!bCompo.isAccessible(event.getEntity().getScoreboardName())) continue;
 
                     InteractResult.sendClue((ServerPlayer) event.getEntity(), obj, location);
-                    // give items ...
+                    InteractResult.sendItem();
 
                     bCompo.onFound();
                     dirty.accept(obj);
