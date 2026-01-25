@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.guis.widget;
 
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,6 +19,7 @@ public class PlayerSender extends AbstractContainerWidget {
     private PlayerInfo selected;
 
     private static final Font FONT = Minecraft.getInstance().font;
+    private static final Component PREFIX = Component.translatable(MoCaiClues.MODID + ".screen.share_with");
     private final DropdownWidget<PlayerInfo> dropdown;
     private final Button button;
 
@@ -28,8 +30,8 @@ public class PlayerSender extends AbstractContainerWidget {
             Consumer<PlayerInfo> onSend) {
         super(x, y, width, height, Component.empty());
 
-        int prefixWidth = FONT.width(Component.translatable("send to"));
-        dropdown = new DropdownWidget<>(x + prefixWidth + 2, y, z, width-prefixWidth-BUTTON_WIDTH-4, height, 0,
+        int prefixWidth = FONT.width(PREFIX);
+        dropdown = new DropdownWidget<>(x + prefixWidth + 2, y, z, width - prefixWidth - BUTTON_WIDTH - 4, height, 0,
                 () -> {
                     ClientPacketListener conn = Minecraft.getInstance().getConnection();
                     if (conn == null) return List.of();
@@ -45,16 +47,16 @@ public class PlayerSender extends AbstractContainerWidget {
                 },
                 info -> selected = info);
 
-        button = Button.builder(Component.translatable("send"),
-                btn -> onSend.accept(selected))
-                .bounds(x+width+-BUTTON_WIDTH, y, BUTTON_WIDTH, height)
+        button = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.share"),
+                        btn -> onSend.accept(selected))
+                .bounds(x + width + -BUTTON_WIDTH, y, BUTTON_WIDTH, height)
                 .build();
 
     }
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.drawString(FONT, Component.translatable("send to"), getX(), getY()+height/2-FONT.lineHeight/2, 0xFFFFFFFF, false);
+        graphics.drawString(FONT, PREFIX, getX(), getY() + height / 2 - FONT.lineHeight / 2, 0xFFFFFFFF, false);
         dropdown.render(graphics, mouseX, mouseY, partialTick);
         button.render(graphics, mouseX, mouseY, partialTick);
     }

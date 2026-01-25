@@ -46,6 +46,10 @@ public class DropdownWidget<T> extends AbstractWidget {
         this.baseHeight = height;
 //        this.setMessage(labelFunc.apply(options.get(this.selectedIndex)));
         this.z = z;
+
+        if (!options.isEmpty()) {
+            onChange.accept(options.get(selectedIndex));
+        }
     }
 
 //    public T getSelected() {

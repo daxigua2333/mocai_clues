@@ -11,12 +11,27 @@
   "mocai_clues.configuration.magicNumberIntroduction": "Magic Number Text",
   "mocai_clues.configuration.magicNumber": "Magic Number",
 
-  "mocai_clue.finder.source.pos": "Found at pos: ",
-  "mocai_clue.finder.source.entity": "Found on entity: %s",
-  "mocai_clue.finder.source.player": "Found on player: %s",
+  "mocai_clues.finder.source.pos": "Found at pos: ",
+  "mocai_clues.finder.source.entity": "Found on entity: %s",
+  "mocai_clues.finder.source.player": "Shared by player: %s",
 
-  "mocai_clue.finder.result.new": "You have found a new clue!",
-  "mocai_clue.finder.result.repeated": "You have already found this clue before",
-  "mocai_clue.finder.result.update": "Your clue book has been updated"
+  "mocai_clues.finder.result.new": "You have found a new clue!",
+  "mocai_clues.finder.result.repeated": "You have already found this clue before",
+  "mocai_clues.finder.result.update": "Your clue book has been updated",
+
+  "mocai_clues.screen.editor": "editor",
+  "mocai_clues.screen.clue_book": "clue_book",
+  "mocai_clues.screen.manual_clue": "manual",
+
+  "mocai_clues.screen.delete": "delete",
+  "mocai_clues.screen.edit": "edit",
+  "mocai_clues.screen.apply": "apply",
+  "mocai_clues.screen.cancel": "cancel",
+  "mocai_clues.screen.confirm_delete.title": "Delete Confirm",
+  "mocai_clues.screen.confirm_delete.body": "Are you sure you want to delete this clue?",
+
+  "mocai_clues.screen.attach": "attaching",
+  "mocai_clues.screen.share_with": "share with:",
+  "mocai_clues.screen.share": "share"
 
 }

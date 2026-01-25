@@ -21,6 +21,7 @@ public class FoundSource extends ClueComponent {
     private FoundSource(Component source) {
         this.source = source;
     }
+
     public FoundSource() {
         this(Component.empty());
     }
@@ -30,16 +31,16 @@ public class FoundSource extends ClueComponent {
     }
 
     public void setSource(BlockPos pos) {
-        source = Component.translatable("mocai_clue.finder.source.pos")
+        source = Component.translatable("mocai_clues.finder.source.pos")
                 .append(Component.literal(String.format("(%s, %s, %s)", pos.getX(), pos.getY(), pos.getZ())));
     }
 
     public void setSource(Entity entity) {
-        source = Component.translatable("mocai_clue.finder.source.entity", entity.getName());  // TODO: test the name
+        source = Component.translatable("mocai_clues.finder.source.entity", entity.getName());  // TODO: test the name
     }
 
     public void setSource(Player player) {
-        source = Component.translatable("mocai_clue.finder.source.player", player.getScoreboardName());
+        source = Component.translatable("mocai_clues.finder.source.player", player.getScoreboardName());
     }
 
     @Override

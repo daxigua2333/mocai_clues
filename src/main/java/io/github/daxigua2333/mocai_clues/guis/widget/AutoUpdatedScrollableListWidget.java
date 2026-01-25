@@ -1,6 +1,5 @@
 package io.github.daxigua2333.mocai_clues.guis.widget;
 
-import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,7 +8,9 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -102,7 +103,7 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
         // manage z
         var pose = graphics.pose();
         pose.pushPose();
-        pose.translate(0,0,z);
+        pose.translate(0, 0, z);
         // render
         super.renderWidget(graphics, mouseX, mouseY, partialTick);
         pose.popPose();
@@ -115,11 +116,13 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
 //        Make rows slightly narrower than the full width so the scrollbar has space
         return this.width - 10;
     }
+
     @Override
     protected int getScrollbarPosition() {
         // Right edge of the list; SCROLLBAR_WIDTH is handled internally.
-        return this.getX() + this.getWidth() - 6;
+        return this.getX() + this.getWidth();
     }
+
     @Override
     protected void renderListBackground(GuiGraphics guiGraphics) {
 //        super.renderListBackground(guiGraphics);
@@ -130,8 +133,20 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
 //        super.renderDecorations(guiGraphics, mouseX, mouseY);
     }
 
+    @Override
+    protected void renderListSeparators(GuiGraphics guiGraphics) {
 
-    /** One row in the list. */
+    }
+
+    @Override
+    protected void renderSelection(GuiGraphics guiGraphics, int top, int width, int height, int outerColor, int innerColor) {
+
+    }
+
+
+    /**
+     * One row in the list.
+     */
     public class Entry extends ObjectSelectionList.Entry<Entry> {
 
         private final T value;
@@ -142,7 +157,9 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
             this.label = labelMapper.apply(value);
         }
 
-        public T getValue() {return value;}
+        public T getValue() {
+            return value;
+        }
 
         @Override
         public void render(GuiGraphics gfx,
@@ -163,15 +180,16 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
 
             // Highlight selected/hovered rows
             if (hovered || selected) {
-                int bg = selected ? 0x80FFFFFF : 0x40FFFFFF;
+                int bg = selected ? 0x60000000 : 0x30000000;
                 gfx.fill(left, top, left + width, top + height, bg);
             }
 
-            int x = left + 4;
-            int y = top + 4;
+            int x = left+2;
+            int y = top+4;
 
             // Title (single line)
-            gfx.drawString(font, label, x, y, 0x000000, false);
+            String clippedText = font.plainSubstrByWidth(label.getString(), width);
+            gfx.drawString(font, clippedText, x, y, 0x000000, false);
 
 //            // Optional icon
 //            if (!this.value.icon().isEmpty()) {

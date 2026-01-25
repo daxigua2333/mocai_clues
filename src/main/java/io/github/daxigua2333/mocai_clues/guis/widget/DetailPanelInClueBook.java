@@ -5,18 +5,25 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.gui.FlexibleContainer;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.gui.widget.ScrollPanel;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class DetailPanelInClueBook extends FlexibleContainer {
 
@@ -64,15 +71,38 @@ public class DetailPanelInClueBook extends FlexibleContainer {
 
         // init header
         int y = top - 20;
-        sender = new PlayerSender(left, y, 10, 110, 20, info -> {
-            // TODO: send packet, server attach
-            MoCaiClues.LOGGER.debug("{}", info);
+        sender = new PlayerSender(left, y, 10, 160, 20, info -> {
+            if (object == null) return;
+            PacketDistributor.sendToServer(new ShareCluePayload(object, info.getProfile().getId()));
         });
         header.add(sender);
     }
 
+    public record ShareCluePayload(ClueObject obj, UUID playerId) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<ShareCluePayload> TYPE = new CustomPacketPayload.Type<>(
+                ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "share_clue_payload"));
 
-    /** outer update obj */
+        public static final StreamCodec<ByteBuf, ShareCluePayload> STREAM_CODEC = StreamCodec.of(
+                (buf, inst) -> {
+                    ClueObject.STREAM_CODEC.encode(buf, inst.obj);
+                    UUIDUtil.STREAM_CODEC.encode(buf, inst.playerId);
+                },
+                buf -> {
+                    return new ShareCluePayload(
+                            ClueObject.STREAM_CODEC.decode(buf),
+                            UUIDUtil.STREAM_CODEC.decode(buf));
+                }
+        );
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    /**
+     * outer update obj
+     */
     public void updateObject(@Nullable ClueObject obj) {
         if (obj == null && this.object == null) return;
         if (obj != null && obj.equals(this.object)) return;
@@ -111,19 +141,22 @@ public class DetailPanelInClueBook extends FlexibleContainer {
         private float lastPartialTick;
 
         private boolean dirty = false;
+
         public void markDirty() {
             this.dirty = true;
         }
 
         public ScrollPage(Minecraft mc, int width, int height, int top, int left) {
-            super(mc, width, height, top, left, 0, 6 , -16777216, -8355712, -4144960);  // TODO: bg...etc
+            super(mc, width, height, top, left, 0, 6, -16777216, -8355712, -4144960);  // TODO: bg...etc
 
             Font font = Minecraft.getInstance().font;
 
             markDirty();
         }
 
-        /** the entire content height (which means can exceed the screen height) */
+        /**
+         * the entire content height (which means can exceed the screen height)
+         */
         @Override
         protected int getContentHeight() {
             int result = 0;
@@ -136,9 +169,10 @@ public class DetailPanelInClueBook extends FlexibleContainer {
             return result;
         }
 
-        /** invoked each tick. Mainly position widgets here.
+        /**
+         * invoked each tick. Mainly position widgets here.
          * relativeY: y value which has counted the scrollDistance
-         * */
+         */
         @Override
         protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, Tesselator tess,
                                  int mouseX, int mouseY) {
@@ -150,7 +184,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
             // re layout and render
             int x = this.left + this.border;
             int y = relativeY;
-    //        MoCaiClues.LOGGER.debug("{}", relativeY);  // after each scroll it goes into 6, -14, -34
+            //        MoCaiClues.LOGGER.debug("{}", relativeY);  // after each scroll it goes into 6, -14, -34
 
             for (var w : this.children) {
                 w.setX(x);
@@ -203,7 +237,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
         // no background
         @Override
         protected void drawBackground(GuiGraphics guiGraphics, Tesselator tess, float partialTick) {
-    //        Screen.renderMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0.0F, 0.0F, this.width, this.height);
+            //        Screen.renderMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0.0F, 0.0F, this.width, this.height);
         }
 
     }

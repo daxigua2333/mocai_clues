@@ -1,9 +1,9 @@
 package io.github.daxigua2333.mocai_clues.guis.widget;
 
 import com.mojang.blaze3d.vertex.Tesselator;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpdatePayload;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -17,11 +17,11 @@ import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.gui.widget.ScrollPanel;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class DetailPanelNew extends AbstractContainerWidget {
 
@@ -39,54 +39,49 @@ public class DetailPanelNew extends AbstractContainerWidget {
     private final Button cancelButton;
 
     private boolean dirty = false;
+
     public void setDirty() {
         this.dirty = true;
         page.setDirty();
     }
 
 
-    public DetailPanelNew(Minecraft mc, int width, int height, int top, int left) {
+    public DetailPanelNew(Minecraft mc, int width, int height, int top, int left,
+                          Consumer<ClueObject> applyChange,
+                          Consumer<ClueObject> deleteCurrent) {
         super(left, top, width, height, Component.empty());
 
         page = new ScrollPage(mc, width, height, top, left);
 
         // top buttons
-        int y = top - 20;
-        this.applyButton = Button.builder(Component.translatable("apply"), btn -> {
-//            PacketDistributor.sendToServer(new ClueObjectUpdatePayload(copy));
-            PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                    new ClueObjectUpdatePayload.Location(),
-                    new ClueObjectUpdatePayload.Data(copy)
-            ));
+        int y = top - 25;
+        this.applyButton = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.apply"), btn -> {
+            applyChange.accept(copy);
             this.setState(State.READONLY);
-        }).bounds(left+width-80, y, 40, 20).build();
-        this.cancelButton = Button.builder(Component.translatable("cancel"), btn -> {
+        }).bounds(left + width - 80, y, 40, 20).build();
+        this.cancelButton = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.cancel"), btn -> {
             this.setState(State.READONLY);
-        }).bounds(left+width-40, y, 40, 20).build();
+        }).bounds(left + width - 40, y, 40, 20).build();
 
-        this.editButton = Button.builder(Component.translatable("edit"), btn -> {
+        this.editButton = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.edit"), btn -> {
             if (object == null) return;  // actually buttons won't be built if object is null
             this.setState(State.EDIT);
-        }).bounds(left+width-40, y, 40, 20).build();
+        }).bounds(left + width - 40, y, 40, 20).build();
 
-        this.deleteButton = Button.builder(Component.translatable("delete"), btn -> {
+        this.deleteButton = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.delete"), btn -> {
             if (object == null) return;
             ConfirmScreen confirm = new ConfirmScreen(
-                (BooleanConsumer) confirmed -> {
-                    mc.popGuiLayer();
-                    if (confirmed) {
-//                        PacketDistributor.sendToServer(new ClueObjectDeletePayload(object.getId()));
-                        PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                                new ClueObjectUpdatePayload.Location(),
-                                new ClueObjectUpdatePayload.Data(object.getId())
-                        ));
-                        this.updateObject(null);
-                    }
-                },
-                Component.translatable("gui.mymod.confirm_delete.title"),
-                Component.translatable("gui.mymod.confirm_delete.body"),
-                Component.translatable("gui.mymod.delete"),
-                CommonComponents.GUI_CANCEL
+                    (BooleanConsumer) confirmed -> {
+                        mc.popGuiLayer();
+                        if (confirmed) {
+                            deleteCurrent.accept(object);
+                            this.updateObject(null);
+                        }
+                    },
+                    Component.translatable(MoCaiClues.MODID + ".screen.confirm_delete.title"),
+                    Component.translatable(MoCaiClues.MODID + ".screen.confirm_delete.body"),
+                    Component.translatable(MoCaiClues.MODID + ".screen.delete"),
+                    CommonComponents.GUI_CANCEL
             );
 
             // Optional: disable buttons for N ticks to prevent misclicks.
@@ -100,18 +95,24 @@ public class DetailPanelNew extends AbstractContainerWidget {
         setDirty();
     }
 
-    /** editor mode or not */
+    /**
+     * editor mode or not
+     */
     enum State {
         EDIT, READONLY, EMPTY;
+
         public State next() {
             State[] vals = values();
             return vals[(this.ordinal() + 1) % vals.length];
         }
     }
+
     private State state = State.EMPTY;
+
     public State getState() {
         return state;
     }
+
     public void setState(State s) {
         this.state = s;
         this.setDirty();
@@ -131,7 +132,9 @@ public class DetailPanelNew extends AbstractContainerWidget {
         }
     }
 
-    /** outer update obj */
+    /**
+     * outer update obj
+     */
     public void updateObject(@Nullable ClueObject obj) {
         if (obj == null && this.object == null) return;
         if (obj != null && obj.equals(this.object)) return;
@@ -190,12 +193,13 @@ public class DetailPanelNew extends AbstractContainerWidget {
         private float lastPartialTick;
 
         private boolean dirty = false;
+
         public void setDirty() {
             this.dirty = true;
         }
 
         public ScrollPage(Minecraft mc, int width, int height, int top, int left) {
-            super(mc, width, height, top, left, 0, 6 , -16777216, -8355712, -4144960);  // TODO: bg...etc
+            super(mc, width, height, top, left, 0, 6, -16777216, -8355712, -4144960);  // TODO: bg...etc
 
             Font font = Minecraft.getInstance().font;
 
@@ -203,7 +207,9 @@ public class DetailPanelNew extends AbstractContainerWidget {
             setDirty();
         }
 
-        /** the entire content height (which means can exceed the screen height) */
+        /**
+         * the entire content height (which means can exceed the screen height)
+         */
         @Override
         protected int getContentHeight() {
             int result = 0;
@@ -216,9 +222,10 @@ public class DetailPanelNew extends AbstractContainerWidget {
             return result;
         }
 
-        /** invoked each tick. Mainly position widgets here.
+        /**
+         * invoked each tick. Mainly position widgets here.
          * relativeY: y value which has counted the scrollDistance
-         * */
+         */
         @Override
         protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, Tesselator tess,
                                  int mouseX, int mouseY) {
@@ -230,7 +237,7 @@ public class DetailPanelNew extends AbstractContainerWidget {
             // re layout and render
             int x = this.left + this.border;
             int y = relativeY;
-    //        MoCaiClues.LOGGER.debug("{}", relativeY);  // after each scroll it goes into 6, -14, -34
+            //        MoCaiClues.LOGGER.debug("{}", relativeY);  // after each scroll it goes into 6, -14, -34
 
             for (var w : this.children) {
                 w.setX(x);
@@ -298,7 +305,7 @@ public class DetailPanelNew extends AbstractContainerWidget {
         // no background
         @Override
         protected void drawBackground(GuiGraphics guiGraphics, Tesselator tess, float partialTick) {
-    //        Screen.renderMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0.0F, 0.0F, this.width, this.height);
+            //        Screen.renderMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0.0F, 0.0F, this.width, this.height);
         }
 
     }

@@ -11,12 +11,29 @@
   "mocai_clues.configuration.magicNumberIntroduction": "Magic Number Text",
   "mocai_clues.configuration.magicNumber": "Magic Number",
 
-  "mocai_clue.finder.source.pos": "发现于坐标: ",
-  "mocai_clue.finder.source.entity": "发现于实体: %s 上",
-  "mocai_clue.finder.source.player": "发现于玩家: %s 上",
+  "mocai_clues.finder.source.pos": "发现于坐标: ",
+  "mocai_clues.finder.source.entity": "发现于实体: %s 上",
+  "mocai_clues.finder.source.player": "由玩家: %s 分享",
 
-  "mocai_clue.finder.result.new": "找到了一条新线索!",
-  "mocai_clue.finder.result.repeated": "你已找到过该线索",
-  "mocai_clue.finder.result.update": "线索书已更新"
+  "mocai_clues.finder.result.new": "找到了一条新线索!",
+  "mocai_clues.finder.result.repeated": "你已找到过该线索",
+  "mocai_clues.finder.result.update": "线索书已更新",
+
+  "mocai_clues.screen.editor": "编辑",
+  "mocai_clues.screen.manual_clue": "人工线索",
+  "mocai_clues.screen.clue_book": "线索簿",
+
+  "mocai_clues.screen.delete": "删除",
+  "mocai_clues.screen.edit": "编辑",
+  "mocai_clues.screen.apply": "应用",
+  "mocai_clues.screen.cancel": "取消",
+  "mocai_clues.screen.confirm_delete.title": "是否删除",
+  "mocai_clues.screen.confirm_delete.body": "确认是否删除此线索?",
+
+
+  "mocai_clues.screen.attach": "附加到世界",
+  "mocai_clues.screen.share_with": "将线索分享给:",
+  "mocai_clues.screen.share": "分享"
+
 
 }

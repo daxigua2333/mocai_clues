@@ -14,18 +14,22 @@ import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
 import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
-import io.github.daxigua2333.mocai_clues.guis.WandScreen;
+import io.github.daxigua2333.mocai_clues.guis.AttachedClueEditorScreen;
+import io.github.daxigua2333.mocai_clues.guis.ManualClueEditorScreen;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
+import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpdatePayload;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -93,10 +97,7 @@ public final class ItemInteractHooks {
         switch (event.getItemStack().getOrDefault(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE)) {
             case EDITOR -> {
                 if (event.getLevel().isClientSide()) {
-                    WandScreen.open(
-                            () -> getType(editorSupplier),
-                            type -> getObjectsByType(editorSupplier, type)
-                    );
+                    openScreen(editorSupplier, location);
                 }
             }
 //            case ATTACH -> caseAttach.run();
@@ -113,6 +114,56 @@ public final class ItemInteractHooks {
 
     // ======== open wand screen helpers ===========
     // TODO: optimize these 2, using AND index maybe...
+    private static void openScreen(Supplier<List<ClueObject>> editorSupplier, @Nullable ObjectHolderLocation location) {
+        if (location == null) {
+            // manual
+            ManualClueEditorScreen.open(
+                    editorSupplier,
+                    obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                            new ClueObjectUpdatePayload.Location(),
+                            new ClueObjectUpdatePayload.Data(obj)
+                    )),
+                    obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                            new ClueObjectUpdatePayload.Location(),
+                            new ClueObjectUpdatePayload.Data(obj.getId())
+                    ))
+            );
+        } else {
+            // attachment
+            if (location.data() instanceof UUID entityId) {
+                AttachedClueEditorScreen.open(
+                        () -> getType(editorSupplier),
+                        type -> getObjectsByType(editorSupplier, type),
+                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                                new ClueObjectUpdatePayload.Location(entityId),
+                                new ClueObjectUpdatePayload.Data(obj)
+                        )),
+                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                                new ClueObjectUpdatePayload.Location(entityId),
+                                new ClueObjectUpdatePayload.Data(obj.getId())
+                        ))
+                );
+
+            } else if (location.data() instanceof ObjectHolderLocation.BlockPosWithFace posWithFace) {
+                var chunkPos = new ChunkPos(posWithFace.pos().getX(), posWithFace.pos().getY());
+                AttachedClueEditorScreen.open(
+                        () -> getType(editorSupplier),
+                        type -> getObjectsByType(editorSupplier, type),
+                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                                new ClueObjectUpdatePayload.Location(chunkPos),
+                                new ClueObjectUpdatePayload.Data(obj)
+                        )),
+                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                                new ClueObjectUpdatePayload.Location(chunkPos),
+                                new ClueObjectUpdatePayload.Data(obj.getId())
+                        ))
+
+                );
+
+            }
+        }
+    }
+
     private static List<ClueType> getType(Supplier<List<ClueObject>> objects) {
         Set<ClueType> types = new HashSet<>();
         objects.get().forEach(obj -> types.add(obj.type()));

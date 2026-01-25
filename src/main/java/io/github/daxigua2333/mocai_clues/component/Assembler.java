@@ -52,6 +52,8 @@ public class Assembler {
         ClueObject copy = new ClueObject(old);
         // 1. copy meta
         copy.addComponent(new InfoData(old.getComponent(ComponentType.INFO_DATA)));
+        // 2. allow sharing behavior
+        copy.addComponent(new SendClue());
         // 2. generate details
         DetailWithCompleteness dCompo = switch (old.type()) {
             case MANUAL -> manualGenerate(old);

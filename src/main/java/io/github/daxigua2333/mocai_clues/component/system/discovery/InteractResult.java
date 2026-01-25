@@ -3,6 +3,7 @@ package io.github.daxigua2333.mocai_clues.component.system.discovery;
 import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.world.finder.FoundSource;
 import io.github.daxigua2333.mocai_clues.component.world.finder.SendClue;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
@@ -12,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
@@ -29,6 +31,11 @@ public final class InteractResult {
         } else if (location.data() instanceof UUID data) {  // entity
             Entity e = ((ServerLevel) player.level()).getEntity(data);
             copy = Assembler.createClueBookClue(obj, e);
+        } else if (location.data() instanceof Player from) {  // player share
+            FoundSource fCompo = obj.getComponent(ComponentType.FOUND_SOURCE);
+            if (fCompo == null) throw new RuntimeException("Invalid shared obj: no FoundSource component.");
+            fCompo.setSource(from);
+            copy = obj;
         } else {
             throw new RuntimeException("Invalid ObjectHolderLocation.");
         }
@@ -37,13 +44,13 @@ public final class InteractResult {
         // TODO: merge logic, attention to dirty things
         if (!holder.containsKey(copy.getId())) {  // new
             holder.put(copy);
-            player.sendSystemMessage(Component.translatable("mocai_clue.finder.result.new"));
+            player.sendSystemMessage(Component.translatable("mocai_clues.finder.result.new"));
         } else {
             if (copy.equals(holder.get(copy.getId()))) {  // repeat
-                player.sendSystemMessage(Component.translatable("mocai_clue.finder.result.repeated"));
+                player.sendSystemMessage(Component.translatable("mocai_clues.finder.result.repeated"));
             } else {  // merge
                 holder.put(copy);
-                player.sendSystemMessage(Component.translatable("mocai_clue.finder.result.update"));
+                player.sendSystemMessage(Component.translatable("mocai_clues.finder.result.update"));
             }
         }
         player.syncData(ModAttachmentRegistry.CLUE_BOOK);
