@@ -12,6 +12,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -33,9 +34,12 @@ public class PlayerSender extends AbstractContainerWidget {
         int prefixWidth = FONT.width(PREFIX);
         dropdown = new DropdownWidget<>(x + prefixWidth + 2, y, z, width - prefixWidth - BUTTON_WIDTH - 4, height, 0,
                 () -> {
-                    ClientPacketListener conn = Minecraft.getInstance().getConnection();
-                    if (conn == null) return List.of();
-                    return List.copyOf(conn.getOnlinePlayers());
+                    var mc = Minecraft.getInstance();
+                    ClientPacketListener conn = mc.getConnection();
+                    if (mc.player == null || conn == null) return Collections.emptyList();
+                    return conn.getOnlinePlayers().stream()
+                            .filter(info -> !info.getProfile().getId().equals(mc.player.getUUID()))
+                            .toList();
                 },
                 info -> {
                     var tabName = info.getTabListDisplayName();
