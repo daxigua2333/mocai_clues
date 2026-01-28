@@ -5,6 +5,7 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.gui.FlexibleContainer;
+import io.github.daxigua2333.mocai_clues.mixins.ScrollPanelAccessor;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -32,7 +33,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
 
     private final List<AbstractWidget> header = new ArrayList<>();
     private final PlayerSender sender;
-    private final ScrollPage page;
+    private ScrollPage page;
 
 
     @Override
@@ -44,24 +45,17 @@ public class DetailPanelInClueBook extends FlexibleContainer {
 
     @Override
     protected void processDirty() {
-        // rebuild header
-//        switch (state) {
-//            case EDIT -> {
-//                header.clear();
-//                header.addAll(List.of(applyButton, cancelButton));
-//            }
-//            case READONLY -> {
-//                header.clear();
-//                header.addAll(List.of(deleteButton, editButton));
-//            }
-//        }
         // rebuild page
-        page.processDirty();
+//        page.processDirty();
     }
 
     @Override
     protected void reLayout() {
-
+        int x = getX();
+        int y = getY();
+        sender.setPosition(x, y - 20);
+        page = new ScrollPage(Minecraft.getInstance(), width, height, y, x);
+//        page.setPosition(x, y);  // TODO: idk why this is useless
     }
 
     public DetailPanelInClueBook(Minecraft mc, int width, int height, int top, int left) {
@@ -76,6 +70,8 @@ public class DetailPanelInClueBook extends FlexibleContainer {
             PacketDistributor.sendToServer(new ShareCluePayload(object, info.getProfile().getId()));
         });
         header.add(sender);
+
+        markDirty();
     }
 
     public record ShareCluePayload(ClueObject obj, UUID playerId) implements CustomPacketPayload {
@@ -152,6 +148,13 @@ public class DetailPanelInClueBook extends FlexibleContainer {
             Font font = Minecraft.getInstance().font;
 
             markDirty();
+        }
+
+        // ========== re-layout =============
+        public void setPosition(int x, int y) {
+            var accessor = (ScrollPanelAccessor) this;
+            accessor.setX(x);
+            accessor.setY(y);
         }
 
         /**

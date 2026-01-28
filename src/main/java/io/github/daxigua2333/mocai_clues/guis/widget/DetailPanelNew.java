@@ -4,11 +4,12 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.gui.FlexibleContainer;
+import io.github.daxigua2333.mocai_clues.mixins.ScrollPanelAccessor;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class DetailPanelNew extends AbstractContainerWidget {
+public class DetailPanelNew extends FlexibleContainer {
 
     @Nullable
     private ClueObject object = null;
@@ -31,19 +32,12 @@ public class DetailPanelNew extends AbstractContainerWidget {
     private ClueObject copy;
 
     private final List<AbstractWidget> header = new ArrayList<>(2);
-    private final ScrollPage page;
+    private ScrollPage page;
 
     private final Button applyButton;
     private final Button editButton;
     private final Button deleteButton;
     private final Button cancelButton;
-
-    private boolean dirty = false;
-
-    public void setDirty() {
-        this.dirty = true;
-        page.setDirty();
-    }
 
 
     public DetailPanelNew(Minecraft mc, int width, int height, int top, int left,
@@ -92,7 +86,7 @@ public class DetailPanelNew extends AbstractContainerWidget {
 
 
         // dirty
-        setDirty();
+        markDirty();
     }
 
     /**
@@ -115,7 +109,7 @@ public class DetailPanelNew extends AbstractContainerWidget {
 
     public void setState(State s) {
         this.state = s;
-        this.setDirty();
+        this.markDirty();
         switch (s) {
             case EDIT -> {
                 copy = object == null ? null : object.clone();
@@ -143,21 +137,18 @@ public class DetailPanelNew extends AbstractContainerWidget {
 //        this.setDirty();
     }
 
+
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (this.dirty) {
-            rebuild();
-            this.dirty = false;
+    protected void markDirty() {
+        super.markDirty();
+        if (page != null) {
+            page.markDirty();
         }
-
-        for (var w : header) {
-            w.render(guiGraphics, mouseX, mouseY, partialTick);
-        }
-
-        page.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
-    private void rebuild() {
+
+    @Override
+    protected void processDirty() {
         // rebuild header
         switch (state) {
             case EDIT -> {
@@ -170,7 +161,32 @@ public class DetailPanelNew extends AbstractContainerWidget {
             }
         }
         // rebuild page
-        page.rebuild();
+//        page.processDirty();
+
+    }
+
+    @Override
+    protected void reLayout() {
+        int x = getX();
+        int y = getY();
+        int w = getWidth();
+        applyButton.setPosition(x + w - 80, y - 25);
+        cancelButton.setPosition(x + w - 40, y - 25);
+        editButton.setPosition(x + w - 40, y - 25);
+        deleteButton.setPosition(x, y - 25);
+
+        page = new ScrollPage(Minecraft.getInstance(), width, height, y, x);
+//        page.setPosition(x, y);  // TODO: idk why this is useless
+    }
+
+    @Override
+    protected void renderTick(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        for (var w : header) {
+            w.render(graphics, mouseX, mouseY, partialTick);
+        }
+
+        page.render(graphics, mouseX, mouseY, partialTick);
+
     }
 
     @Override
@@ -194,7 +210,7 @@ public class DetailPanelNew extends AbstractContainerWidget {
 
         private boolean dirty = false;
 
-        public void setDirty() {
+        public void markDirty() {
             this.dirty = true;
         }
 
@@ -203,8 +219,14 @@ public class DetailPanelNew extends AbstractContainerWidget {
 
             Font font = Minecraft.getInstance().font;
 
+            markDirty();
+        }
 
-            setDirty();
+        // ========== re-layout =============
+        public void setPosition(int x, int y) {
+            var accessor = (ScrollPanelAccessor) this;
+            accessor.setX(x);
+            accessor.setY(y);
         }
 
         /**
@@ -230,11 +252,11 @@ public class DetailPanelNew extends AbstractContainerWidget {
         protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, Tesselator tess,
                                  int mouseX, int mouseY) {
             if (this.dirty) {
-                rebuild();
+                processDirty();
                 this.dirty = false;
             }
 
-            // re layout and render
+            // re layout(**has nothing to do with dirty**) and render
             int x = this.left + this.border;
             int y = relativeY;
             //        MoCaiClues.LOGGER.debug("{}", relativeY);  // after each scroll it goes into 6, -14, -34
@@ -248,7 +270,7 @@ public class DetailPanelNew extends AbstractContainerWidget {
             }
         }
 
-        private void rebuild() {
+        private void processDirty() {
             this.children.clear();
 
             switch (state) {
