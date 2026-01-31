@@ -120,6 +120,18 @@ public class ModPayloadRegistry {
                     InteractResult.sendClue(to, payload.obj(), new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, from));
                 })
         );
+
+        // test
+        registrar.playToServer(
+                C2SOpenItemPickerMenuPayload.TYPE,
+                C2SOpenItemPickerMenuPayload.STREAM_CODEC,
+                C2SOpenItemPickerMenuPayload::handle
+        );
+//        registrar.playToClient(
+//                S2COpenItemPickerMenuPayload.TYPE,
+//                S2COpenItemPickerMenuPayload.STREAM_CODEC,
+//                S2COpenItemPickerMenuPayload::handle
+//        );
     }
 
 

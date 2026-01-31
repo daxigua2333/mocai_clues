@@ -33,6 +33,9 @@ public class ItemStackSlotWidget extends AbstractWidget {
         if (!stack.isEmpty()) {
             gg.renderItem(stack, getX() + 1, getY() + 1);
             gg.renderItemDecorations(Minecraft.getInstance().font, stack, getX() + 1, getY() + 1);
+            if (this.isHovered()) {
+                gg.renderTooltip(Minecraft.getInstance().font, stack, mouseX, mouseY);
+            }
         }
     }
 

@@ -27,10 +27,10 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
     private static final int ENTRY_HEIGHT = 20;
 
 
-//    private final Button createButton;
-//    private final DetailPanelNew details;
-//    private final AutoUpdatedScrollableListWidget<ClueObject> list;
-//    private final ItemStackPickerWidget stackSlot;
+    private Button createButton;
+    private DetailPanelNew details;
+    private AutoUpdatedScrollableListWidget<ClueObject> list;
+    private ItemStackPickerWidget stackSlot;
 
     // ====== constructor, and open static =======
     public static void open(
@@ -108,7 +108,7 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
         int left = (this.width - WHOLE_W) / 2;
         int top = (this.height - WHOLE_H) / 2;
 
-        Button createButton = Button.builder(Component.literal("+"), btn -> {
+        createButton = Button.builder(Component.literal("+"), btn -> {
             PacketDistributor.sendToServer(new ManualClueCreatePayload());
         }).bounds(
                 left + LIST_X_OFFSET + LIST_W - 28,
@@ -116,7 +116,7 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
                 16, 16
         ).build();
 
-        var details = new DetailPanelNew(
+        details = new DetailPanelNew(
                 Minecraft.getInstance(),
                 PANEL_W - 28,
                 PANEL_H - 48,
@@ -126,7 +126,7 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
                 deleteCurrent
         );
 
-        var list = new AutoUpdatedScrollableListWidget<>(
+        list = new AutoUpdatedScrollableListWidget<>(
                 this.minecraft,
                 left + LIST_X_OFFSET + 6,
                 top + LIST_Y_OFFSET + 30,
@@ -147,7 +147,7 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
                 }
         );
 
-        var stackSlot = new ItemStackPickerWidget(40, 40, Component.empty(), this, ItemStack.EMPTY, stack -> MoCaiClues.LOGGER.debug("{}", stack));
+        stackSlot = new ItemStackPickerWidget(40, 40, Component.empty(), this, ItemStack.EMPTY, stack -> MoCaiClues.LOGGER.debug("{}", stack));
 
 //        createButton.setPosition(left + LIST_X_OFFSET + LIST_W - 28, top + LIST_Y_OFFSET + 11);
 //        details.setPosition(left + PANEL_X_OFFSET + 15, top + PANEL_Y_OFFSET + 34);
@@ -174,5 +174,9 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
         gfx.drawString(Minecraft.getInstance().font,
                 clippedText,
                 left + LIST_X_OFFSET + 13, top + LIST_Y_OFFSET + 15, 0x000000);
+    }
+
+    public void setItemClue(ItemStack itemStack) {
+        this.stackSlot.setValue(itemStack);
     }
 }

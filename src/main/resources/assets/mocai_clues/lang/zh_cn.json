@@ -33,7 +33,8 @@
 
   "mocai_clues.screen.attach": "附加到世界",
   "mocai_clues.screen.share_with": "将线索分享给:",
-  "mocai_clues.screen.share": "分享"
+  "mocai_clues.screen.share": "分享",
 
+  "mocai_clues.screen.item_clue": "物证"
 
 }
