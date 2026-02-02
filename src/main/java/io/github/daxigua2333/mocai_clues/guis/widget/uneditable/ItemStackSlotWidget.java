@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.guis.widget;
+package io.github.daxigua2333.mocai_clues.guis.widget.uneditable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,7 +33,8 @@ public class ItemStackSlotWidget extends AbstractWidget {
         if (!stack.isEmpty()) {
             gg.renderItem(stack, getX() + 1, getY() + 1);
             gg.renderItemDecorations(Minecraft.getInstance().font, stack, getX() + 1, getY() + 1);
-            if (this.isHovered()) {
+            if (this.isHovered() &&
+                    mouseX >= getX() && mouseX <= getX() + 18 && mouseY >= getY() && mouseY <= getY() + 18) {
                 gg.renderTooltip(Minecraft.getInstance().font, stack, mouseX, mouseY);
             }
         }

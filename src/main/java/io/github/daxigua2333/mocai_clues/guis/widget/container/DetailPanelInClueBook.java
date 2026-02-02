@@ -1,10 +1,10 @@
-package io.github.daxigua2333.mocai_clues.guis.widget;
+package io.github.daxigua2333.mocai_clues.guis.widget.container;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.component.gui.FlexibleContainer;
+import io.github.daxigua2333.mocai_clues.guis.widget.PlayerSender;
 import io.github.daxigua2333.mocai_clues.mixins.ScrollPanelAccessor;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;

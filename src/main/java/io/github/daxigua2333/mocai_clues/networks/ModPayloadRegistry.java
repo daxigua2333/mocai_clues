@@ -5,7 +5,7 @@ import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractResult;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
 import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
-import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelInClueBook;
+import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelInClueBook;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;

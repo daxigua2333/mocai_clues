@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.component.gui.editable;
+package io.github.daxigua2333.mocai_clues.guis.widget.editable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

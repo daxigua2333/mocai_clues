@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ScaledTextRow;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -62,7 +62,7 @@ public class FoundSource extends ClueComponent {
     @Override
     public List<AbstractWidget> getUneditable() {
         return List.of(
-                new ScaledTextRow(0, 0, 0, 20, 2, 2, source, 1)
+                new ScaledTextRow(0, 0, 0, 20, source, 1)
         );
     }
 }

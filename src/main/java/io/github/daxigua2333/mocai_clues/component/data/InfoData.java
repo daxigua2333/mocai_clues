@@ -2,11 +2,12 @@ package io.github.daxigua2333.mocai_clues.component.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.EditBoxRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.SplitLineRow;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -19,10 +20,14 @@ public class InfoData extends ClueComponent {
     public InfoData(String name) {
         this.name = name;
     }
+
     public InfoData() {
         this("default name");
     }
-    /** copy constructor*/
+
+    /**
+     * copy constructor
+     */
     public InfoData(InfoData old) {
         this(old.getName());
     }
@@ -46,7 +51,7 @@ public class InfoData extends ClueComponent {
     @Override
     public List<AbstractWidget> getEditable(Runnable markDirty) {
         return List.of(
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("name:"), 1.1f),
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable(MoCaiClues.MODID + ".screen.name"), 1.1f),
                 EditBoxRow.stringBox(0, 0, 100, 20, 2, 2,
 //                        EditBoxRow.MutableValue.of(this.name),
                         () -> this.name, (str) -> this.name = str,
@@ -59,8 +64,8 @@ public class InfoData extends ClueComponent {
     @Override
     public List<AbstractWidget> getUneditable() {  // TODO: uuid in editor
         return List.of(
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal(name), 1.2f),
-                new SplitLineRow(0, 0, 100, 100, 2, 2)
+                new ScaledTextRow(0, 0, 100, 100, Component.literal(name), 1.2f),
+                new SplitLineRow(0, 0, 100, 6)
         );
     }
 }

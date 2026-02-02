@@ -1,18 +1,19 @@
-package io.github.daxigua2333.mocai_clues.component.gui.uneditable;
+package io.github.daxigua2333.mocai_clues.guis.widget.uneditable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.daxigua2333.mocai_clues.component.gui.BaseDetailRow;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
 
-public class ScaledTextRow extends BaseDetailRow {
+public class ScaledTextRow extends AbstractWidget {
     private final Component text;
     private final float scale;
 
-    public ScaledTextRow(int x, int y, int width, int height, int vPadding, int hPadding, Component text, float scale) {
-        super(x, y, width, height, vPadding, hPadding);
+    public ScaledTextRow(int x, int y, int width, int height, Component text, float scale) {
+        super(x, y, width, height, Component.empty());
         this.text = text;
         this.scale = scale;
     }
@@ -24,25 +25,26 @@ public class ScaledTextRow extends BaseDetailRow {
         }
 
         // desired position/size
-        int x = getX() + hPadding;
-        int y = getY() + vPadding;
-        int w = this.width - 2* hPadding;
+        Font font = Minecraft.getInstance().font;
+        int x = getX();
+        int y = getY();
+        int w = this.width;
         int newWidth = (int) (w / scale);
         int newHeight = font.wordWrapHeight(text, newWidth);
-        int h = (int) (newHeight * scale) + 2*vPadding;
+        int h = (int) (newHeight * scale);
+        // adjust height
+        this.height = h;
 
         // scale the font size
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
-        pose.translate(x, y, 0);
-        pose.scale(scale, scale, 1.0F);  // x y z
 
-        guiGraphics.drawWordWrap(font, text, 0, 0, (int) (w / scale), 0x000000);
+        pose.translate(x, y, 0);
+        pose.scale(scale, scale, 1.0F);
+
+        guiGraphics.drawWordWrap(font, text, 0, 0, newWidth, 0x000000);
 
         pose.popPose();
-
-        // adjust height
-        this.height = h;
     }
 
     // no click behavior

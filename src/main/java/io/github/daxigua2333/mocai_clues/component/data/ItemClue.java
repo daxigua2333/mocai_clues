@@ -1,11 +1,11 @@
-package io.github.daxigua2333.mocai_clues.component.world.finder;
+package io.github.daxigua2333.mocai_clues.component.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.guis.widget.ItemStackPickerWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.ItemStackSlotWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.ItemStackPickerWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ItemStackSlotWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

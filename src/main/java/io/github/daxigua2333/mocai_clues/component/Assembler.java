@@ -2,17 +2,16 @@ package io.github.daxigua2333.mocai_clues.component;
 
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
+import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
+import io.github.daxigua2333.mocai_clues.component.data.SwitchBetweenItemOrNone;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
-import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;

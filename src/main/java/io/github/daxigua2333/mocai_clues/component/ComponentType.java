@@ -3,6 +3,8 @@ package io.github.daxigua2333.mocai_clues.component;
 import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
+import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
+import io.github.daxigua2333.mocai_clues.component.data.SwitchBetweenItemOrNone;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;

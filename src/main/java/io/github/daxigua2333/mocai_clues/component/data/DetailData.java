@@ -2,12 +2,12 @@ package io.github.daxigua2333.mocai_clues.component.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.StringListWidget;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
-import io.github.daxigua2333.mocai_clues.component.world.finder.SwitchBetweenItemOrNone;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.StringListWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.TextListWithIndexRow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
@@ -28,6 +28,7 @@ public class DetailData extends ClueComponent {
     public DetailData(List<String> details) {
         this.details = details;
     }
+
     public DetailData() {
         this(new ArrayList<>());
     }
@@ -49,10 +50,11 @@ public class DetailData extends ClueComponent {
         stringList.setChangeListener(list -> this.details = list);
 
         return List.of(   // TODO
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("details:"), 1.1f),
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable(MoCaiClues.MODID + ".screen.details"), 1.1f),
                 stringList
         );
     }
+
     @Override
     public List<AbstractWidget> getUneditable() {
         SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
@@ -61,7 +63,7 @@ public class DetailData extends ClueComponent {
         }
 
         return List.of(
-                new TextListWithIndexRow(0, 0, 100, 100, 2, 2, details, 2)
+                new TextListWithIndexRow(0, 0, 100, 100, details, 2)
         );
     }
 
@@ -70,6 +72,7 @@ public class DetailData extends ClueComponent {
     public List<String> getDetails() {
         return Collections.unmodifiableList(details);
     }
+
     public void add(String item) {
         this.details.add(item);
     }

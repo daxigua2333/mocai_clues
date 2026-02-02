@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.component.gui;
+package io.github.daxigua2333.mocai_clues.guis.widget.container;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractContainerWidget;

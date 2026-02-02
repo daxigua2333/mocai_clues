@@ -7,7 +7,7 @@ import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelInClueBook;
+import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelInClueBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -32,10 +32,10 @@ public class ClueBookScreen extends ClueBookScreenLayout {
 
         var details = new DetailPanelInClueBook(
                 Minecraft.getInstance(),
-                PANEL_W - 28,
-                PANEL_H - 48,
-                top + PANEL_Y_OFFSET + 34,
-                left + PANEL_X_OFFSET + 15
+                PANEL_W - 36,
+                PANEL_H - 64,
+                top + PANEL_Y_OFFSET + 40,
+                left + PANEL_X_OFFSET + 20
         );
 
         var list = new AutoUpdatedScrollableListWidget<>(

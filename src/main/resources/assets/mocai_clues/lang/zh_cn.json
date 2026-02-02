@@ -35,8 +35,10 @@
   "mocai_clues.screen.share_with": "将线索分享给:",
   "mocai_clues.screen.share": "分享",
 
-  "mocai_clues.screen.item_clue": "物证",
-  "mocai_clues.screen.non_item_clue": "非物证",
-  "mocai_clues.screen.is_item_clue": "是否为物证"
+  "mocai_clues.screen.item_clue_type": "类型: 物证",
+  "mocai_clues.screen.non_item_clue_type": "类型: 非物证",
+  "mocai_clues.screen.is_item_clue": "是否为物证",
 
+  "mocai_clues.screen.details": "详情:",
+  "mocai_clues.screen.name": "名称:"
 }

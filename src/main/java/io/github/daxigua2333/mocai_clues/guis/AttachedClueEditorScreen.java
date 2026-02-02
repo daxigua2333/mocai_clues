@@ -6,7 +6,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelNew;
+import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -62,10 +62,10 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout {
 
         var details = new DetailPanelNew(
                 Minecraft.getInstance(),
-                PANEL_W - 28,
-                PANEL_H - 48,
-                top + PANEL_Y_OFFSET + 34,
-                left + PANEL_X_OFFSET + 15,
+                PANEL_W - 36,
+                PANEL_H - 64,
+                top + PANEL_Y_OFFSET + 40,
+                left + PANEL_X_OFFSET + 20,
                 applyChange,
                 deleteCurrent
         );

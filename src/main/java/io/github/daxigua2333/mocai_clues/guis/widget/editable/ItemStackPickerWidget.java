@@ -1,6 +1,7 @@
-package io.github.daxigua2333.mocai_clues.guis.widget;
+package io.github.daxigua2333.mocai_clues.guis.widget.editable;
 
-import io.github.daxigua2333.mocai_clues.component.gui.FlexibleContainer;
+import io.github.daxigua2333.mocai_clues.guis.widget.container.FlexibleContainer;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ItemStackSlotWidget;
 import io.github.daxigua2333.mocai_clues.networks.C2SOpenItemPickerMenuPayload;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

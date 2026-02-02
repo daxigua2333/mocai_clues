@@ -4,10 +4,9 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
-import io.github.daxigua2333.mocai_clues.component.world.finder.ItemClue;
+import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelNew;
-import io.github.daxigua2333.mocai_clues.guis.widget.ItemStackPickerWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -118,10 +117,10 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
 
         details = new DetailPanelNew(
                 Minecraft.getInstance(),
-                PANEL_W - 28,
-                PANEL_H - 48,
-                top + PANEL_Y_OFFSET + 34,
-                left + PANEL_X_OFFSET + 15,
+                PANEL_W - 36,
+                PANEL_H - 64,
+                top + PANEL_Y_OFFSET + 40,
+                left + PANEL_X_OFFSET + 20,
                 applyChange,
                 deleteCurrent
         );

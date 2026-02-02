@@ -4,12 +4,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.CollapsibleCheckbox;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.EditBoxRow;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.StringListWidget;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.CollapsibleCheckbox;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.StringListWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ScaledTextRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.SplitLineRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.TextListWithIndexRow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
@@ -34,6 +34,7 @@ public class FinderState extends ClueComponent {
         this.doRestrictPlayers = doRestrictPlayers;
         this.doRestrictTimes = doRestrictTimes;
     }
+
     public FinderState() {
         this(true, false, 1, false, new ArrayList<>());
     }
@@ -41,15 +42,19 @@ public class FinderState extends ClueComponent {
     private int getRemaining() {
         return remaining;
     }
+
     private List<String> getAllowedPlayers() {
         return allowedPlayers;
     }
+
     public boolean isDoRenderFlashDot() {
         return doRenderFlashDot;
     }
+
     public boolean isDoRestrictPlayers() {
         return doRestrictPlayers;
     }
+
     public boolean isDoRestrictTimes() {
         return doRestrictTimes;
     }
@@ -111,8 +116,8 @@ public class FinderState extends ClueComponent {
         stringList.setChangeListener(list -> this.allowedPlayers = list);
 
         return List.of(
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("FinderState"), 1.2f),
-                new SplitLineRow(0, 0, 100, 100, 2, 2),
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable("FinderState"), 1.2f),  // TODO: translate
+                new SplitLineRow(0, 0, 100, 4),
                 // flash dot  TODO: tooltip of description
                 new CollapsibleCheckbox(0, 0, 100, Component.translatable("doRenderFlashDot"),
                         doRenderFlashDot,
@@ -138,17 +143,17 @@ public class FinderState extends ClueComponent {
     @Override
     public List<AbstractWidget> getUneditable() {
         return List.of(
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("FinderState"), 1.2f),
-                new SplitLineRow(0, 0, 100, 100, 2, 2),
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable("FinderState"), 1.2f),
+                new SplitLineRow(0, 0, 100, 4),
                 // flash dot
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("doRenderFlashDot"), 1.1f),
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable(String.format("%b", doRenderFlashDot)), 1f),
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable("doRenderFlashDot"), 1.1f),
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable(String.format("%b", doRenderFlashDot)), 1f),
                 // remaining
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("remaining"), 1.1f),
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.literal(String.format("%d", remaining)), 1f),
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable("remaining"), 1.1f),
+                new ScaledTextRow(0, 0, 100, 100, Component.literal(String.format("%d", remaining)), 1f),
                 // allowed players
-                new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("allowedPlayers"), 1.1f),
-                new TextListWithIndexRow(0, 0, 100, 100, 2, 2, allowedPlayers, 2)
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable("allowedPlayers"), 1.1f),
+                new TextListWithIndexRow(0, 0, 100, 100, allowedPlayers, 2)
         );
     }
 }

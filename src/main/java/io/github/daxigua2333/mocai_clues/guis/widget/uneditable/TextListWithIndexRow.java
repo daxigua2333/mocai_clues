@@ -1,20 +1,24 @@
-package io.github.daxigua2333.mocai_clues.component.gui.uneditable;
+package io.github.daxigua2333.mocai_clues.guis.widget.uneditable;
 
-import io.github.daxigua2333.mocai_clues.component.gui.BaseDetailRow;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-public class TextListWithIndexRow extends BaseDetailRow {
+public class TextListWithIndexRow extends AbstractWidget {
     private final List<String> texts;
     private final int spacing;
+    private final Font font;
 
-    public TextListWithIndexRow(int x, int y, int width, int height, int vPadding, int hPadding, List<String> texts, int spacing) {
-        super(x, y, width, height, vPadding, hPadding);
+    public TextListWithIndexRow(int x, int y, int width, int height, List<String> texts, int spacing) {
+        super(x, y, width, height, Component.empty());
         this.texts = texts;
         this.spacing = spacing;
+        this.font = Minecraft.getInstance().font;
     }
 
     @Override
@@ -23,24 +27,24 @@ public class TextListWithIndexRow extends BaseDetailRow {
             return;
         }
 
-        int y = getY() + vPadding;
-        for (int i=0; i<texts.size(); i++) {
+        int y = getY();
+        for (int i = 0; i < texts.size(); i++) {
             String text = texts.get(i);
-            Component component = Component.literal(i+1 + ". " + text);  // TODO: lazy with Component
+            Component component = Component.literal(i + 1 + ". " + text);  // TODO: lazy with Component
             guiGraphics.drawWordWrap(
                     font,
                     component,
-                    getX() + hPadding,
+                    getX(),
                     y,
-                    this.width - 2*hPadding,
+                    this.width,
                     0x000000
             );
 
-            y += font.wordWrapHeight(component, width-2*hPadding);
+            y += font.wordWrapHeight(component, width) + spacing;
         }
 
         // adjust height
-        this.height = y + vPadding - getY();
+        this.height = y - getY();
     }
 
     // no click behavior

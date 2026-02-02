@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.TextListWithIndexRow;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +25,7 @@ public class DetailWithCompleteness extends ClueComponent {
     private DetailWithCompleteness(List<Row> details) {
         this.details = details;
     }
+
     public DetailWithCompleteness() {
         this(new ArrayList<>());
     }
@@ -33,6 +34,7 @@ public class DetailWithCompleteness extends ClueComponent {
     private List<Row> getDetails() {
         return details;
     }
+
     public void add(String text, float completeness) {
         details.add(new Row(text, completeness));
     }
@@ -61,7 +63,7 @@ public class DetailWithCompleteness extends ClueComponent {
             text.add(row.text);
         }
         return List.of(
-                new TextListWithIndexRow(0, 0, 100, 100, 2, 2, text, 2)
+                new TextListWithIndexRow(0, 0, 100, 100, text, 2)
         );
     }
 }

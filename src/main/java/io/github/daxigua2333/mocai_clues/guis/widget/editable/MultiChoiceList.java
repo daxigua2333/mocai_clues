@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.component.gui.editable;
+package io.github.daxigua2333.mocai_clues.guis.widget.editable;
 
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import net.minecraft.client.Minecraft;
