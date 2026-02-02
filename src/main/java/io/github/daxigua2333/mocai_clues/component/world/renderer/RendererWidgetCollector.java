@@ -4,14 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.MultiChoiceList;
 import io.github.daxigua2333.mocai_clues.networks.WandSwitchToAttachModePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +36,7 @@ public class RendererWidgetCollector extends ClueComponent{
 
     @Nullable
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         return List.of(
                 Button.builder(Component.translatable("attach"), btn -> {
                     // TODO:

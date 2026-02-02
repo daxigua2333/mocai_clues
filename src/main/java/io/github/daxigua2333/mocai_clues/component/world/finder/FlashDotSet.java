@@ -15,7 +15,6 @@ import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +85,7 @@ public class FlashDotSet extends ClueComponent {
 
     @Nullable
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         return List.of();
     }
 

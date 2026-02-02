@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BaseRendererData;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +41,7 @@ public class RendererHolder extends ClueComponent {
 
     @Nullable
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         return List.of();
     }
 

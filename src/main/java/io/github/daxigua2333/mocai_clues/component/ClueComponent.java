@@ -21,7 +21,7 @@ public abstract class ClueComponent {
     // ======= gui part ========
     @OnlyIn(Dist.CLIENT)
     @Nullable
-    public abstract List<AbstractWidget> getEditable();
+    public abstract List<AbstractWidget> getEditable(Runnable markDirty);
     @OnlyIn(Dist.CLIENT)
     @Nullable
     public abstract List<AbstractWidget> getUneditable();

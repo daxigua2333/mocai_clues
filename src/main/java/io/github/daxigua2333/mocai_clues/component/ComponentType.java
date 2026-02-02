@@ -18,6 +18,7 @@ public enum ComponentType {
     INFO_DATA,
     SWITCH_BETWEEN_ITEM_OR_NONE,
     DETAIL_DATA,
+    ITEM_CLUE,
     // world renderer
     RENDERER_WIDGET_COLLECTOR,
     BLOCK_POS_SET,
@@ -32,7 +33,6 @@ public enum ComponentType {
     CLICK_WITH_FINDER,
     WALK_ON,
     SEND_CLUE,
-    ITEM_CLUE,
 
     ;
 

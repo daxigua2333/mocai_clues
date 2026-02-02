@@ -31,26 +31,13 @@ public class ScaledTextRow extends BaseDetailRow {
         int newHeight = font.wordWrapHeight(text, newWidth);
         int h = (int) (newHeight * scale) + 2*vPadding;
 
-//        // TEST: box background
-//        guiGraphics.fill(
-//            x - 2,
-//            y - 2,
-//            x + w + 2,
-//            y + h + 2,
-//            0xAA000000
-//        );
-
         // scale the font size
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
+        pose.translate(x, y, 0);
         pose.scale(scale, scale, 1.0F);  // x y z
 
-        int newX = (int) (x/scale);
-        int newY = (int) (y/scale);
-        for (FormattedCharSequence line : font.split(text, newWidth)) {
-            guiGraphics.drawString(font, line, newX, newY, 0x000000);
-            newY += font.lineHeight;
-        }
+        guiGraphics.drawWordWrap(font, text, 0, 0, (int) (w / scale), 0x000000);
 
         pose.popPose();
 

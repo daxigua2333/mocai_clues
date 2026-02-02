@@ -50,7 +50,7 @@ public class BlockPosSet extends ClueComponent {
 
     @Nullable
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         return List.of();
     }
 

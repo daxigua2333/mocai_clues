@@ -34,6 +34,8 @@
   "mocai_clues.screen.share_with": "share with:",
   "mocai_clues.screen.share": "share",
 
-  "mocai_clues.screen.item_clue": "Item Clue"
+  "mocai_clues.screen.item_clue": "Item Clue",
+  "mocai_clues.screen.non_item_clue": "Non-Item Clue",
+  "mocai_clues.screen.is_item_clue": "Whether is Item Clue"
 
 }

@@ -72,7 +72,7 @@ public class ItemClue extends ClueComponent {
 
     @Nullable
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
         if (sCompo != null && !sCompo.isItemClue()) {
             return List.of();

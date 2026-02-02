@@ -106,7 +106,7 @@ public class FinderState extends ClueComponent {
 
     @Nullable
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         var stringList = new StringListWidget(Minecraft.getInstance().font, 0, 0, 100, 100, this.allowedPlayers);
         stringList.setChangeListener(list -> this.allowedPlayers = list);
 

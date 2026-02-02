@@ -266,8 +266,8 @@ public class DetailPanelNew extends FlexibleContainer {
         protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, Tesselator tess,
                                  int mouseX, int mouseY) {
             if (this.dirty) {
-                processDirty();
                 this.dirty = false;
+                processDirty();
             }
 
             // re layout(**has nothing to do with dirty**) and render
@@ -291,7 +291,7 @@ public class DetailPanelNew extends FlexibleContainer {
                 case EDIT -> {
                     if (copy == null) break;
                     for (ClueComponent component : copy.getComponents()) {
-                        List<AbstractWidget> editables = component.getEditable();
+                        List<AbstractWidget> editables = component.getEditable(this::markDirty);
                         if (editables != null) {
                             this.children.addAll(editables);
                         }

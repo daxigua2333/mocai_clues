@@ -4,10 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.gui.editable.EditBoxRow;
 import io.github.daxigua2333.mocai_clues.component.gui.editable.StringListWidget;
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
-import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
 import io.github.daxigua2333.mocai_clues.component.world.finder.SwitchBetweenItemOrNone;
 import net.minecraft.client.Minecraft;
@@ -41,7 +39,7 @@ public class DetailData extends ClueComponent {
 
     // ======= editable ===========
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
         if (sCompo != null && sCompo.isItemClue()) {
             return List.of();

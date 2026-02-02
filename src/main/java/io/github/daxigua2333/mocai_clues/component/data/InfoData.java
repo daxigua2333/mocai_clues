@@ -44,7 +44,7 @@ public class InfoData extends ClueComponent {
 
     @Nullable
     @Override
-    public List<AbstractWidget> getEditable() {
+    public List<AbstractWidget> getEditable(Runnable markDirty) {
         return List.of(
                 new ScaledTextRow(0, 0, 100, 100, 2, 2, Component.translatable("name:"), 1.1f),
                 EditBoxRow.stringBox(0, 0, 100, 20, 2, 2,
