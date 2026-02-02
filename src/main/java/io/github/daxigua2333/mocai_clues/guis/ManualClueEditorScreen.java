@@ -4,6 +4,7 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
+import io.github.daxigua2333.mocai_clues.component.world.finder.ItemClue;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.guis.widget.ItemStackPickerWidget;
@@ -30,7 +31,6 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
     private Button createButton;
     private DetailPanelNew details;
     private AutoUpdatedScrollableListWidget<ClueObject> list;
-    private ItemStackPickerWidget stackSlot;
 
     // ====== constructor, and open static =======
     public static void open(
@@ -147,7 +147,6 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
                 }
         );
 
-        stackSlot = new ItemStackPickerWidget(40, 40, Component.empty(), this, ItemStack.EMPTY, stack -> MoCaiClues.LOGGER.debug("{}", stack));
 
 //        createButton.setPosition(left + LIST_X_OFFSET + LIST_W - 28, top + LIST_Y_OFFSET + 11);
 //        details.setPosition(left + PANEL_X_OFFSET + 15, top + PANEL_Y_OFFSET + 34);
@@ -159,7 +158,6 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
         this.addRenderableWidget(list);
         this.addRenderableWidget(createButton);
         this.addRenderableWidget(details);
-        this.addRenderableWidget(stackSlot);
 
     }
 
@@ -176,7 +174,14 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
                 left + LIST_X_OFFSET + 13, top + LIST_Y_OFFSET + 15, 0x000000);
     }
 
+    // TODO: very bad code but idk what else I can do..
     public void setItemClue(ItemStack itemStack) {
-        this.stackSlot.setValue(itemStack);
+//        for (var w : details.getPage().children()) {
+//            if (w instanceof )
+//        }
+        // update copy
+        ClueObject old = details.getCopy();
+        ((ItemClue) old.getComponent(ComponentType.ITEM_CLUE)).setStack(itemStack);
+        details.updateCopy(old);
     }
 }

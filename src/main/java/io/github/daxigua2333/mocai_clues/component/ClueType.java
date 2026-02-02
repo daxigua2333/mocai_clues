@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 public enum ClueType {
     // TODO
     MANUAL,
+    ITEM,
 //    CLUE_BOOK,
     FOOTPRINT,
     ;

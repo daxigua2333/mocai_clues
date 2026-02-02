@@ -50,6 +50,7 @@ public final class CommonRenderPipelineHook {
 
             BlockPos pos = compo.getPos();
             Direction face = compo.getFace();
+            if (pos == null || face == null) continue;
             // TODO: culling
             if (!event.getFrustum().isVisible(new AABB(pos))) continue;
 

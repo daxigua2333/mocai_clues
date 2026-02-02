@@ -23,22 +23,26 @@ public class Assembler {
     private static ClueObject createManualClue(String name, List<String> details) {
         ClueObject object = new ClueObject(ClueType.MANUAL);
         object.addComponent(new InfoData(name));
-        object.addComponent(new DetailData(details));
+
         object.addComponent(new RendererWidgetCollector(List.of(
                 PassType.BLOCK_OUTLINE
         )));
         object.addComponent(new RendererHolder(List.of(
                 new BlockOutlineData()
         )));
+
+        object.addComponent(new SwitchBetweenItemOrNone(true));
+        object.addComponent(new DetailData(details));
+        object.addComponent(new ItemClue());
+
         object.addComponent(new FinderState());
+
         object.addComponent(new ClickWithFinder());
         object.addComponent(new WalkOn());
+
         object.addComponent(new SendClue());
-        var test = new ItemClue();
-        test.setPos(new BlockPos(1, -60, 0));
-        test.setFace(Direction.UP);
-        test.setStack(new ItemStack(ModItemsRegistry.CLUE_FINDER_ITEM.get()));
-        object.addComponent(test);
+//        obj.addComponent(new SendItem());
+
         return object;
     }
 

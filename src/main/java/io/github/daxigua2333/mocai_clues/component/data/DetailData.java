@@ -9,6 +9,7 @@ import io.github.daxigua2333.mocai_clues.component.gui.editable.StringListWidget
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.ScaledTextRow;
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.SplitLineRow;
 import io.github.daxigua2333.mocai_clues.component.gui.uneditable.TextListWithIndexRow;
+import io.github.daxigua2333.mocai_clues.component.world.finder.SwitchBetweenItemOrNone;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
@@ -41,6 +42,11 @@ public class DetailData extends ClueComponent {
     // ======= editable ===========
     @Override
     public List<AbstractWidget> getEditable() {
+        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+        if (sCompo != null && sCompo.isItemClue()) {
+            return List.of();
+        }
+
         var stringList = new StringListWidget(Minecraft.getInstance().font, 0, 0, 100, 100, this.details);
         stringList.setChangeListener(list -> this.details = list);
 
@@ -51,6 +57,11 @@ public class DetailData extends ClueComponent {
     }
     @Override
     public List<AbstractWidget> getUneditable() {
+        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+        if (sCompo != null && sCompo.isItemClue()) {
+            return List.of();
+        }
+
         return List.of(
                 new TextListWithIndexRow(0, 0, 100, 100, 2, 2, details, 2)
         );

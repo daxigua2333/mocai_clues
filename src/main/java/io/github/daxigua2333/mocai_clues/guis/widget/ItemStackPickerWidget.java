@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -14,11 +13,12 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public final class ItemStackPickerWidget extends FlexibleContainer {
-    private ItemStack value;
+    //    private ItemStack value;
+    private final Supplier<ItemStack> valueSupplier;
 
     private final ItemStackSlotWidget slotWidget;
     private final Button button;
@@ -27,12 +27,14 @@ public final class ItemStackPickerWidget extends FlexibleContainer {
     public ItemStackPickerWidget(int x, int y,
 //                                 int width, int height,
                                  Component component,
-                                 Screen parentScreen, ItemStack initial, Consumer<ItemStack> onChanged) {
+//                                 Screen parentScreen, ItemStack initial, Consumer<ItemStack> onChanged
+                                 Supplier<ItemStack> valueSupplier) {
         super(x, y, 82, 22, component);
-        this.value = initial.copy();
-        this.slotWidget = new ItemStackSlotWidget(x, y, () -> value);
+//        this.value = initial.copy();
+        this.valueSupplier = valueSupplier;
+        this.slotWidget = new ItemStackSlotWidget(x, y, valueSupplier);
         this.button = Button.builder(Component.literal("Pick..."), b -> {
-            PacketDistributor.sendToServer(new C2SOpenItemPickerMenuPayload(value));
+            PacketDistributor.sendToServer(new C2SOpenItemPickerMenuPayload(getValue()));
 //            Minecraft.getInstance().setScreen(
 //            Minecraft.getInstance().pushGuiLayer(
 //                    new InventoryItemPickerScreen(parentScreen, value, picked -> {
@@ -45,12 +47,9 @@ public final class ItemStackPickerWidget extends FlexibleContainer {
 
 
     public ItemStack getValue() {
-        return value;
+        return valueSupplier.get();
     }
 
-    public void setValue(ItemStack value) {
-        this.value = value;
-    }
 
     @Override
     protected void processDirty() {

@@ -3,13 +3,11 @@ package io.github.daxigua2333.mocai_clues.component.gui.editable;
 import io.github.daxigua2333.mocai_clues.component.gui.FlexibleContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +52,11 @@ public class CollapsibleCheckbox extends FlexibleContainer {
             setFocused(checkbox);
         }
     }
+
     public boolean isExpanded() {
         return checkbox.selected();
     }
+
     public void setChecked(boolean checked) {
 
     }
@@ -69,7 +69,7 @@ public class CollapsibleCheckbox extends FlexibleContainer {
 
     // layout part
     @Override
-    protected void reLayout(){
+    protected void reLayout() {
         checkbox.setPosition(getX(), getY());
         checkbox.setWidth(getWidth());
         int x = getX();
@@ -84,6 +84,7 @@ public class CollapsibleCheckbox extends FlexibleContainer {
     @Override
     public int getHeight() {
         int h = checkbox.getHeight();
+        if (!isExpanded()) return h;
         for (var w : children) {
             h += w.getHeight();
         }
@@ -106,7 +107,7 @@ public class CollapsibleCheckbox extends FlexibleContainer {
 
     @Override
     public List<? extends GuiEventListener> children() {
-        List<GuiEventListener> result = new ArrayList(children.size()+1);
+        List<GuiEventListener> result = new ArrayList(children.size() + 1);
         result.add(checkbox);
         if (isExpanded()) result.addAll(children);
         return result;

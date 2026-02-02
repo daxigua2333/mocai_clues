@@ -16,6 +16,7 @@ public enum ComponentType {
     // TODO
     // data
     INFO_DATA,
+    SWITCH_BETWEEN_ITEM_OR_NONE,
     DETAIL_DATA,
     // world renderer
     RENDERER_WIDGET_COLLECTOR,
@@ -55,6 +56,7 @@ public enum ComponentType {
                         case CLICK_WITH_FINDER -> ClickWithFinder.CODEC;
                         case WALK_ON -> WalkOn.CODEC;
                         case ITEM_CLUE -> ItemClue.CODEC;
+                        case SWITCH_BETWEEN_ITEM_OR_NONE -> SwitchBetweenItemOrNone.CODEC;
                     }
             );
 

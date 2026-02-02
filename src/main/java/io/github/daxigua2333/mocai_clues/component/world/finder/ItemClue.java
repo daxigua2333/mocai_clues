@@ -4,17 +4,23 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.guis.widget.ItemStackPickerWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.ItemStackSlotWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ItemClue extends ClueComponent {
     private BlockPos pos;
+    @Nullable
     private Direction face;
+    @Nullable
     private ItemStack stack;
 
     private ItemClue(ItemStack stack, Direction face, BlockPos pos) {
@@ -27,10 +33,12 @@ public class ItemClue extends ClueComponent {
         this(ItemStack.EMPTY, null, null);
     }
 
+    @Nullable
     public BlockPos getPos() {
         return pos;
     }
 
+    @Nullable
     public Direction getFace() {
         return face;
     }
@@ -58,19 +66,29 @@ public class ItemClue extends ClueComponent {
 
     public static final Codec<ItemClue> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             ItemStack.OPTIONAL_CODEC.fieldOf("stacks").forGetter(ItemClue::getStack),
-            Direction.CODEC.fieldOf("face").forGetter(ItemClue::getFace),
-            BlockPos.CODEC.fieldOf("pos").forGetter(ItemClue::getPos)
-    ).apply(inst, ItemClue::new));
+            Direction.CODEC.optionalFieldOf("face").forGetter(obj -> Optional.ofNullable(obj.getFace())),
+            BlockPos.CODEC.optionalFieldOf("pos").forGetter(obj -> Optional.ofNullable(obj.getPos()))
+    ).apply(inst, (stack, face, pos) -> new ItemClue(stack, face.orElse(null), pos.orElse(null))));
 
     @Nullable
     @Override
     public List<AbstractWidget> getEditable() {
-        return List.of();
+        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+        if (sCompo != null && !sCompo.isItemClue()) {
+            return List.of();
+        }
+
+        return List.of(new ItemStackPickerWidget(0, 0, Component.empty(), () -> stack));
     }
 
     @Nullable
     @Override
     public List<AbstractWidget> getUneditable() {
-        return List.of();
+        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+        if (sCompo != null && !sCompo.isItemClue()) {
+            return List.of();
+        }
+
+        return List.of(new ItemStackSlotWidget(0, 0, () -> stack));
     }
 }

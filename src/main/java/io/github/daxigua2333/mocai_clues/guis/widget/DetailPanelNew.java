@@ -126,9 +126,20 @@ public class DetailPanelNew extends FlexibleContainer {
         }
     }
 
+    public @Nullable ClueObject getCopy() {
+        return copy;
+    }
+    public void updateCopy(@Nullable ClueObject obj) {
+        if (obj == null && this.copy == null) return;
+        if (obj != null && obj.equals(this.copy)) return;
+        this.copy = obj;
+        this.setState(State.EDIT);
+    }
+
     /**
      * outer update obj
      */
+
     public void updateObject(@Nullable ClueObject obj) {
         if (obj == null && this.object == null) return;
         if (obj != null && obj.equals(this.object)) return;
@@ -201,8 +212,11 @@ public class DetailPanelNew extends FlexibleContainer {
         return result;
     }
 
+    public ScrollPage getPage() {
+        return page;
+    }
 
-    class ScrollPage extends ScrollPanel {
+    public class ScrollPage extends ScrollPanel {
         private final List<AbstractWidget> children = new ArrayList<>();
         private final int spacing = 6;  // spacing between each widgets
 
