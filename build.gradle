@@ -142,45 +142,45 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-    implementation('org.dizitart:nitrite:4.3.2') {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'commons-codec', module: 'commons-codec'
-    }
-
-    implementation('org.dizitart:nitrite-mvstore-adapter:4.3.2') {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'commons-codec', module: 'commons-codec'
-    }
-
-    jarJar(implementation('org.dizitart:nitrite:4.3.2') {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'commons-codec', module: 'commons-codec'
-    }) {
-        version {
-            strictly "[4.3,5.0)"
-            prefer "4.3.2"
-        }
-    }
-    jarJar(implementation("org.dizitart:nitrite-mvstore-adapter:4.3.2") {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'commons-codec', module: 'commons-codec'
-    }) {
-        version {
-            // What versions your mod is compatible with (range).
-            strictly "[4.3,5.0)"
-            // The actual version you use in dev and bundle in your jar.
-            prefer "4.3.2"
-        }
-    }
-
-    additionalRuntimeClasspath ("org.dizitart:nitrite:4.3.2") {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'commons-codec', module: 'commons-codec'
-    }
-    additionalRuntimeClasspath ("org.dizitart:nitrite-mvstore-adapter:4.3.2") {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'commons-codec', module: 'commons-codec'
-    }
+//    implementation('org.dizitart:nitrite:4.3.2') {
+//        exclude group: 'org.slf4j', module: 'slf4j-api'
+//        exclude group: 'commons-codec', module: 'commons-codec'
+//    }
+//
+//    implementation('org.dizitart:nitrite-mvstore-adapter:4.3.2') {
+//        exclude group: 'org.slf4j', module: 'slf4j-api'
+//        exclude group: 'commons-codec', module: 'commons-codec'
+//    }
+//
+//    jarJar(implementation('org.dizitart:nitrite:4.3.2') {
+//        exclude group: 'org.slf4j', module: 'slf4j-api'
+//        exclude group: 'commons-codec', module: 'commons-codec'
+//    }) {
+//        version {
+//            strictly "[4.3,5.0)"
+//            prefer "4.3.2"
+//        }
+//    }
+//    jarJar(implementation("org.dizitart:nitrite-mvstore-adapter:4.3.2") {
+//        exclude group: 'org.slf4j', module: 'slf4j-api'
+//        exclude group: 'commons-codec', module: 'commons-codec'
+//    }) {
+//        version {
+//            // What versions your mod is compatible with (range).
+//            strictly "[4.3,5.0)"
+//            // The actual version you use in dev and bundle in your jar.
+//            prefer "4.3.2"
+//        }
+//    }
+//
+//    additionalRuntimeClasspath ("org.dizitart:nitrite:4.3.2") {
+//        exclude group: 'org.slf4j', module: 'slf4j-api'
+//        exclude group: 'commons-codec', module: 'commons-codec'
+//    }
+//    additionalRuntimeClasspath ("org.dizitart:nitrite-mvstore-adapter:4.3.2") {
+//        exclude group: 'org.slf4j', module: 'slf4j-api'
+//        exclude group: 'commons-codec', module: 'commons-codec'
+//    }
 
 }
 

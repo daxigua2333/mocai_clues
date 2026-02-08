@@ -12,6 +12,12 @@ import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
 import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
+import io.github.daxigua2333.mocai_clues.data.common.RetrieveResult;
+import io.github.daxigua2333.mocai_clues.data.location.factory.FromChunkAttachmentSerializable;
+import io.github.daxigua2333.mocai_clues.data.location.factory.FromEntityAttachmentSerializable;
+import io.github.daxigua2333.mocai_clues.data.location.factory.FromSavedDataSerializable;
+import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLocation;
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.guis.AttachedClueEditorScreen;
@@ -30,7 +36,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -44,15 +49,14 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        var location = new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, new ObjectHolderLocation.BlockPosWithFace(event.getPos(), event.getFace()));
         handleWand(event,
-                () -> ClientDataManager.retrieveByBlockPos(event.getPos()),
-                location,
+                () -> DataManager.Common.retrieveByBlockPos(event.getLevel(), event.getPos()),
+                new FromChunkAttachmentSerializable(new ChunkPos(event.getPos())),
                 success);
 
         InteractEvent.clickWithFinder(event,
                 () -> ServerDataManager.retrieveByBlockPos(event.getLevel(), event.getPos()),
-                location,
+                new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, new ObjectHolderLocation.BlockPosWithFace(event.getPos(), event.getFace())),
                 success);
 
     }
@@ -64,16 +68,14 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        var location = new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, event.getTarget().getUUID());
-
         handleWand(event,
-                () -> ClientDataManager.retrieveByEntity(event.getTarget()),
-                location,
+                () -> DataManager.Common.retrieveByEntity(event.getTarget()),
+                new FromEntityAttachmentSerializable(event.getTarget().getUUID()),
                 success);
 
         InteractEvent.clickWithFinder(event,
                 () -> ServerDataManager.retrieveByEntity(event.getTarget()),
-                location,
+                new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, event.getTarget().getUUID()),
                 success);
 
     }
@@ -85,13 +87,13 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        handleWand(event, ClientDataManager::retrieveAllSavedData, null, success);
+        handleWand(event, ClientDataManager::retrieveAllSavedData, new FromSavedDataSerializable(), success);
 
     }
 
 
     // ================ wand part ==============
-    private static void handleWand(PlayerInteractEvent event, Supplier<List<ClueObject>> editorSupplier, @Nullable ObjectHolderLocation location, Runnable sidedSuccess) {
+    private static void handleWand(PlayerInteractEvent event, Supplier<List<RetrieveResult>> editorSupplier, Runnable sidedSuccess) {
         if (!event.getItemStack().is(ModItemsRegistry.CLUE_WAND_ITEM.get())) return;
 
         switch (event.getItemStack().getOrDefault(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE)) {
@@ -114,53 +116,36 @@ public final class ItemInteractHooks {
 
     // ======== open wand screen helpers ===========
     // TODO: optimize these 2, using AND index maybe...
-    private static void openScreen(Supplier<List<ClueObject>> editorSupplier, @Nullable ObjectHolderLocation location) {
-        if (location == null) {
+    private static void openScreen(Supplier<List<ClueObject>> editorSupplier, ISerializableLocation location) {
+        if (location instanceof FromSavedDataSerializable) {
             // manual
             ManualClueEditorScreen.open(
                     editorSupplier,
                     obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                            new ClueObjectUpdatePayload.Location(),
+                            location,
                             new ClueObjectUpdatePayload.Data(obj)
                     )),
                     obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                            new ClueObjectUpdatePayload.Location(),
+                            location,
                             new ClueObjectUpdatePayload.Data(obj.getId())
                     ))
             );
         } else {
             // attachment
-            if (location.data() instanceof UUID entityId) {
-                AttachedClueEditorScreen.open(
-                        () -> getType(editorSupplier),
-                        type -> getObjectsByType(editorSupplier, type),
-                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                                new ClueObjectUpdatePayload.Location(entityId),
-                                new ClueObjectUpdatePayload.Data(obj)
-                        )),
-                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                                new ClueObjectUpdatePayload.Location(entityId),
-                                new ClueObjectUpdatePayload.Data(obj.getId())
-                        ))
-                );
+            AttachedClueEditorScreen.open(
+                    () -> getType(editorSupplier),
+                    type -> getObjectsByType(editorSupplier, type),
+                    obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                            location,
+                            new ClueObjectUpdatePayload.Data(obj)
+                    )),
+                    obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                            location,
+                            new ClueObjectUpdatePayload.Data(obj.getId())
+                    ))
+            );
 
-            } else if (location.data() instanceof ObjectHolderLocation.BlockPosWithFace posWithFace) {
-                var chunkPos = new ChunkPos(posWithFace.pos().getX(), posWithFace.pos().getY());
-                AttachedClueEditorScreen.open(
-                        () -> getType(editorSupplier),
-                        type -> getObjectsByType(editorSupplier, type),
-                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                                new ClueObjectUpdatePayload.Location(chunkPos),
-                                new ClueObjectUpdatePayload.Data(obj)
-                        )),
-                        obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
-                                new ClueObjectUpdatePayload.Location(chunkPos),
-                                new ClueObjectUpdatePayload.Data(obj.getId())
-                        ))
 
-                );
-
-            }
         }
     }
 

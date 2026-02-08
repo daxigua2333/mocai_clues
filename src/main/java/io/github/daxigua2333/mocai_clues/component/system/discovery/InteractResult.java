@@ -8,12 +8,14 @@ import io.github.daxigua2333.mocai_clues.component.world.finder.SendClue;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
+import io.github.daxigua2333.mocai_clues.data.location.IRuntimeLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 
 import java.util.UUID;
 
@@ -53,6 +55,7 @@ public final class InteractResult {
                 player.sendSystemMessage(Component.translatable("mocai_clues.finder.result.update"));
             }
         }
+        // setUnsaved
         player.syncData(ModAttachmentRegistry.CLUE_BOOK);
 
     }

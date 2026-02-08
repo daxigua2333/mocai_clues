@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -93,7 +94,8 @@ public class ClueObjectHolderInSavedData extends SavedData {
 
     // only allow access to overworld SD
     // use anyLevel.getServer() to get MinecraftServer
-    public static ClueObjectHolderInSavedData getInstance(MinecraftServer server) {
+    public static ClueObjectHolderInSavedData getInstance(@Nullable MinecraftServer server) {
+        if (server == null) throw new RuntimeException("idk why server could be null...");
         return ClueObjectHolderInSavedData.getInstance(server.overworld());
     }
 

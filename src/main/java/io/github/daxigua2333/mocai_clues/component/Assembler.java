@@ -68,6 +68,7 @@ public class Assembler {
         return copy;
     }
 
+    // TODO: route issue again....
     public static ClueObject createClueBookClue(ClueObject old, BlockPos pos) {
         ClueObject copy = createClueBookClueWithoutSource(old);
         // 3. set source

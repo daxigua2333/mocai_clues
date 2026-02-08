@@ -2,17 +2,20 @@ package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.location.IRuntimeLocation;
+import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLocation;
+import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ChunkPos;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.UUID;
 
 
-public record ClueObjectUpdatePayload(Location location, Data data) implements CustomPacketPayload {
+public record ClueObjectUpdatePayload(ISerializableLocation location, Data data) implements CustomPacketPayload {
 //    enum Mode {
 //        UPSERT, DELETE;
 //        // compress when stream codec this
@@ -30,55 +33,6 @@ public record ClueObjectUpdatePayload(Location location, Data data) implements C
 //    }
 
     // Shouldn't use generic because it's hard to serialize
-    public record Location(Type type, ChunkPos chunkPos, UUID entityId) {
-        enum Type {
-            SD, CHUNK, ENTITY;
-        }
-
-        public Location(ChunkPos pos) {
-            this(Type.CHUNK, pos, null);
-        }
-        public Location(UUID entityId) {
-            this(Type.ENTITY, null, entityId);
-        }
-        public Location() {
-            this(Type.SD, null, null);
-        }
-
-        public static final StreamCodec<ByteBuf, Location> STREAM_CODEC =
-                StreamCodec.of(
-                        (buf, inst) -> {
-                            switch (inst.type) {
-                                case SD -> {
-                                    buf.writeInt(0);
-                                }
-                                case CHUNK -> {
-                                    buf.writeInt(1);
-                                    buf.writeLong(inst.chunkPos.toLong());
-                                }
-                                case ENTITY -> {
-                                    buf.writeInt(2);
-                                    UUIDUtil.STREAM_CODEC.encode(buf, inst.entityId);
-                                }
-                            }
-                        },
-                        buf -> {
-                            int typeInt = buf.readInt();
-                            switch (typeInt) {
-                                case 0 -> {
-                                    return new Location();
-                                }
-                                case 1 -> {
-                                    return new Location(new ChunkPos(buf.readLong()));
-                                }
-                                case 2 -> {
-                                    return new Location(UUIDUtil.STREAM_CODEC.decode(buf));
-                                }
-                            }
-                            throw new RuntimeException("Invalid payload syntax.");
-                        }
-                );
-    }
 
     public record Data(Mode mode, UUID id, ClueObject obj) {
         enum Mode {
@@ -88,6 +42,7 @@ public record ClueObjectUpdatePayload(Location location, Data data) implements C
         public Data(ClueObject obj) {
             this(Mode.UPSERT, null, obj);
         }
+
         public Data(UUID id) {
             this(Mode.DELETE, id, null);
         }
@@ -119,22 +74,25 @@ public record ClueObjectUpdatePayload(Location location, Data data) implements C
     public static final CustomPacketPayload.Type<ClueObjectUpdatePayload> TYPE = new CustomPacketPayload.Type<>(
             ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "clue_object_update_payload"));
 
-    public static final StreamCodec<ByteBuf, ClueObjectUpdatePayload> STREAM_CODEC =
-            StreamCodec.of(
-                    (buf, payload) -> {
-                        Location.STREAM_CODEC.encode(buf, payload.location);
-                        Data.STREAM_CODEC.encode(buf, payload.data);
-                    },
-                    buf -> {
-                        return new ClueObjectUpdatePayload(
-                                Location.STREAM_CODEC.decode(buf),
-                                Data.STREAM_CODEC.decode(buf)
-                        );
-                    }
-            );
+    public static final StreamCodec<ByteBuf, ClueObjectUpdatePayload> STREAM_CODEC = StreamCodec.composite(
+            ISerializableLocation.Type.DISPATCH_CODEC, ClueObjectUpdatePayload::location,
+            Data.STREAM_CODEC, ClueObjectUpdatePayload::data,
+            ClueObjectUpdatePayload::new
+    );
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    public static void handle(ClueObjectUpdatePayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            IRuntimeLocation runtimeLocation = payload.location().create(context);
+            Data data = payload.data();
+            switch (data.mode()) {
+                case DELETE -> ServerDataManager.delete(runtimeLocation, data.id);
+                case UPSERT -> ServerDataManager.upsert(runtimeLocation, data.obj);
+            }
+        });
     }
 }

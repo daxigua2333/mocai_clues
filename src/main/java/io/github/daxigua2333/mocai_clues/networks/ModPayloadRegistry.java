@@ -1,17 +1,13 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractResult;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
-import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelInClueBook;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
-import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -42,34 +38,7 @@ public class ModPayloadRegistry {
         registrar.playToServer(
                 ClueObjectUpdatePayload.TYPE,
                 ClueObjectUpdatePayload.STREAM_CODEC,
-                (final ClueObjectUpdatePayload payload, final IPayloadContext context) -> {
-                    context.enqueueWork(() -> {
-//                        MyObjectSync.server().store().serverUpsert(payload.object());
-//                        ServerDataAccessor.upsert(context.player().level().getServer(), payload.object());
-                        switch (payload.data().mode()) {
-                            case DELETE -> {
-                                switch (payload.location().type()) {
-                                    case SD ->
-                                            ServerDataManager.delete(context.player().getServer(), payload.data().id());
-                                    case CHUNK ->
-                                            ServerDataManager.delete((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().id());
-                                    case ENTITY ->
-                                            ServerDataManager.delete((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().id());
-                                }
-                            }
-                            case UPSERT -> {
-                                switch (payload.location().type()) {
-                                    case SD ->
-                                            ServerDataManager.upsert(context.player().getServer(), payload.data().obj());
-                                    case CHUNK ->
-                                            ServerDataManager.upsert((ServerLevel) context.player().level(), payload.location().chunkPos(), payload.data().obj());
-                                    case ENTITY ->
-                                            ServerDataManager.upsert((ServerLevel) context.player().level(), payload.location().entityId(), payload.data().obj());
-                                }
-                            }
-                        }
-                    });
-                }
+                ClueObjectUpdatePayload::handle
         );
 
 
@@ -78,35 +47,12 @@ public class ModPayloadRegistry {
         registrar.playToServer(
                 ManualClueCreatePayload.TYPE,
                 ManualClueCreatePayload.STREAM_CODEC,
-                (final ManualClueCreatePayload payload, final IPayloadContext context) -> {
-                    context.enqueueWork(() -> {
-                        ServerDataManager.upsert(context.player().getServer(), Assembler.createManualClue());
-                    });
-                }
+                ManualClueCreatePayload::handle
         );
         registrar.playToServer(
                 WandSwitchToAttachModePayload.TYPE,
                 WandSwitchToAttachModePayload.STREAM_CODEC,
-                (final WandSwitchToAttachModePayload payload, final IPayloadContext context) -> {
-                    context.enqueueWork(() -> {
-                        // update Database
-                        ServerDataManager.upsert(context.player().level().getServer(), payload.object());
-                        // update main hand
-                        Player player = context.player();
-                        ItemStack stack = player.getMainHandItem();
-                        if (stack.is(ModItemsRegistry.CLUE_WAND_ITEM.get())) {
-                            // update mode
-                            stack.update(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE, current -> WandMode.ATTACH);
-                            player.displayClientMessage(Component.literal("Wand mode: " + WandMode.ATTACH.toString()), true);
-                            // update attaching
-                            stack.update(ModDataComponentsRegistry.ATTACHING_OBJECT.get(),
-                                    new AttachingObject(payload.object().getId()), current -> new AttachingObject(payload.object().getId()));
-                        } else {
-                            throw new RuntimeException("Why you are not holding the wand???");
-                        }
-
-                    });
-                }
+                WandSwitchToAttachModePayload::handle
         );
 
         // player share

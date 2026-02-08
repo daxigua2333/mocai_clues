@@ -4,6 +4,8 @@ import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
+import io.github.daxigua2333.mocai_clues.data.common.RetrieveResult;
+import io.github.daxigua2333.mocai_clues.data.location.IRuntimeLocation;
 import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.core.BlockPos;
@@ -15,19 +17,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class InteractEvent {
 
     // ============= finder part =============
     public static void clickWithFinder(PlayerInteractEvent event,
-                                       Supplier<List<ServerDataManager.RetrieveResult>> resultSupplier,
-                                       ObjectHolderLocation location, Runnable sidedSuccess) {
+                                       Supplier<List<RetrieveResult>> resultSupplier,
+                                       ObjectHolderLocation locationData, Runnable sidedSuccess) {
         if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
         if (!event.getLevel().isClientSide()) {
             for (var res : resultSupplier.get()) {
-                Consumer<ClueObject> dirty = res.markDirty();
+                IRuntimeLocation location = res.location();
                 List<ClueObject> data = res.objects();
 
                 for (ClueObject obj : data) {
@@ -39,11 +40,12 @@ public final class InteractEvent {
                         throw new RuntimeException("ClueObject#" + obj.getId() + " has no FinderState component");
                     if (!bCompo.isAccessible(event.getEntity().getScoreboardName())) continue;
 
-                    InteractResult.sendClue((ServerPlayer) event.getEntity(), obj, location);
+                    // TODO: .....the same as the next methods, so reuse
+                    InteractResult.sendClue((ServerPlayer) event.getEntity(), obj, locationData);
                     InteractResult.sendItem();
 
                     bCompo.onFound();
-                    dirty.accept(obj);
+                    location.markDirty(obj);
                 }
             }
         }
@@ -64,7 +66,7 @@ public final class InteractEvent {
 //        }
 
         ServerDataManager.retrieveByBlockPos(player.level(), pos).forEach(e -> {
-            Consumer<ClueObject> dirty = e.markDirty();
+            IRuntimeLocation location = e.location();
             List<ClueObject> data = e.objects();
 
             for (ClueObject obj : data) {
@@ -77,9 +79,10 @@ public final class InteractEvent {
                 if (!bCompo.isAccessible(player.getScoreboardName())) continue;
 
                 InteractResult.sendClue((ServerPlayer) player, obj, new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, pos));
+                InteractResult.sendItem();
 
                 bCompo.onFound();
-                dirty.accept(obj);
+                location.markDirty(obj);
             }
         });
 
