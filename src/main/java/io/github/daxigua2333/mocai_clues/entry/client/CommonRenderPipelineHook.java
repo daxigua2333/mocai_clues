@@ -6,15 +6,17 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
-import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -24,9 +26,13 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
+import java.util.List;
+
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public final class CommonRenderPipelineHook {
+    private static final int CHUNK_RADIUS = 5;
+
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
         ItemWorldRenderer(event);
@@ -36,7 +42,8 @@ public final class CommonRenderPipelineHook {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
-        if (level == null) return;
+        LocalPlayer player = mc.player;
+        if (level == null || player == null) return;
         PoseStack poseStack = event.getPoseStack();
         Vec3 camPos = event.getCamera().getPosition();
         // Use our own immediate buffer so we can flush right here (no interference with vanilla’s buffer lifecycle)
@@ -44,7 +51,8 @@ public final class CommonRenderPipelineHook {
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         // Iterate your already-prepared data here:
         // TODO: Ill just assume that only manual clue can be item type
-        for (ClueObject obj : ClientDataManager.retrieveAllSavedData()) {
+        List<ClueObject> data = DataManager.Client.retrieveByNearbyLoadedChunks(level, player.chunkPosition(), Math.min(CHUNK_RADIUS, Minecraft.getInstance().options.renderDistance().get())).objects();
+        for (ClueObject obj : data) {
             ItemClue compo = obj.getComponent(ComponentType.ITEM_CLUE);
             if (compo == null) continue;
 

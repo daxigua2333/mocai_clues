@@ -2,8 +2,8 @@ package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.Assembler;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.location.FromSavedData;
-import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -24,7 +24,7 @@ public record ManualClueCreatePayload() implements CustomPacketPayload {
 
     public static void handle(ManualClueCreatePayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            ServerDataManager.upsert(new FromSavedData(context.player().level()), Assembler.createManualClue());
+            DataManager.Server.upsert(new FromSavedData(context.player().level()), Assembler.createManualClue());
         });
     }
 }

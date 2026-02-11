@@ -2,9 +2,9 @@ package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.location.IRuntimeLocation;
 import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLocation;
-import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
@@ -90,8 +90,8 @@ public record ClueObjectUpdatePayload(ISerializableLocation location, Data data)
             IRuntimeLocation runtimeLocation = payload.location().create(context);
             Data data = payload.data();
             switch (data.mode()) {
-                case DELETE -> ServerDataManager.delete(runtimeLocation, data.id);
-                case UPSERT -> ServerDataManager.upsert(runtimeLocation, data.obj);
+                case DELETE -> DataManager.Server.delete(runtimeLocation, data.id);
+                case UPSERT -> DataManager.Server.upsert(runtimeLocation, data.obj);
             }
         });
     }

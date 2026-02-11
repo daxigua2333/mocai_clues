@@ -8,7 +8,7 @@ import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLoca
 import io.github.daxigua2333.mocai_clues.data.server.ClueObjectHolderInSavedData;
 import net.minecraft.world.level.Level;
 
-public class FromSavedData implements IRuntimeLocation {
+public class FromSavedData extends BaseRuntimeLocation {
     private final Level level;
 
     public FromSavedData(Level level) {

@@ -10,7 +10,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-public class FromChunkAttachment implements IRuntimeLocation {
+public class FromChunkAttachment extends BaseRuntimeLocation {
     private final LevelChunk chunk;
 
     public FromChunkAttachment(LevelChunk chunk) {

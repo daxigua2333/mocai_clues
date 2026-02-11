@@ -7,6 +7,7 @@ import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.SwitchBetweenItemOrNone;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
@@ -24,6 +25,7 @@ public enum ComponentType {
     // world renderer
     RENDERER_WIDGET_COLLECTOR,
     BLOCK_POS_SET,
+    BLOCK_POS_WITH_FACE,
     ATTACHED_ENTITY_SET,
     RENDERER_HOLDER,
 
@@ -59,6 +61,7 @@ public enum ComponentType {
                         case WALK_ON -> WalkOn.CODEC;
                         case ITEM_CLUE -> ItemClue.CODEC;
                         case SWITCH_BETWEEN_ITEM_OR_NONE -> SwitchBetweenItemOrNone.CODEC;
+                        case BLOCK_POS_WITH_FACE -> BlockPosWithFace.CODEC;
                     }
             );
 

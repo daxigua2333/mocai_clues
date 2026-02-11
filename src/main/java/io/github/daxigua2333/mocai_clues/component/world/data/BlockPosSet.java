@@ -18,6 +18,7 @@ import java.util.*;
  * in chunk attachment, this exists only once
  * but in SavedData, this can exist multiply
  */
+@Deprecated
 public class BlockPosSet extends ClueComponent {
     private final Set<BlockPos> set;
 

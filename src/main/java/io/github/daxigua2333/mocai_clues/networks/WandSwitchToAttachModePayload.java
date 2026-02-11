@@ -2,8 +2,8 @@ package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.location.FromSavedData;
-import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.AttachingObject;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
@@ -40,7 +40,7 @@ public record WandSwitchToAttachModePayload(ClueObject object) implements Custom
     public static void handle(WandSwitchToAttachModePayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             // update Database
-            ServerDataManager.upsert(new FromSavedData(context.player().level()), payload.object());
+            DataManager.Server.upsert(new FromSavedData(context.player().level()), payload.object());
             // update main hand
             Player player = context.player();
             ItemStack stack = player.getMainHandItem();

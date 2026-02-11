@@ -7,9 +7,9 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -22,7 +22,10 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.OptionalDouble;
+import java.util.Set;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockOutlinePass extends BasePass {
@@ -34,7 +37,7 @@ public class BlockOutlinePass extends BasePass {
     }
 
     private static final RenderType OVERLAY_LINE = RenderType.create(
-            MoCaiClues.MODID +":overlay_lines",
+            MoCaiClues.MODID + ":overlay_lines",
 //                    DefaultVertexFormat.POSITION_COLOR,
             DefaultVertexFormat.POSITION_COLOR_NORMAL,
             VertexFormat.Mode.LINES,
@@ -56,6 +59,7 @@ public class BlockOutlinePass extends BasePass {
                     .setCullState(RenderStateShard.NO_CULL)
                     .createCompositeState(false)
     );
+
     @Override
     public RenderType getRenderType() {
         return OVERLAY_LINE;
@@ -66,7 +70,7 @@ public class BlockOutlinePass extends BasePass {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
 //        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        RenderSystem.setShaderColor(1f,1f,1f,1f);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
     @Override
@@ -90,13 +94,17 @@ public class BlockOutlinePass extends BasePass {
 
     @Override
     public void addToMesh(BufferBuilder builder, ChunkPos chunkPos) {
-        List<ClueObject> data = ClientDataManager.retrieveByChunkPos(chunkPos);
+        List<ClueObject> data = DataManager.Client.retrieveByChunkPos(Minecraft.getInstance().level, chunkPos).objects();
 
         Set<BlockPos> poses = new HashSet<>();
         for (var obj : data) {
-            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-            if (compo == null) continue;
-            poses.addAll(compo.getImmutable());
+//            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
+//            if (compo == null) continue;
+//            poses.addAll(compo.getImmutable());
+            BlockPosWithFace compo = obj.getComponent(ComponentType.BLOCK_POS_WITH_FACE);
+            if (compo != null && compo.getPos() != null) {
+                poses.add(compo.getPos());
+            }
         }
 
         for (var pos : poses) {

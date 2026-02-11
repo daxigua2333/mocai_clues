@@ -4,9 +4,9 @@ import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.common.RetrieveResult;
 import io.github.daxigua2333.mocai_clues.data.location.IRuntimeLocation;
-import io.github.daxigua2333.mocai_clues.data.server.ServerDataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,27 +65,25 @@ public final class InteractEvent {
 //            return;
 //        }
 
-        ServerDataManager.retrieveByBlockPos(player.level(), pos).forEach(e -> {
-            IRuntimeLocation location = e.location();
-            List<ClueObject> data = e.objects();
+        RetrieveResult r = DataManager.Server.retrieveByBlockPos(player.level(), pos);
+        IRuntimeLocation location = r.location();
+        List<ClueObject> data = r.objects();
 
-            for (ClueObject obj : data) {
-                // do have behavior check
-                if (!obj.hasComponent(ComponentType.WALK_ON)) continue;
-                // FinderState accessibility check
-                FinderState bCompo = obj.getComponent(ComponentType.FINDER_STATE);
-                if (bCompo == null)
-                    throw new RuntimeException("ClueObject#" + obj.getId() + " has no FinderState component");
-                if (!bCompo.isAccessible(player.getScoreboardName())) continue;
+        for (ClueObject obj : data) {
+            // do have behavior check
+            if (!obj.hasComponent(ComponentType.WALK_ON)) continue;
+            // FinderState accessibility check
+            FinderState bCompo = obj.getComponent(ComponentType.FINDER_STATE);
+            if (bCompo == null)
+                throw new RuntimeException("ClueObject#" + obj.getId() + " has no FinderState component");
+            if (!bCompo.isAccessible(player.getScoreboardName())) continue;
 
-                InteractResult.sendClue((ServerPlayer) player, obj, new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, pos));
-                InteractResult.sendItem();
+            InteractResult.sendClue((ServerPlayer) player, obj, new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, pos));
+            InteractResult.sendItem();
 
-                bCompo.onFound();
-                location.markDirty(obj);
-            }
-        });
-
+            bCompo.onFound();
+            location.markDirty(obj);
+        }
     }
 
 //    private static void handleObjects(List<ClueObject> data, ComponentType eventType, Runnable handleResult) {

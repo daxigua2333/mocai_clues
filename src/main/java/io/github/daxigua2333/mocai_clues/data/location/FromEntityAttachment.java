@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class FromEntityAttachment implements IRuntimeLocation {
+public class FromEntityAttachment extends BaseRuntimeLocation {
     @Nullable
     private final Entity entity;
 

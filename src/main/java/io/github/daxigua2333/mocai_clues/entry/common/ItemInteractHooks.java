@@ -11,7 +11,6 @@ import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FlashDotSet;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
-import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.common.RetrieveResult;
 import io.github.daxigua2333.mocai_clues.data.location.factory.FromChunkAttachmentSerializable;
@@ -55,7 +54,7 @@ public final class ItemInteractHooks {
                 success);
 
         InteractEvent.clickWithFinder(event,
-                () -> ServerDataManager.retrieveByBlockPos(event.getLevel(), event.getPos()),
+                () -> DataManager.Server.retrieveByBlockPos(event.getLevel(), event.getPos()),
                 new ObjectHolderLocation<>(ObjectHolderLocation.Type.CHUNK, new ObjectHolderLocation.BlockPosWithFace(event.getPos(), event.getFace())),
                 success);
 
@@ -69,12 +68,12 @@ public final class ItemInteractHooks {
         };
 
         handleWand(event,
-                () -> DataManager.Common.retrieveByEntity(event.getTarget()),
+                () -> DataManager.Client.retrieveByEntity(event.getTarget()),
                 new FromEntityAttachmentSerializable(event.getTarget().getUUID()),
                 success);
 
         InteractEvent.clickWithFinder(event,
-                () -> ServerDataManager.retrieveByEntity(event.getTarget()),
+                () -> DataManager.Server.retrieveByEntity(event.getTarget()),
                 new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, event.getTarget().getUUID()),
                 success);
 
@@ -87,7 +86,6 @@ public final class ItemInteractHooks {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         };
 
-        handleWand(event, ClientDataManager::retrieveAllSavedData, new FromSavedDataSerializable(), success);
 
     }
 

@@ -4,7 +4,7 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
-import io.github.daxigua2333.mocai_clues.data.client.ClientDataManager;
+import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -27,13 +27,16 @@ import java.util.List;
 public final class FinderTick {
 
     private static boolean prevDoFound = false;
+
     // texture reflection
-    @OnlyIn(Dist.CLIENT) public static void registerTextureChange(){
+    @OnlyIn(Dist.CLIENT)
+    public static void registerTextureChange() {
         ItemProperties.register(
                 ModItemsRegistry.CLUE_FINDER_ITEM.get(),
                 ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "found"),
                 (ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int id) -> {
-                    if (!(entity instanceof LocalPlayer player)) return 0f;  // on multi-players this entity will be both LocalPlayer and RemotePlayer, thus cause unintended updates
+                    if (!(entity instanceof LocalPlayer player))
+                        return 0f;  // on multi-players this entity will be both LocalPlayer and RemotePlayer, thus cause unintended updates
                     if (player != Minecraft.getInstance().player) return returnWithUpdate(false);
 
                     // finder in hand
@@ -47,11 +50,11 @@ public final class FinderTick {
                     switch (hr.getType()) {
                         case BLOCK -> {
                             BlockHitResult bhr = (BlockHitResult) hr;
-                            data = ClientDataManager.retrieveByBlockPos(bhr.getBlockPos());
+                            data = DataManager.Client.retrieveByBlockPos(Minecraft.getInstance().level, bhr.getBlockPos()).objects();
                         }
                         case ENTITY -> {
                             EntityHitResult ehr = (EntityHitResult) hr;
-                            data = ClientDataManager.retrieveByEntity(ehr.getEntity());
+                            data = DataManager.Client.retrieveByEntity(ehr.getEntity()).objects();
                         }
                         default -> {
                             return returnWithUpdate(false);

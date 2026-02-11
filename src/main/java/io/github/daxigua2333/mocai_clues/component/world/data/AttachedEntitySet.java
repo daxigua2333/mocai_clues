@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+@Deprecated
 public class AttachedEntitySet extends ClueComponent {
     private final Set<UUID> set;
 
