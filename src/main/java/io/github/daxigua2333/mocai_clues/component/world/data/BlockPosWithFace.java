@@ -10,16 +10,19 @@ import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BlockPosWithFace extends ClueComponent {
-    @Nullable
-    private BlockPos pos;
-    @Nullable
-    private Direction face;
+    private @Nullable BlockPos pos;
+    private @Nullable Direction face;
 
-    private BlockPosWithFace(@Nullable BlockPos pos, @Nullable Direction face) {
+    public BlockPosWithFace(@Nullable BlockPos pos, @Nullable Direction face) {
         this.pos = pos;
         this.face = face;
+    }
+
+    public BlockPosWithFace(@Nullable BlockPos pos) {
+        this(pos, null);
     }
 
     public BlockPosWithFace() {
@@ -40,9 +43,9 @@ public class BlockPosWithFace extends ClueComponent {
     }
 
     public static final Codec<BlockPosWithFace> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            BlockPos.CODEC.fieldOf("pos").forGetter(BlockPosWithFace::getPos),
-            Direction.CODEC.fieldOf("face").forGetter(BlockPosWithFace::getFace)
-    ).apply(inst, BlockPosWithFace::new));
+            BlockPos.CODEC.optionalFieldOf("pos").forGetter(obj -> Optional.ofNullable(obj.pos)),
+            Direction.CODEC.optionalFieldOf("face").forGetter(obj -> Optional.ofNullable(obj.face))
+    ).apply(inst, (opt1, opt2) -> new BlockPosWithFace(opt1.orElse(null), opt2.orElse(null))));
 
     @Nullable
     @Override

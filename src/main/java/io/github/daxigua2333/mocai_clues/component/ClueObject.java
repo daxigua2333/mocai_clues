@@ -13,27 +13,29 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
  * should contain fields: UUID, type
  * component should implement: type() constructor codec(Codec.unit if empty) editable
- * */
+ */
 public class ClueObject {
     private final UUID id;
     private final ClueType type;
     // TODO: use List + index Map to allow multi components and fast lookup
-    private final Map<ComponentType, ClueComponent> components;
+    private final EnumMap<ComponentType, ClueComponent> components;
 
     // ==== constructor(codec part) ====
     private ClueObject(UUID id, ClueType type, Map<ComponentType, ClueComponent> map) {
         this.id = id;
-        this.type =type;
+        this.type = type;
         this.components = new EnumMap<>(map);
         for (var compo : components.values()) {
             compo.setOwner(this);
         }
     }
+
     public ClueObject(ClueType type) {
         this(
                 UUID.randomUUID(),
@@ -41,7 +43,10 @@ public class ClueObject {
                 new EnumMap<>(ComponentType.class)
         );
     }
-    /** only copy id and type*/
+
+    /**
+     * only copy id and type
+     */
     public ClueObject(ClueObject other) {
         this(other.id, other.type, new EnumMap<>(ComponentType.class));
     }
@@ -51,11 +56,15 @@ public class ClueObject {
     public UUID getId() {
         return id;
     }
+
     public ClueType type() {
         return type;
     }
+
     // for codec
-    private Map<ComponentType, ClueComponent> getMap() {return components;}
+    private Map<ComponentType, ClueComponent> getMap() {
+        return components;
+    }
 
 
     // ==== map apis ====
@@ -80,14 +89,28 @@ public class ClueObject {
     }
 
     public <T extends ClueComponent> T getComponentOrCreate(ComponentType type, T defaultCompo) {
-        if (! hasComponent(type)) {
+        if (!hasComponent(type)) {
             addComponent(defaultCompo);
         }
         return getComponent(type);
     }
 
+    @Nonnull
+    public <T extends ClueComponent> T getComponentOrThrow(ComponentType type) {
+        T component = getComponent(type);
+        if (component == null) {
+            throw new IllegalStateException("ClueObject#" + getId() + " has no " + type + " component");
+        }
+        return component;
+    }
+
     public Collection<ClueComponent> getComponents() {
         return components.values();
+    }
+
+
+    public boolean hasFamily(ComponentFamilyRegistry.SystemFamily family) {
+        return components.keySet().containsAll(family.getFamily());
     }
 
     // ==== Codec ====
@@ -110,6 +133,7 @@ public class ClueObject {
                             result.error().map(e -> e.message()).orElse("unknown"));
                 });
     }
+
     public static ClueObject fromNbt(CompoundTag tag) {
         DynamicOps<Tag> ops = NbtOps.INSTANCE;
         DataResult<ClueObject> result = CODEC.parse(ops, tag);
@@ -121,7 +145,7 @@ public class ClueObject {
     // stream codec: reuse codec  TODO: optimize packet size
     public static final StreamCodec<ByteBuf, ClueObject> STREAM_CODEC =
 //        ByteBufCodecs.fromCodecWithRegistries(ClueObject.CODEC);
-        ByteBufCodecs.fromCodec(ClueObject.CODEC);
+            ByteBufCodecs.fromCodec(ClueObject.CODEC);
 
 
     @Override

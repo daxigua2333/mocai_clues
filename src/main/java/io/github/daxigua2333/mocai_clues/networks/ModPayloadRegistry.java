@@ -1,8 +1,7 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractResult;
-import io.github.daxigua2333.mocai_clues.data.ObjectHolderLocation;
+import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractSystem;
 import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelInClueBook;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
@@ -45,9 +44,9 @@ public class ModPayloadRegistry {
         // ===== manual =====
         // client create new one
         registrar.playToServer(
-                ManualClueCreatePayload.TYPE,
-                ManualClueCreatePayload.STREAM_CODEC,
-                ManualClueCreatePayload::handle
+                ScreenCreateDefaultCluePayload.TYPE,
+                ScreenCreateDefaultCluePayload.STREAM_CODEC,
+                ScreenCreateDefaultCluePayload::handle
         );
         registrar.playToServer(
                 WandSwitchToAttachModePayload.TYPE,
@@ -63,7 +62,8 @@ public class ModPayloadRegistry {
                     ServerPlayer from = (ServerPlayer) context.player();
                     if (from.getServer() == null) return;
                     ServerPlayer to = from.getServer().getPlayerList().getPlayer(payload.playerId());
-                    InteractResult.sendClue(to, payload.obj(), new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, from));
+//                    InteractResult.sendClue(to, payload.obj(), new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, from));
+                    InteractSystem.sendManualClue(to, payload.obj());
                 })
         );
 

@@ -1,8 +1,6 @@
 package io.github.daxigua2333.mocai_clues.data;
 
 import com.mojang.serialization.Codec;
-import io.github.daxigua2333.mocai_clues.component.ClueObject;
-import io.github.daxigua2333.mocai_clues.data.client.ClientIndexManager;
 import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -55,8 +53,8 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
 
     @Override
     public ObjectHolder<T> read(IAttachmentHolder holder,
-                                 RegistryFriendlyByteBuf buf,
-                                 ObjectHolder<T> previousValue) {
+                                RegistryFriendlyByteBuf buf,
+                                ObjectHolder<T> previousValue) {
         if (previousValue == null) {
             // Client had no prior data for this attachment, so we expect a full payload.
             ObjectHolder<T> map = new ObjectHolder<>(idGetter, elementCodec, elementStreamCodec);

@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated
 public class FlashDotSet extends ClueComponent {
 //    private Map<BlockPos, Set<Direction>>
     private record BlockPosFace(BlockPos pos, Direction face) {

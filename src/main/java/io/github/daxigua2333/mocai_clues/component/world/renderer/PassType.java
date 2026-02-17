@@ -6,6 +6,7 @@ import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BaseRende
 import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BlockOutlinePass;
+import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -15,7 +16,7 @@ public enum PassType {
 //        FLASH_POINT,
     ;
 
-    public static final Codec<PassType> CODEC = Codec.STRING.xmap(PassType::valueOf, Enum::toString);
+    public static final Codec<PassType> CODEC = EnumCodecProvider.createCodec(PassType.class);
 
     @OnlyIn(value = Dist.CLIENT)
     public static BasePass getPass(PassType type) {

@@ -15,6 +15,7 @@ import java.util.function.Function;
  *  - full codec & stream codec
  *  - delta tracking for AttachmentSyncHandler
  *  - derived secondary indexes (in-memory only, not serialized)
+ *  - composite index support
  */
 public final class ObjectHolder<T> {
 
@@ -60,15 +61,6 @@ public final class ObjectHolder<T> {
         this(idGetter, elementCodec, elementStreamCodec);
         this.backing.putAll(initialValues);
     }
-
-//    /** type declare helper */
-//    public <U> Optional<ObjectHolder<U>> asType(Class<U> targetType) {
-//        var set = backing.values();
-//        if (!set.isEmpty() && targetType.isInstance(set.toArray()[0])) {
-//            return Optional.of((ObjectHolder<U>) this);
-//        }
-//        return Optional.empty();  // but even if its empty, it should have type
-//    }
 
     // ---------------------------------------------------------------------
     // Basic Map-like API
@@ -266,6 +258,104 @@ public final class ObjectHolder<T> {
         return createIndexInternal(name, true, duplicateKeyHandling, keysExtractor);
     }
 
+    // ---------------------------------------------------------------------
+    // Composite Index API
+    // ---------------------------------------------------------------------
+
+    /**
+     * Create a non-unique Composite Index based on multiple fields.
+     * <p>
+     * Use {@link ObjectHolder#compositeKey(Object...)} to query this index.
+     * </p>
+     * @param name The name of the index
+     * @param extractors One or more functions to extract the fields that make up the key
+     */
+    @SafeVarargs
+    public final Index<CompositeKey> createCompositeIndex(String name, Function<T, ?>... extractors) {
+        return createCompositeIndexInternal(name, false, DuplicateKeyHandling.REPLACE_EXISTING, extractors);
+    }
+
+    /**
+     * Create a UNIQUE Composite Index. The combination of fields must be unique per UUID.
+     * <p>
+     * Use {@link ObjectHolder#compositeKey(Object...)} to query this index.
+     * </p>
+     */
+    @SafeVarargs
+    public final Index<CompositeKey> createUniqueCompositeIndex(String name, DuplicateKeyHandling duplicateKeyHandling, Function<T, ?>... extractors) {
+        return createCompositeIndexInternal(name, true, duplicateKeyHandling, extractors);
+    }
+
+    @SafeVarargs
+    private Index<CompositeKey> createCompositeIndexInternal(String name,
+                                                             boolean unique,
+                                                             DuplicateKeyHandling duplicateKeyHandling,
+                                                             Function<T, ?>... extractors) {
+        Objects.requireNonNull(extractors);
+        if (extractors.length == 0) throw new IllegalArgumentException("At least one extractor required for composite index");
+
+        return createIndexInternal(
+                name,
+                unique,
+                duplicateKeyHandling,
+                value -> {
+                    Object[] parts = new Object[extractors.length];
+                    for (int i = 0; i < extractors.length; i++) {
+                        parts[i] = extractors[i].apply(value);
+                    }
+                    return List.of(new CompositeKey(parts));
+                }
+        );
+    }
+
+    /**
+     * Helper to create a key object for querying composite indexes.
+     */
+    public static CompositeKey compositeKey(Object... parts) {
+        return new CompositeKey(parts);
+    }
+
+    /**
+     * Immutable container for composite keys that implements deep equals/hashCode.
+     */
+    public static final class CompositeKey {
+        private final Object[] parts;
+
+        private CompositeKey(Object[] parts) {
+            this.parts = parts;
+        }
+
+        public Object get(int index) {
+            return parts[index];
+        }
+
+        public int length() {
+            return parts.length;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CompositeKey that = (CompositeKey) o;
+            return Arrays.deepEquals(parts, that.parts);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.deepHashCode(parts);
+        }
+
+        @Override
+        public String toString() {
+            return Arrays.toString(parts);
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Internal Index Logic
+    // ---------------------------------------------------------------------
+
     private <K> Index<K> createIndexInternal(String name,
                                              boolean unique,
                                              DuplicateKeyHandling duplicateKeyHandling,
@@ -291,6 +381,17 @@ public final class ObjectHolder<T> {
     @Nullable
     public Index<?> getIndex(String name) {
         return indexes.get(name);
+    }
+
+    /**
+     * Unchecked cast helper for retrieving a composite index.
+     */
+    @SuppressWarnings("unchecked")
+    public Index<CompositeKey> getCompositeIndex(String name) {
+        Index<?> index = indexes.get(name);
+        // We can't strictly check generic types at runtime, so we rely on the caller knowing the type.
+        // A minimal check is possible if we store metadata, but for this utility, casting is standard pattern.
+        return (Index<CompositeKey>) index;
     }
 
     public void dropIndex(String name) {
@@ -549,18 +650,9 @@ public final class ObjectHolder<T> {
     // ---------------------------------------------------------------------
     // Delta encode/decode (for AttachmentSyncHandler)
     // ---------------------------------------------------------------------
-    // NOTE: this assumes the client already has a previous map state.
-    // If used for the very first sync, you should send full instead.
 
     /**
      * Encode only changes since last resetChangeTracking().
-     *
-     * Layout:
-     *  - boolean cleared
-     *  - int changedCount, then changedCount * T
-     *  - int removedCount, then removedCount * UUID
-     *
-     *  ** This is the same as delta payload buf
      */
     public void encodeDelta(ByteBuf buf) {
         buf.writeBoolean(cleared);
@@ -581,7 +673,6 @@ public final class ObjectHolder<T> {
 
     /**
      * Apply a delta onto the existing map.
-     * This mirrors encodeDelta's layout.
      */
     public void applyDelta(ByteBuf buf) {
         boolean cleared = buf.readBoolean();
@@ -627,18 +718,12 @@ public final class ObjectHolder<T> {
     // ---------------------------------------------------------------------
     // Codec & StreamCodec factories
     // ---------------------------------------------------------------------
-    // These are static so you can build the codecs where you register things.
 
-    /**
-     * Full Codec for persistence (JSON/NBT etc.). We just serialize as a list<T>.
-     * T’s own codec is expected to include its UUID id.
-     */
     public static <T> Codec<ObjectHolder<T>> codec(
             Function<T, UUID> idGetter,
             Codec<T> elementCodec,
             StreamCodec<ByteBuf, T> elementStreamCodec
     ) {
-        // Persist as a simple list of elements; UUIDs come from the element itself.
         return elementCodec.listOf().xmap(
                 list -> {
                     LinkedHashMap<UUID, T> map = new LinkedHashMap<>();
@@ -651,16 +736,11 @@ public final class ObjectHolder<T> {
         );
     }
 
-    /**
-     * Full StreamCodec (no deltas) suitable for custom packets, etc.
-     * Deltas are handled by AttachmentSyncHandler instead.
-     */
     public static <T> StreamCodec<ByteBuf, ObjectHolder<T>> streamCodec(
             Function<T, UUID> idGetter,
             Codec<T> elementCodec,
             StreamCodec<ByteBuf, T> elementStreamCodec
     ) {
-        // Use ofMember so we can use the instance method encodeFull, as NeoForge suggests.
         return StreamCodec.ofMember(
                 ObjectHolder<T>::encodeFull,
                 buf -> {
@@ -671,7 +751,6 @@ public final class ObjectHolder<T> {
         );
     }
 
-    /** this is delta payload part */
     public record DeltaPayload<T>(boolean cleared, List<T> dirty, List<UUID> removed) {
         public static <T> StreamCodec<ByteBuf, DeltaPayload<T>> deltaStreamCodec(
                 StreamCodec<ByteBuf, T> elementStreamCodec

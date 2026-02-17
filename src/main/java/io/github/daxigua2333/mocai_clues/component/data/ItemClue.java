@@ -7,52 +7,25 @@ import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.guis.widget.editable.ItemStackPickerWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ItemStackSlotWidget;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ItemClue extends ClueComponent {
-    private BlockPos pos;
-    @Nullable
-    private Direction face;
-    @Nullable
     private ItemStack stack;
 
-    private ItemClue(ItemStack stack, Direction face, BlockPos pos) {
+    public ItemClue(ItemStack stack) {
         this.stack = stack;
-        this.face = face;
-        this.pos = pos;
     }
 
     public ItemClue() {
-        this(ItemStack.EMPTY, null, null);
-    }
-
-    @Nullable
-    public BlockPos getPos() {
-        return pos;
-    }
-
-    @Nullable
-    public Direction getFace() {
-        return face;
+        this(ItemStack.EMPTY);
     }
 
     public ItemStack getStack() {
         return stack;
-    }
-
-    public void setPos(BlockPos pos) {
-        this.pos = pos;
-    }
-
-    public void setFace(Direction face) {
-        this.face = face;
     }
 
     public void setStack(ItemStack stack) {
@@ -65,10 +38,8 @@ public class ItemClue extends ClueComponent {
     }
 
     public static final Codec<ItemClue> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            ItemStack.OPTIONAL_CODEC.fieldOf("stacks").forGetter(ItemClue::getStack),
-            Direction.CODEC.optionalFieldOf("face").forGetter(obj -> Optional.ofNullable(obj.getFace())),
-            BlockPos.CODEC.optionalFieldOf("pos").forGetter(obj -> Optional.ofNullable(obj.getPos()))
-    ).apply(inst, (stack, face, pos) -> new ItemClue(stack, face.orElse(null), pos.orElse(null))));
+            ItemStack.OPTIONAL_CODEC.fieldOf("stacks").forGetter(ItemClue::getStack)
+    ).apply(inst, ItemClue::new));
 
     @Nullable
     @Override

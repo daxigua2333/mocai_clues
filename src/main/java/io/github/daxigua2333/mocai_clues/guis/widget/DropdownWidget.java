@@ -52,10 +52,10 @@ public class DropdownWidget<T> extends AbstractWidget {
         }
     }
 
-//    public T getSelected() {
-//        return options.get(selectedIndex);
-//    }
-//
+    public T getSelected() {
+        return options.get(selectedIndex);
+    }
+
 //    public void setSelectedIndex(int index) {
 //        if (index >= 0 && index < options.size()) {
 //            this.selectedIndex = index;

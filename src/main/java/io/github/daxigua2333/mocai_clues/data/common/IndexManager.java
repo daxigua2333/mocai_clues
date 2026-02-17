@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.data.common;
 
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.ComponentFamilyRegistry;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
@@ -17,6 +18,7 @@ public final class IndexManager {
     //    public static final String BY_CHUNK_POS = "by_chunk_pos";
     public static final String BY_PASS_TYPE = "by_pass_type";
     public static final String BY_CLUE_TYPE = "by_clue_type";
+    public static final String BY_COMPONENT_FAMILY = "by_component_family";
 
     public static void ensureIndex(ObjectHolder<ClueObject> holder, String by) {
 //        egs:
@@ -57,6 +59,10 @@ public final class IndexManager {
                     return result;
                 });
                 case BY_CLUE_TYPE -> holder.createIndex(BY_CLUE_TYPE, ClueObject::type);
+                // TODO: family (multi index) composite index boost
+                case BY_COMPONENT_FAMILY -> holder.createMultiIndex(BY_COMPONENT_FAMILY, obj -> {
+                    return ComponentFamilyRegistry.getFamily(obj.type());
+                });
                 case null, default -> throw new RuntimeException("Unimplemented index initialization.");
             }
         }

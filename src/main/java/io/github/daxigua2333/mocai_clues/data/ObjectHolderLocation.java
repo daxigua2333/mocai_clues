@@ -11,6 +11,7 @@ import net.minecraft.world.level.ChunkPos;
 
 import java.util.UUID;
 
+@Deprecated
 public record ObjectHolderLocation<T>(Type type, T data) {
     public enum Type {
         SD, CHUNK, ENTITY;

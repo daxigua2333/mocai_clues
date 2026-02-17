@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
-import io.github.daxigua2333.mocai_clues.data.server.ServerIndexManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,15 +14,18 @@ import java.util.function.Supplier;
 
 public final class ModAttachmentRegistry {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS_TYPES =
-        DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MoCaiClues.MODID);
+            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MoCaiClues.MODID);
 
     // add an extra step that ensure index
     private static final Codec<ObjectHolder<ClueObject>> CLUE_HOLDER_CODEC =
-        ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC)
-            .xmap(
-                holder -> { IndexManager.Server.attachmentHolderEnsure(holder); return holder; }, // decode
-                Function.identity()
+            ObjectHolder.codec(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC).xmap(
+                    holder -> {
+                        IndexManager.Server.attachmentHolderEnsure(holder);
+                        return holder;
+                    }, // decode
+                    Function.identity()
             );
+
 
     private static ObjectHolder<ClueObject> createDefault() {
         var holder = new ObjectHolder<>(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC);

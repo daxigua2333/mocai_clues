@@ -2,12 +2,15 @@ package io.github.daxigua2333.mocai_clues.guis;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
+import io.github.daxigua2333.mocai_clues.data.location.factory.FromSavedDataSerializable;
+import io.github.daxigua2333.mocai_clues.guis.whitelist.ItemClueHolder;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelNew;
-import io.github.daxigua2333.mocai_clues.networks.ManualClueCreatePayload;
+import io.github.daxigua2333.mocai_clues.networks.ScreenCreateDefaultCluePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -19,7 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ManualClueEditorScreen extends ClueBookScreenLayout {
+public class ManualClueEditorScreen extends ClueBookScreenLayout implements ItemClueHolder {
     private final Supplier<List<ClueObject>> clueSupplier;
     private final Consumer<ClueObject> applyChange;
     private final Consumer<ClueObject> deleteCurrent;
@@ -108,7 +111,7 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
         int top = (this.height - WHOLE_H) / 2;
 
         createButton = Button.builder(Component.literal("+"), btn -> {
-            PacketDistributor.sendToServer(new ManualClueCreatePayload());
+            PacketDistributor.sendToServer(new ScreenCreateDefaultCluePayload(ClueType.MANUAL, new FromSavedDataSerializable()));
         }).bounds(
                 left + LIST_X_OFFSET + LIST_W - 28,
                 top + LIST_Y_OFFSET + 11,
@@ -174,6 +177,7 @@ public class ManualClueEditorScreen extends ClueBookScreenLayout {
     }
 
     // TODO: very bad code but idk what else I can do..
+    @Override
     public void setItemClue(ItemStack itemStack) {
 //        for (var w : details.getPage().children()) {
 //            if (w instanceof )

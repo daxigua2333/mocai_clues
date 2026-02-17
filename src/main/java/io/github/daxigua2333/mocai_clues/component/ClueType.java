@@ -1,6 +1,9 @@
 package io.github.daxigua2333.mocai_clues.component;
 
 import com.mojang.serialization.Codec;
+import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 public enum ClueType {
     // TODO
@@ -10,6 +13,6 @@ public enum ClueType {
     FOOTPRINT,
     ;
 
-    public static final Codec<ClueType> CODEC =
-            Codec.STRING.xmap(ClueType::valueOf, Enum::name);
+    public static final Codec<ClueType> CODEC = EnumCodecProvider.createCodec(ClueType.class);
+    public static final StreamCodec<ByteBuf, ClueType> STREAM_CODEC = EnumCodecProvider.createStreamCodec(ClueType.class);
 }

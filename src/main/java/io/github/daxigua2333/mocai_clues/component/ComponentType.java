@@ -5,12 +5,16 @@ import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.SwitchBetweenItemOrNone;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
+import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 
 import java.util.Map;
 
@@ -34,9 +38,12 @@ public enum ComponentType {
     FLASH_DOT_SET,
     FOUND_SOURCE,
     DETAIL_WITH_COMPLETENESS,
+    INTERACT_ENTRY,
     CLICK_WITH_FINDER,
     WALK_ON,
+    INTERACT_RESULT,
     SEND_CLUE,
+    INTERACT_PASSIVE_BEHAVIOR,
 
     ;
 
@@ -62,6 +69,9 @@ public enum ComponentType {
                         case ITEM_CLUE -> ItemClue.CODEC;
                         case SWITCH_BETWEEN_ITEM_OR_NONE -> SwitchBetweenItemOrNone.CODEC;
                         case BLOCK_POS_WITH_FACE -> BlockPosWithFace.CODEC;
+                        case INTERACT_ENTRY -> InteractEntry.CODEC;
+                        case INTERACT_RESULT -> InteractResult.CODEC;
+                        case INTERACT_PASSIVE_BEHAVIOR -> InteractPassiveBehavior.CODEC;
                     }
             );
 

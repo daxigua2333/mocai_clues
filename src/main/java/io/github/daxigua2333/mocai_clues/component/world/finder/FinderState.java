@@ -19,15 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FinderState extends ClueComponent {
+    private final boolean doEnable;
     private int remaining = 1;
     private List<String> allowedPlayers;
     private boolean doRenderFlashDot = true;
     private boolean doRestrictPlayers = false;
     private boolean doRestrictTimes = false;
 
-    public FinderState(boolean doRenderFlashDot,
+    public FinderState(boolean doEnable,
+                       boolean doRenderFlashDot,
                        boolean doRestrictTimes, int remaining,
                        boolean doRestrictPlayers, List<String> allowedPlayers) {
+        this.doEnable = doEnable;
         this.remaining = remaining;
         this.allowedPlayers = allowedPlayers;
         this.doRenderFlashDot = doRenderFlashDot;
@@ -35,8 +38,12 @@ public class FinderState extends ClueComponent {
         this.doRestrictTimes = doRestrictTimes;
     }
 
-    public FinderState() {
-        this(true, false, 1, false, new ArrayList<>());
+    public FinderState(boolean doEnable) {
+        this(doEnable, true, false, 1, false, new ArrayList<>());
+    }
+
+    public boolean isDoEnable() {
+        return doEnable;
     }
 
     private int getRemaining() {
@@ -60,6 +67,7 @@ public class FinderState extends ClueComponent {
     }
 
     public boolean isAccessible(String playerName) {
+        if (!doEnable) return false;
         if (doRestrictTimes && remaining <= 0) return false;
         if (doRestrictPlayers && !allowedPlayers.contains(playerName)) return false;
         return true;
@@ -102,6 +110,7 @@ public class FinderState extends ClueComponent {
 //    ));
 
     public static final Codec<FinderState> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Codec.BOOL.fieldOf("doEnable").forGetter(FinderState::isDoEnable),
             Codec.BOOL.fieldOf("doRenderFlashDot").forGetter(FinderState::isDoRenderFlashDot),
             Codec.BOOL.fieldOf("doRestrictTimes").forGetter(FinderState::isDoRestrictTimes),
             Codec.INT.fieldOf("remaining").forGetter(FinderState::getRemaining),
@@ -112,6 +121,8 @@ public class FinderState extends ClueComponent {
     @Nullable
     @Override
     public List<AbstractWidget> getEditable(Runnable markDirty) {
+        if (!doEnable) return List.of();
+
         var stringList = new StringListWidget(Minecraft.getInstance().font, 0, 0, 100, 100, this.allowedPlayers);
         stringList.setChangeListener(list -> this.allowedPlayers = list);
 
@@ -142,6 +153,8 @@ public class FinderState extends ClueComponent {
     @Nullable
     @Override
     public List<AbstractWidget> getUneditable() {
+        if (!doEnable) return List.of();
+
         return List.of(
                 new ScaledTextRow(0, 0, 100, 100, Component.translatable("FinderState"), 1.2f),
                 new SplitLineRow(0, 0, 100, 4),

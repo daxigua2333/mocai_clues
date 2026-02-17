@@ -54,7 +54,7 @@ public class SingleSlotWhitelistScreen extends AbstractContainerScreen<Whitelist
 
         mc.popGuiLayer();
 
-        if (Minecraft.getInstance().screen instanceof ManualClueEditorScreen screen) {
+        if (Minecraft.getInstance().screen instanceof ItemClueHolder screen) {
             WhitelistMenu oldMenu = this.menu;
             screen.setItemClue(oldMenu.getItemStack());
         }

@@ -1,40 +1,59 @@
 package io.github.daxigua2333.mocai_clues.guis;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
+import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
+import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLocation;
+import io.github.daxigua2333.mocai_clues.guis.whitelist.ItemClueHolder;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelNew;
+import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpdatePayload;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class AttachedClueEditorScreen extends ClueBookScreenLayout {
+public class AttachedClueEditorScreen extends ClueBookScreenLayout implements ItemClueHolder {
     private final Supplier<List<ClueType>> typeSupplier;
     private final Function<ClueType, List<ClueObject>> clueSupplier;
     private final Consumer<ClueObject> applyChange;
     private final Consumer<ClueObject> deleteCurrent;
+    private final ISerializableLocation location;
+    private final BlockPosWithFace posWithFace;
 
 
     private static final int ENTRY_HEIGHT = 20;
 
+    private Button createButton;
+    private DropdownWidget<ClueType> tab;
+    private AutoUpdatedScrollableListWidget<ClueObject> list;
+    private DetailPanelNew details;
 
     // ====== constructor, and open static =======
     public static void open(
             Supplier<List<ClueType>> typeSupplier,
             Function<ClueType, List<ClueObject>> clueSupplier,
             Consumer<ClueObject> applyChange,
-            Consumer<ClueObject> deleteCurrent
+            Consumer<ClueObject> deleteCurrent,
+            ISerializableLocation location,
+            BlockPosWithFace posWithFace
     ) {
         Minecraft.getInstance().setScreen(new AttachedClueEditorScreen(
-                typeSupplier, clueSupplier, applyChange, deleteCurrent
+                typeSupplier, clueSupplier, applyChange, deleteCurrent, location, posWithFace
         ));
     }
 
@@ -42,13 +61,17 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout {
             Supplier<List<ClueType>> typeSupplier,
             Function<ClueType, List<ClueObject>> clueSupplier,
             Consumer<ClueObject> applyChange,
-            Consumer<ClueObject> deleteCurrent
+            Consumer<ClueObject> deleteCurrent,
+            ISerializableLocation location,
+            BlockPosWithFace posWithFace
     ) {
         super(Component.translatable(MoCaiClues.MODID + "screen.editor"));
         this.typeSupplier = typeSupplier;
         this.clueSupplier = clueSupplier;
         this.applyChange = applyChange;
         this.deleteCurrent = deleteCurrent;
+        this.location = location;
+        this.posWithFace = posWithFace;
     }
 
     // ===== build and add widgets =======
@@ -60,7 +83,7 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout {
         int left = (this.width - WHOLE_W) / 2;
         int top = (this.height - WHOLE_H) / 2;
 
-        var details = new DetailPanelNew(
+        details = new DetailPanelNew(
                 Minecraft.getInstance(),
                 PANEL_W - 36,
                 PANEL_H - 64,
@@ -70,7 +93,7 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout {
                 deleteCurrent
         );
 
-        var list = new AutoUpdatedScrollableListWidget<>(
+        list = new AutoUpdatedScrollableListWidget<>(
                 this.minecraft,
                 left + LIST_X_OFFSET + 6,
                 top + LIST_Y_OFFSET + 30,
@@ -95,7 +118,17 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout {
                 }
         );
 
-        var tab = new DropdownWidget<>(   // TODO: test sync
+        createButton = Button.builder(Component.literal("+"), btn -> {
+            ClueObject defaultObj = Assembler.createDefaultByType(tab.getSelected());
+            defaultObj.addComponent(posWithFace);
+
+            PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                    location,
+                    new ClueObjectUpdatePayload.Data(defaultObj)));
+//            PacketDistributor.sendToServer(new ScreenCreateDefaultCluePayload(tab.getSelected(), location));
+        }).bounds(left + LIST_X_OFFSET + 13 + 60 + 4, top + LIST_Y_OFFSET + 11, 16, 16).build();
+
+        tab = new DropdownWidget<>(
                 left + LIST_X_OFFSET + 13,
                 top + LIST_Y_OFFSET + 11,
                 2,
@@ -105,10 +138,11 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout {
                 this.typeSupplier,
 //                Component::literal,
                 (type) -> Component.literal(type.toString()),  // TODO
-                (clueType) -> {   //// TODO: test hot update... or maybe delete the feature
+                (clueType) -> {
                     list.updateDataSupplier(
                             () -> clueSupplier.apply(clueType)
                     );
+                    createButton.visible = clueType == ClueType.MANUAL || clueType == ClueType.ITEM;
                 }
         );
 
@@ -116,7 +150,17 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout {
         this.addRenderableWidget(tab);
         this.addRenderableWidget(list);
         this.addRenderableWidget(details);
-
+        this.addRenderableWidget(createButton);
     }
 
+    @Override
+    public void setItemClue(ItemStack itemStack) {
+//        for (var w : details.getPage().children()) {
+//            if (w instanceof )
+//        }
+        // update copy
+        ClueObject old = details.getCopy();
+        ((ItemClue) old.getComponent(ComponentType.ITEM_CLUE)).setStack(itemStack);
+        details.updateCopy(old);
+    }
 }
