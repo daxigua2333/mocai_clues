@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(modid = MoCaiClues.MODID)
+@EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public final class InteractPassiveSystem {
     private static final int CHUNK_RADIUS = 5;
     public static final ComponentFamilyRegistry.SystemFamily FAMILY = ComponentFamilyRegistry.SystemFamily.INTERACT_PASSIVE_SYSTEM;

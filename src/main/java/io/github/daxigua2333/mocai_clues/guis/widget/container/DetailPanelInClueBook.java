@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractSystem;
 import io.github.daxigua2333.mocai_clues.guis.widget.PlayerSender;
 import io.github.daxigua2333.mocai_clues.mixins.ScrollPanelAccessor;
 import io.netty.buffer.ByteBuf;
@@ -18,8 +19,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.client.gui.widget.ScrollPanel;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -66,7 +69,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
         // init header
         int y = top - 20;
         sender = new PlayerSender(left, y, 10, 160, 20, info -> {
-            if (object == null) return;
+            if (object == null || info == null) return;
             PacketDistributor.sendToServer(new ShareCluePayload(object, info.getProfile().getId()));
         });
         header.add(sender);
@@ -93,6 +96,16 @@ public class DetailPanelInClueBook extends FlexibleContainer {
         @Override
         public Type<? extends CustomPacketPayload> type() {
             return TYPE;
+        }
+
+        public static void handle(ShareCluePayload payload, IPayloadContext context) {
+            context.enqueueWork(() -> {
+                ServerPlayer from = (ServerPlayer) context.player();
+                if (from.getServer() == null) return;
+                ServerPlayer to = from.getServer().getPlayerList().getPlayer(payload.playerId());
+//                    InteractResult.sendClue(to, payload.obj(), new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, from));
+                InteractSystem.sendToClueBook(to, payload.obj());
+            });
         }
     }
 

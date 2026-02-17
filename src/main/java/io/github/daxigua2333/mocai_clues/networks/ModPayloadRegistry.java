@@ -1,13 +1,11 @@
 package io.github.daxigua2333.mocai_clues.networks;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
-import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractSystem;
 import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelInClueBook;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
 import io.github.daxigua2333.mocai_clues.items.components.WandMode;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -58,13 +56,7 @@ public class ModPayloadRegistry {
         registrar.playToServer(
                 DetailPanelInClueBook.ShareCluePayload.TYPE,
                 DetailPanelInClueBook.ShareCluePayload.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> {
-                    ServerPlayer from = (ServerPlayer) context.player();
-                    if (from.getServer() == null) return;
-                    ServerPlayer to = from.getServer().getPlayerList().getPlayer(payload.playerId());
-//                    InteractResult.sendClue(to, payload.obj(), new ObjectHolderLocation<>(ObjectHolderLocation.Type.ENTITY, from));
-                    InteractSystem.sendManualClue(to, payload.obj());
-                })
+                DetailPanelInClueBook.ShareCluePayload::handle
         );
 
         // test

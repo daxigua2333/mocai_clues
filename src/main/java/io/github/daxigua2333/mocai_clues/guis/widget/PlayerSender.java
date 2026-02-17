@@ -11,13 +11,14 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class PlayerSender extends AbstractContainerWidget {
-    private PlayerInfo selected;
+    private @Nullable PlayerInfo selected;
 
     private static final Font FONT = Minecraft.getInstance().font;
     private static final Component PREFIX = Component.translatable(MoCaiClues.MODID + ".screen.share_with");
@@ -28,7 +29,7 @@ public class PlayerSender extends AbstractContainerWidget {
 
     public PlayerSender(
             int x, int y, int z, int width, int height,
-            Consumer<PlayerInfo> onSend) {
+            Consumer<@Nullable PlayerInfo> onSend) {
         super(x, y, width, height, Component.empty());
 
         int prefixWidth = FONT.width(PREFIX);

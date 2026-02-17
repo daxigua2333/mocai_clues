@@ -37,6 +37,19 @@ public class BlockPosWithFace extends ClueComponent {
         return face;
     }
 
+    public void update(BlockPos pos, Direction face) {
+        this.pos = pos;
+        this.face = face;
+    }
+
+    public void update(BlockPos pos) {
+        update(pos, null);
+    }
+
+    public void update(BlockPosWithFace other) {
+        update(other.getPos(), other.getFace());
+    }
+
     @Override
     public ComponentType type() {
         return ComponentType.BLOCK_POS_WITH_FACE;

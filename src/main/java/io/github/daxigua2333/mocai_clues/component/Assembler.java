@@ -6,10 +6,10 @@ import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
+import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FoundSource;
-import io.github.daxigua2333.mocai_clues.component.world.finder.SendClue;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
@@ -28,7 +28,8 @@ public class Assembler {
         return switch (type) {
             case MANUAL -> createManualClue();
             case ITEM -> createItemClue();
-            case FOOTPRINT -> null;
+            case FOOTPRINT -> throw new RuntimeException("Unimplemented");
+            case CLUE_BOOK -> throw new RuntimeException("Can't create default Object of CLUE_BOOK type");
         };
     }
 
@@ -37,6 +38,7 @@ public class Assembler {
         ClueObject obj = new ClueObject(ClueType.MANUAL);
         obj.addComponent(new InfoData(name));
         obj.addComponent(new DetailData(details));
+        obj.addComponent(new BlockPosWithFace());
 
         obj.addComponent(new RendererWidgetCollector(List.of(
                 PassType.BLOCK_OUTLINE
@@ -47,7 +49,7 @@ public class Assembler {
 
         obj.addComponent(new FinderState(true));
         obj.addComponent(new InteractEntry(InteractEntry.EntryType.CLICK_WITH_FINDER));
-        obj.addComponent(new InteractResult(InteractResult.ResultType.SEND_MANUAL_CLUE));
+        obj.addComponent(new InteractResult(InteractResult.ResultType.SEND_TO_CLUE_BOOK));
         obj.addComponent(new InteractPassiveBehavior(InteractPassiveBehavior.BehaviorType.FLASH_DOT));
 
         return obj;
@@ -62,6 +64,7 @@ public class Assembler {
         ClueObject obj = new ClueObject(ClueType.ITEM);
         obj.addComponent(new InfoData(name));
         obj.addComponent(new ItemClue(stack));
+        obj.addComponent(new BlockPosWithFace());
 
         obj.addComponent(new RendererWidgetCollector(List.of(
                 PassType.BLOCK_OUTLINE
@@ -85,26 +88,17 @@ public class Assembler {
 
     // ====== clue book =========
     // copy: meta(id name), source(switch case), detail with completeness(switch case)
-    public static ClueObject createClueBookClueWithoutSource(ClueObject old) {
-        ClueObject copy = new ClueObject(old);
-        // 1. copy meta
+    public static ClueObject createClueBookClueWithoutSource(ClueObject old, DetailWithCompleteness dCompo) {
+        ClueObject copy = new ClueObject(old, ClueType.CLUE_BOOK);
         copy.addComponent(new InfoData(old.getComponent(ComponentType.INFO_DATA)));
-        // 2. allow sharing behavior
-        copy.addComponent(new SendClue());
-        // 2. generate details
-        DetailWithCompleteness dCompo = switch (old.type()) {
-            case MANUAL -> manualGenerate(old);
-            case null, default ->
-                    throw new RuntimeException("Unimplemented ClueBook detail component converter of ClueObject#" + old.getId());
-        };
         copy.addComponent(dCompo);
 
         return copy;
     }
 
     // TODO: route issue again....
-    public static ClueObject createClueBookClue(ClueObject old, BlockPos pos) {
-        ClueObject copy = createClueBookClueWithoutSource(old);
+    public static ClueObject createClueBookClue(ClueObject old, BlockPos pos, DetailWithCompleteness dCompo) {
+        ClueObject copy = createClueBookClueWithoutSource(old, dCompo);
         // 3. set source
         var sCompo = new FoundSource();
         sCompo.setSource(pos);
@@ -112,8 +106,8 @@ public class Assembler {
         return copy;
     }
 
-    public static ClueObject createClueBookClue(ClueObject old, Entity entity) {
-        ClueObject copy = createClueBookClueWithoutSource(old);
+    public static ClueObject createClueBookClue(ClueObject old, Entity entity, DetailWithCompleteness dCompo) {
+        ClueObject copy = createClueBookClueWithoutSource(old, dCompo);
         // 3. set source
         var sCompo = new FoundSource();
         sCompo.setSource(entity);
@@ -121,27 +115,13 @@ public class Assembler {
         return copy;
     }
 
-    public static ClueObject createClueBookClue(ClueObject old, Player player) {
-        ClueObject copy = createClueBookClueWithoutSource(old);
+    public static ClueObject createClueBookClue(ClueObject old, Player player, DetailWithCompleteness dCompo) {
+        ClueObject copy = createClueBookClueWithoutSource(old, dCompo);
         // 3. set source
         var sCompo = new FoundSource();
         sCompo.setSource(player);
         copy.addComponent(sCompo);
         return copy;
     }
-
-
-    private static DetailWithCompleteness manualGenerate(ClueObject old) {
-        var result = new DetailWithCompleteness();
-
-        DetailData dCompo = old.getComponent(ComponentType.DETAIL_DATA);
-        if (dCompo == null)
-            throw new RuntimeException("Invalid manual ClueObject: has no detail component, id#" + old.getId());
-        for (String s : dCompo.getDetails()) {
-            result.add(s, 1f);
-        }
-        return result;
-    }
-
 
 }

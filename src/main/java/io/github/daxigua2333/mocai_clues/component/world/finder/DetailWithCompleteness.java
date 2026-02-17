@@ -39,6 +39,9 @@ public class DetailWithCompleteness extends ClueComponent {
         details.add(new Row(text, completeness));
     }
 
+    public DetailWithCompleteness copy() {
+        return new DetailWithCompleteness(details);
+    }
 
     @Override
     public ComponentType type() {

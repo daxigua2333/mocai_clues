@@ -14,8 +14,9 @@ import java.util.List;
 public class InteractResult extends ClueComponent {
     public enum ResultType {
         SEND_ITEM,
-        SEND_MANUAL_CLUE,
-        SEND_FOOTPRINT_CLUE,
+        SEND_TO_CLUE_BOOK,
+//        SEND_MANUAL_CLUE,
+//        SEND_FOOTPRINT_CLUE,
         ;
 
         public static final Codec<ResultType> CODEC = EnumCodecProvider.createCodec(ResultType.class);
@@ -47,27 +48,6 @@ public class InteractResult extends ClueComponent {
 
     public boolean hasResultType(ResultType type) {
         return allowed.contains(type);
-    }
-
-    public void execute() {
-        for (ResultType type : allowed) {
-            switch (type) {
-                case SEND_ITEM -> sendItem();
-                case SEND_MANUAL_CLUE -> sendManualClue();
-                case SEND_FOOTPRINT_CLUE -> sendFootprintClue();
-            }
-        }
-    }
-
-    private void sendItem() {
-
-    }
-
-    private void sendManualClue() {
-
-    }
-
-    private void sendFootprintClue() {
     }
 
     @Override

@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class DropdownWidget<T> extends AbstractWidget {
             int initialIndex,
             Supplier<List<T>> optionsSupplier,
             Function<T, Component> labelFunc,
-            Consumer<T> onChange
+            Consumer<@Nullable T> onChange
     ) {
         super(x, y, width, height, Component.empty());
 //        List<T> options = optionsSupplier.get(); ///////

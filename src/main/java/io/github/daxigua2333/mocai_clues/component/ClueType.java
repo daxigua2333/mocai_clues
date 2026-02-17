@@ -9,7 +9,7 @@ public enum ClueType {
     // TODO
     MANUAL,
     ITEM,
-//    CLUE_BOOK,
+    CLUE_BOOK,
     FOOTPRINT,
     ;
 

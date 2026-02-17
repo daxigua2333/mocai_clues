@@ -14,7 +14,10 @@ import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * should contain fields: UUID, type
@@ -51,6 +54,10 @@ public class ClueObject {
         this(other.id, other.type, new EnumMap<>(ComponentType.class));
     }
 
+    public ClueObject(ClueObject other, ClueType type) {
+        this(other.id, type, new EnumMap<>(ComponentType.class));
+    }
+
 
     // ===== getter setter ====
     public UUID getId() {
@@ -68,6 +75,10 @@ public class ClueObject {
 
 
     // ==== map apis ====
+
+    /**
+     * Should not be invoked except in Assembly, to make Component assembly static
+     */
     public void addComponent(ClueComponent component) {
         component.setOwner(this);
         components.put(component.type(), component);

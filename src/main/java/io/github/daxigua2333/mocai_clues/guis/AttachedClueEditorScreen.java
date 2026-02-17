@@ -16,11 +16,9 @@ import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpdatePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -119,8 +117,10 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout implements It
         );
 
         createButton = Button.builder(Component.literal("+"), btn -> {
+            // If work as expected, only MANUAL and ITEM can trigger this
             ClueObject defaultObj = Assembler.createDefaultByType(tab.getSelected());
-            defaultObj.addComponent(posWithFace);
+            BlockPosWithFace compo = defaultObj.getComponentOrThrow(ComponentType.BLOCK_POS_WITH_FACE);
+            compo.update(posWithFace);
 
             PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
                     location,

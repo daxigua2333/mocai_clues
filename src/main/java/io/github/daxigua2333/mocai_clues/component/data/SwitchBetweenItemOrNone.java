@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@Deprecated
 public class SwitchBetweenItemOrNone extends ClueComponent {
     private boolean isItemClue;
 

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@Deprecated
 public class ClickWithFinder extends ClueComponent {
     @Override
     public ComponentType type() {

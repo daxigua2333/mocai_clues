@@ -5,9 +5,11 @@ import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentFamilyRegistry;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
+import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.data.ObjectsWithLocation;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
@@ -102,7 +104,8 @@ public final class InteractSystem {
             for (InteractResult.ResultType type : rCompo.getAllowed()) {
                 switch (type) {
                     case SEND_ITEM -> sendItem(player, obj);
-                    case SEND_MANUAL_CLUE -> sendManualClue(player, obj);
+//                    case SEND_MANUAL_CLUE -> sendManualClue(player, obj);
+                    case SEND_TO_CLUE_BOOK -> sendToClueBook(player, obj);
                 }
             }
 
@@ -117,7 +120,7 @@ public final class InteractSystem {
         // TODO: delete the clue or item or something
     }
 
-    public static void sendManualClue(ServerPlayer player, ClueObject obj) {
+    public static void sendToClueBook(ServerPlayer player, ClueObject obj) {
         // generate the copy in clue book
         ClueObject copy;
         // TODO: FoundSource
@@ -136,7 +139,16 @@ public final class InteractSystem {
 //        } else {
 //            throw new RuntimeException("Invalid ObjectHolderLocation.");
 //        }
-        copy = Assembler.createClueBookClueWithoutSource(obj);
+
+        // DetailsWithCompleteness
+        DetailWithCompleteness dCompo = switch (obj.type()) {
+            case MANUAL -> generateFromManual(obj);
+            case CLUE_BOOK -> ((DetailWithCompleteness) obj.getComponentOrThrow(ComponentType.DETAIL_WITH_COMPLETENESS)).copy();
+            case null, default ->
+                    throw new RuntimeException("Unimplemented ClueBook detail component converter of ClueObject#" + obj.getId());
+        };
+        copy = Assembler.createClueBookClueWithoutSource(obj, dCompo);
+
 
         FromClueBook location = new FromClueBook(player);
         var holder = location.getHolder();
@@ -157,4 +169,16 @@ public final class InteractSystem {
         location.markDirty(copy);
     }
 
+    private static DetailWithCompleteness generateFromManual(ClueObject old) {
+        var result = new DetailWithCompleteness();
+
+        DetailData dCompo = old.getComponent(ComponentType.DETAIL_DATA);
+        if (dCompo == null)
+            throw new RuntimeException("Invalid manual ClueObject: has no detail component, id#" + old.getId());
+        for (String s : dCompo.getDetails()) {
+            result.add(s, 1f);
+        }
+        return result;
+
+    }
 }
