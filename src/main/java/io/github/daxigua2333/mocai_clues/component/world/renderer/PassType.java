@@ -12,17 +12,20 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 /** registry for render pass */
 public enum PassType {
-    BLOCK_OUTLINE,
+    BLOCK_OUTLINE(new BlockOutlinePass()),
 //        FLASH_POINT,
     ;
 
+    private final BasePass PASS;
     public static final Codec<PassType> CODEC = EnumCodecProvider.createCodec(PassType.class);
 
+    PassType(BasePass pass) {
+        PASS = pass;
+    }
+
     @OnlyIn(value = Dist.CLIENT)
-    public static BasePass getPass(PassType type) {
-        return switch (type) {
-            case BLOCK_OUTLINE -> new BlockOutlinePass();
-        };
+    public BasePass getPass() {
+        return PASS;
     }
 
     // TODO: just use singletons

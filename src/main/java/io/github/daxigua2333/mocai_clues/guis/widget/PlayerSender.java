@@ -61,7 +61,7 @@ public class PlayerSender extends AbstractContainerWidget {
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.drawString(FONT, PREFIX, getX(), getY() + height / 2 - FONT.lineHeight / 2, 0xFFFFFFFF, false);
+        graphics.drawString(FONT, PREFIX, getX(), getY() + height / 2 - FONT.lineHeight / 2, 0x00000000, false);
         dropdown.render(graphics, mouseX, mouseY, partialTick);
         button.render(graphics, mouseX, mouseY, partialTick);
     }

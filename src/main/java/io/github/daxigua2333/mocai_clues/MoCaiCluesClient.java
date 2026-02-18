@@ -1,6 +1,6 @@
 package io.github.daxigua2333.mocai_clues;
 
-import io.github.daxigua2333.mocai_clues.entry.client.FinderTick;
+import io.github.daxigua2333.mocai_clues.component.system.discovery.FinderTick;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;

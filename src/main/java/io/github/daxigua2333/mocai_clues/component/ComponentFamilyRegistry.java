@@ -17,8 +17,10 @@ import java.util.EnumSet;
 public final class ComponentFamilyRegistry {
 
     public enum SystemFamily {
-        INTERACT_SYSTEM(EnumSet.of(ComponentType.INTERACT_ENTRY, ComponentType.FINDER_STATE, ComponentType.INTERACT_RESULT)),
-        INTERACT_PASSIVE_SYSTEM(EnumSet.of(ComponentType.FINDER_STATE, ComponentType.INTERACT_PASSIVE_BEHAVIOR, ComponentType.BLOCK_POS_WITH_FACE));
+        INTERACT_SYSTEM(EnumSet.of(ComponentType.INTERACT_ENTRY, ComponentType.INTERACT_STATE, ComponentType.INTERACT_RESULT)),
+        INTERACT_PASSIVE_SYSTEM(EnumSet.of(ComponentType.INTERACT_STATE, ComponentType.INTERACT_PASSIVE_BEHAVIOR, ComponentType.BLOCK_POS_WITH_FACE)),
+        CHUNK_RENDER_SYSTEM(EnumSet.of(ComponentType.BLOCK_POS_WITH_FACE, ComponentType.RENDERER_HOLDER, ComponentType.RENDERER_WIDGET_COLLECTOR)),
+        ;
 
         private final EnumSet<ComponentType> family;
 

@@ -6,9 +6,9 @@ import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FoundSource;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 // TODO: combine with FamilyRegistry
@@ -47,7 +48,7 @@ public class Assembler {
                 new BlockOutlineData()
         )));
 
-        obj.addComponent(new FinderState(true));
+        obj.addComponent(new InteractState(EnumSet.of(InteractState.StateType.REMAINING, InteractState.StateType.ALLOWED_PLAYERS)));
         obj.addComponent(new InteractEntry(InteractEntry.EntryType.CLICK_WITH_FINDER));
         obj.addComponent(new InteractResult(InteractResult.ResultType.SEND_TO_CLUE_BOOK));
         obj.addComponent(new InteractPassiveBehavior(InteractPassiveBehavior.BehaviorType.FLASH_DOT));
@@ -73,7 +74,7 @@ public class Assembler {
                 new BlockOutlineData()
         )));
 
-        obj.addComponent(new FinderState(true));
+        obj.addComponent(new InteractState(EnumSet.of(InteractState.StateType.REMAINING, InteractState.StateType.ALLOWED_PLAYERS)));
         obj.addComponent(new InteractEntry(InteractEntry.EntryType.CLICK_WITH_FINDER));
         obj.addComponent(new InteractResult(InteractResult.ResultType.SEND_ITEM));
         obj.addComponent(new InteractPassiveBehavior(InteractPassiveBehavior.BehaviorType.ITEM_RENDERER));

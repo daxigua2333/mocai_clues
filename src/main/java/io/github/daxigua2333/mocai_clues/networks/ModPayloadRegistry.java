@@ -46,11 +46,11 @@ public class ModPayloadRegistry {
                 ScreenCreateDefaultCluePayload.STREAM_CODEC,
                 ScreenCreateDefaultCluePayload::handle
         );
-        registrar.playToServer(
-                WandSwitchToAttachModePayload.TYPE,
-                WandSwitchToAttachModePayload.STREAM_CODEC,
-                WandSwitchToAttachModePayload::handle
-        );
+//        registrar.playToServer(
+//                WandSwitchToAttachModePayload.TYPE,
+//                WandSwitchToAttachModePayload.STREAM_CODEC,
+//                WandSwitchToAttachModePayload::handle
+//        );
 
         // player share
         registrar.playToServer(

@@ -9,8 +9,8 @@ import io.github.daxigua2333.mocai_clues.component.ComponentFamilyRegistry;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.data.ObjectsWithLocation;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import net.minecraft.client.Minecraft;
@@ -84,13 +84,13 @@ public final class InteractPassiveSystem {
             }
 
             // FinderState accessibility check
-            FinderState bCompo = obj.getComponentOrThrow(ComponentType.FINDER_STATE);
-            if (!bCompo.isAccessible(player.getScoreboardName())) {
+            InteractState sCompo = obj.getComponentOrThrow(ComponentType.INTERACT_STATE);
+            if (!sCompo.isAccessible(player)) {
                 continue;
             }
 
             InteractPassiveBehavior pCompo = obj.getComponentOrThrow(ComponentType.INTERACT_PASSIVE_BEHAVIOR);
-            if (!pCompo.hasBehavior(type)) {
+            if (!pCompo.isEnabled(type)) {
                 continue;
             }
 
@@ -104,11 +104,8 @@ public final class InteractPassiveSystem {
 
 
     private static void spawnFlashDot(ClientLevel level, ClueObject obj) {
-        FinderState sCompo = obj.getComponentOrThrow(ComponentType.FINDER_STATE);
-        if (!sCompo.isDoRenderFlashDot()) {
-            return;
-        }
-        if (!sCompo.isAccessible(Minecraft.getInstance().player.getScoreboardName())) {
+        InteractState sCompo = obj.getComponentOrThrow(ComponentType.INTERACT_STATE);
+        if (!sCompo.isAccessible(Minecraft.getInstance().player)) {
             return;
         }
 

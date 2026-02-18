@@ -3,6 +3,15 @@
   "item.mocai_clues.clue_wand": "Clue Wand",
   "item.mocai_clues.clue_finder": "Clue Finder",
 
+  "mocai_clues.enum.WALK_ON": "Player Passed By",
+  "mocai_clues.enum.CLICK_WITH_FINDER": "Click with Clue Finder",
+  "mocai_clues.enum.FLASH_DOT": "Render flash dot on block face",
+  "mocai_clues.enum.ITEM_RENDERER": "Render an item on block face",
+  "mocai_clues.enum.SEND_ITEM": "Give item to player",
+  "mocai_clues.enum.SEND_TO_CLUE_BOOK": "Send to clue book",
+  "mocai_clues.enum.REMAINING": "Remaining interactions",
+  "mocai_clues.enum.ALLOWED_PLAYERS": "Whitelisted players",
+
   "mocai_clues.configuration.title": "MoCai_Clues Configs",
   "mocai_clues.configuration.section.mocai_clues.common.toml": "MoCai_Clues Configs",
   "mocai_clues.configuration.section.mocai_clues.common.toml.title": "MoCai_Clues Configs",
@@ -39,5 +48,10 @@
   "mocai_clues.screen.is_item_clue": "Whether is Item Clue",
 
   "mocai_clues.screen.details": "Details:",
-  "mocai_clues.screen.name": "Name:"
+  "mocai_clues.screen.name": "Name:",
+
+  "mocai_clues.screen.interact_state": "State",
+  "mocai_clues.screen.interact_entry" : "Interact Behavior",
+  "mocai_clues.screen.passive_behavior": "Passive Behavior",
+  "mocai_clues.screen.interact_result": "Interact Result"
 }

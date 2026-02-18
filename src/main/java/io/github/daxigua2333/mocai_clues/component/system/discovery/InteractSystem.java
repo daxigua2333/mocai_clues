@@ -9,8 +9,8 @@ import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
 import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
 import io.github.daxigua2333.mocai_clues.data.ObjectsWithLocation;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.location.FromClueBook;
@@ -91,17 +91,17 @@ public final class InteractSystem {
 
             // do have active behavior check
             InteractEntry eCompo = obj.getComponentOrThrow(ComponentType.INTERACT_ENTRY);
-            if (!eCompo.hasEntry(entryType)) {
+            if (!eCompo.isEnabled(entryType)) {
                 continue;
             }
             // FinderState accessibility check
-            FinderState bCompo = obj.getComponentOrThrow(ComponentType.FINDER_STATE);
-            if (!bCompo.isAccessible(player.getScoreboardName())) {
+            InteractState bCompo = obj.getComponentOrThrow(ComponentType.INTERACT_STATE);
+            if (!bCompo.isAccessible(player)) {
                 continue;
             }
 
             InteractResult rCompo = obj.getComponentOrThrow(ComponentType.INTERACT_RESULT);
-            for (InteractResult.ResultType type : rCompo.getAllowed()) {
+            for (InteractResult.ResultType type : rCompo.getEnabled()) {
                 switch (type) {
                     case SEND_ITEM -> sendItem(player, obj);
 //                    case SEND_MANUAL_CLUE -> sendManualClue(player, obj);
@@ -143,7 +143,8 @@ public final class InteractSystem {
         // DetailsWithCompleteness
         DetailWithCompleteness dCompo = switch (obj.type()) {
             case MANUAL -> generateFromManual(obj);
-            case CLUE_BOOK -> ((DetailWithCompleteness) obj.getComponentOrThrow(ComponentType.DETAIL_WITH_COMPLETENESS)).copy();
+            case CLUE_BOOK ->
+                    ((DetailWithCompleteness) obj.getComponentOrThrow(ComponentType.DETAIL_WITH_COMPLETENESS)).copy();
             case null, default ->
                     throw new RuntimeException("Unimplemented ClueBook detail component converter of ClueObject#" + obj.getId());
         };

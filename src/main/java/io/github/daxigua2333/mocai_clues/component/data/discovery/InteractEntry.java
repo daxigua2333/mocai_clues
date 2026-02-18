@@ -1,17 +1,16 @@
 package io.github.daxigua2333.mocai_clues.component.data.discovery;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.daxigua2333.mocai_clues.component.ClueComponent;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.data.EnumSelectorComponent;
 import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 import net.minecraft.client.gui.components.AbstractWidget;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
 
-public class InteractEntry extends ClueComponent {
+public class InteractEntry extends EnumSelectorComponent<InteractEntry.EntryType> {
     public enum EntryType {
         WALK_ON,
         CLICK_WITH_FINDER,
@@ -22,32 +21,24 @@ public class InteractEntry extends ClueComponent {
         public static final Codec<EntryType> CODEC = EnumCodecProvider.createCodec(EntryType.class);
     }
 
-    private final EnumSet<EntryType> enabled;
 
-    private InteractEntry(EnumSet<EntryType> enabled) {
-        this.enabled = enabled;
+    private InteractEntry(EnumSet<EntryType> allowed, EnumSet<EntryType> enabled) {
+        super(EntryType.class, allowed, enabled);
     }
 
-    public InteractEntry() {
-        this(EnumSet.noneOf(EntryType.class));
+    /**
+     * Default init must specify `allowed`
+     */
+    public InteractEntry(EnumSet<EntryType> allowed) {
+        this(allowed, EnumSet.noneOf(EntryType.class));
     }
 
+    /**
+     * Simplified init of Single Entry
+     */
     public InteractEntry(EntryType type) {
-        this();
-        this.setSingleEnabled(type);
-    }
-
-    private EnumSet<EntryType> getEnabled() {
-        return enabled;
-    }
-
-    public void setSingleEnabled(EntryType type) {
-        enabled.clear();
-        enabled.add(type);
-    }
-
-    public boolean hasEntry(EntryType type) {
-        return enabled.contains(type);
+        this(EnumSet.of(type));
+        enable(type);
     }
 
     @Override
@@ -55,23 +46,15 @@ public class InteractEntry extends ClueComponent {
         return ComponentType.INTERACT_ENTRY;
     }
 
-    public static final Codec<InteractEntry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            EntryType.CODEC.listOf().xmap(
-                    list -> list.isEmpty() ? EnumSet.noneOf(EntryType.class) : EnumSet.copyOf(list),
-                    set -> List.copyOf(set)
-            ).fieldOf("set").forGetter(InteractEntry::getEnabled)
-    ).apply(inst, InteractEntry::new));
+    public static final Codec<InteractEntry> CODEC = createCodec(EntryType.class, EntryType.CODEC, InteractEntry::new);
 
-
-    @Nullable
     @Override
-    public List<AbstractWidget> getEditable(Runnable markDirty) {
-        return List.of();
+    protected String getHeaderKey() {
+        return MoCaiClues.MODID + ".screen.interact_entry";
     }
 
-    @Nullable
     @Override
-    public List<AbstractWidget> getUneditable() {
+    protected List<AbstractWidget> getEditableWidget(EntryType type) {
         return List.of();
     }
 }

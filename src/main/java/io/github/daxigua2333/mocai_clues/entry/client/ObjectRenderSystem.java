@@ -229,7 +229,7 @@ public class ObjectRenderSystem {
             bbb = POOL.take();
 
             // get BufferBuilder
-            BasePass pass = PassType.getPass(pType);
+            BasePass pass = pType.getPass();
             RenderType rType = pass.getRenderType();
             if (rType == null) throw new RuntimeException("Unregistered render type for pass type: " + pType);
             BufferBuilder builder = new BufferBuilder(bbb, rType.mode(), rType.format());
@@ -310,7 +310,7 @@ public class ObjectRenderSystem {
         for (var e1 : BUFFERS.entrySet()) {
             PassType pType = e1.getKey();
 
-            BasePass pass = PassType.getPass(pType);
+            BasePass pass = pType.getPass();
             if (!pass.doRender(Minecraft.getInstance())) continue;
 
             RenderType rType = pass.getRenderType();

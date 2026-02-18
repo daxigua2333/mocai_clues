@@ -2,6 +2,7 @@ package io.github.daxigua2333.mocai_clues.component.world.finder;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.guis.widget.editable.CollapsibleCheckbox;
@@ -9,7 +10,6 @@ import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxRow;
 import io.github.daxigua2333.mocai_clues.guis.widget.editable.StringListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ScaledTextRow;
 import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.SplitLineRow;
-import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.TextListWithIndexRow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
@@ -18,28 +18,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class FinderState extends ClueComponent {
     private final boolean doEnable;
     private int remaining = 1;
     private List<String> allowedPlayers;
-    private boolean doRenderFlashDot = true;
     private boolean doRestrictPlayers = false;
     private boolean doRestrictTimes = false;
 
     public FinderState(boolean doEnable,
-                       boolean doRenderFlashDot,
                        boolean doRestrictTimes, int remaining,
                        boolean doRestrictPlayers, List<String> allowedPlayers) {
         this.doEnable = doEnable;
         this.remaining = remaining;
         this.allowedPlayers = allowedPlayers;
-        this.doRenderFlashDot = doRenderFlashDot;
         this.doRestrictPlayers = doRestrictPlayers;
         this.doRestrictTimes = doRestrictTimes;
     }
 
     public FinderState(boolean doEnable) {
-        this(doEnable, true, false, 1, false, new ArrayList<>());
+        this(doEnable, false, 1, false, new ArrayList<>());
     }
 
     public boolean isDoEnable() {
@@ -52,10 +50,6 @@ public class FinderState extends ClueComponent {
 
     private List<String> getAllowedPlayers() {
         return allowedPlayers;
-    }
-
-    public boolean isDoRenderFlashDot() {
-        return doRenderFlashDot;
     }
 
     public boolean isDoRestrictPlayers() {
@@ -111,7 +105,6 @@ public class FinderState extends ClueComponent {
 
     public static final Codec<FinderState> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.BOOL.fieldOf("doEnable").forGetter(FinderState::isDoEnable),
-            Codec.BOOL.fieldOf("doRenderFlashDot").forGetter(FinderState::isDoRenderFlashDot),
             Codec.BOOL.fieldOf("doRestrictTimes").forGetter(FinderState::isDoRestrictTimes),
             Codec.INT.fieldOf("remaining").forGetter(FinderState::getRemaining),
             Codec.BOOL.fieldOf("doRestrictPlayers").forGetter(FinderState::isDoRestrictPlayers),
@@ -127,13 +120,9 @@ public class FinderState extends ClueComponent {
         stringList.setChangeListener(list -> this.allowedPlayers = list);
 
         return List.of(
-                new ScaledTextRow(0, 0, 100, 100, Component.translatable("FinderState"), 1.2f),  // TODO: translate
+                new ScaledTextRow(0, 0, 100, 100, Component.translatable(MoCaiClues.MODID + ".screen.FinderState"), 1.2f),  // TODO: translate
                 new SplitLineRow(0, 0, 100, 4),
-                // flash dot  TODO: tooltip of description
-                new CollapsibleCheckbox(0, 0, 100, Component.translatable("doRenderFlashDot"),
-                        doRenderFlashDot,
-                        checked -> this.doRenderFlashDot = checked,
-                        List.of()),
+                // TODO: tooltip of description
                 // remaining
                 new CollapsibleCheckbox(0, 0, 100, Component.translatable("remaining"),
                         doRestrictTimes,
@@ -156,17 +145,14 @@ public class FinderState extends ClueComponent {
         if (!doEnable) return List.of();
 
         return List.of(
-                new ScaledTextRow(0, 0, 100, 100, Component.translatable("FinderState"), 1.2f),
-                new SplitLineRow(0, 0, 100, 4),
-                // flash dot
-                new ScaledTextRow(0, 0, 100, 100, Component.translatable("doRenderFlashDot"), 1.1f),
-                new ScaledTextRow(0, 0, 100, 100, Component.translatable(String.format("%b", doRenderFlashDot)), 1f),
-                // remaining
-                new ScaledTextRow(0, 0, 100, 100, Component.translatable("remaining"), 1.1f),
-                new ScaledTextRow(0, 0, 100, 100, Component.literal(String.format("%d", remaining)), 1f),
-                // allowed players
-                new ScaledTextRow(0, 0, 100, 100, Component.translatable("allowedPlayers"), 1.1f),
-                new TextListWithIndexRow(0, 0, 100, 100, allowedPlayers, 2)
+//                new ScaledTextRow(0, 0, 100, 100, Component.translatable("FinderState"), 1.2f),
+//                new SplitLineRow(0, 0, 100, 4),
+//                // remaining
+//                new ScaledTextRow(0, 0, 100, 100, Component.translatable("remaining"), 1.1f),
+//                new ScaledTextRow(0, 0, 100, 100, Component.literal(String.format("%d", remaining)), 1f),
+//                // allowed players
+//                new ScaledTextRow(0, 0, 100, 100, Component.translatable("allowedPlayers"), 1.1f),
+//                new TextListWithIndexRow(0, 0, 100, 100, allowedPlayers, 2)
         );
     }
 }

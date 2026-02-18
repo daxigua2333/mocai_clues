@@ -1,17 +1,16 @@
 package io.github.daxigua2333.mocai_clues.component.data.discovery;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.daxigua2333.mocai_clues.component.ClueComponent;
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.data.EnumSelectorComponent;
 import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 import net.minecraft.client.gui.components.AbstractWidget;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
 
-public class InteractResult extends ClueComponent {
+public class InteractResult extends EnumSelectorComponent<InteractResult.ResultType> {
     public enum ResultType {
         SEND_ITEM,
         SEND_TO_CLUE_BOOK,
@@ -22,32 +21,24 @@ public class InteractResult extends ClueComponent {
         public static final Codec<ResultType> CODEC = EnumCodecProvider.createCodec(ResultType.class);
     }
 
-    private final EnumSet<ResultType> allowed;
 
-    private InteractResult(EnumSet<ResultType> allowed) {
-        this.allowed = allowed;
+    private InteractResult(EnumSet<ResultType> allowed, EnumSet<ResultType> enabled) {
+        super(ResultType.class, allowed, enabled);
     }
 
-    public InteractResult() {
-        this(EnumSet.noneOf(ResultType.class));
+    /**
+     * Default init must specify `allowed`
+     */
+    public InteractResult(EnumSet<ResultType> allowed) {
+        this(allowed, EnumSet.noneOf(ResultType.class));
     }
 
+    /**
+     * Simplified init of Single Result
+     */
     public InteractResult(ResultType type) {
-        this();
-        this.setSingle(type);
-    }
-
-    public EnumSet<ResultType> getAllowed() {
-        return allowed;
-    }
-
-    public void setSingle(ResultType type) {
-        allowed.clear();
-        allowed.add(type);
-    }
-
-    public boolean hasResultType(ResultType type) {
-        return allowed.contains(type);
+        this(EnumSet.of(type));
+        enable(type);
     }
 
     @Override
@@ -55,22 +46,15 @@ public class InteractResult extends ClueComponent {
         return ComponentType.INTERACT_RESULT;
     }
 
-    public static final Codec<InteractResult> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            ResultType.CODEC.listOf().xmap(
-                    list -> list.isEmpty() ? EnumSet.noneOf(ResultType.class) : EnumSet.copyOf(list),
-                    set -> List.copyOf(set)
-            ).fieldOf("set").forGetter(InteractResult::getAllowed)
-    ).apply(inst, InteractResult::new));
+    public static final Codec<InteractResult> CODEC = createCodec(ResultType.class, ResultType.CODEC, InteractResult::new);
 
-    @Nullable
     @Override
-    public List<AbstractWidget> getEditable(Runnable markDirty) {
-        return List.of();
+    protected String getHeaderKey() {
+        return MoCaiClues.MODID + ".screen.interact_result";
     }
 
-    @Nullable
     @Override
-    public List<AbstractWidget> getUneditable() {
+    protected List<AbstractWidget> getEditableWidget(ResultType type) {
         return List.of();
     }
 }

@@ -8,6 +8,7 @@ import io.github.daxigua2333.mocai_clues.component.data.SwitchBetweenItemOrNone;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
 import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
@@ -35,9 +36,10 @@ public enum ComponentType {
 
     // finder
     FINDER_STATE,
-    FLASH_DOT_SET,
+//    FLASH_DOT_SET,
     FOUND_SOURCE,
     DETAIL_WITH_COMPLETENESS,
+    INTERACT_STATE,
     INTERACT_ENTRY,
     CLICK_WITH_FINDER,
     WALK_ON,
@@ -60,7 +62,7 @@ public enum ComponentType {
                         case RENDERER_HOLDER -> RendererHolder.CODEC;
                         case FINDER_STATE -> FinderState.CODEC;
                         case SEND_CLUE -> SendClue.CODEC;
-                        case FLASH_DOT_SET -> FlashDotSet.CODEC;
+//                        case FLASH_DOT_SET -> FlashDotSet.CODEC;
                         case FOUND_SOURCE -> FoundSource.CODEC;
                         case DETAIL_WITH_COMPLETENESS -> DetailWithCompleteness.CODEC;
                         case ATTACHED_ENTITY_SET -> AttachedEntitySet.CODEC;
@@ -72,6 +74,7 @@ public enum ComponentType {
                         case INTERACT_ENTRY -> InteractEntry.CODEC;
                         case INTERACT_RESULT -> InteractResult.CODEC;
                         case INTERACT_PASSIVE_BEHAVIOR -> InteractPassiveBehavior.CODEC;
+                        case INTERACT_STATE -> InteractState.CODEC;
                     }
             );
 

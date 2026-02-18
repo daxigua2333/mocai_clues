@@ -1,9 +1,9 @@
-package io.github.daxigua2333.mocai_clues.entry.client;
+package io.github.daxigua2333.mocai_clues.component.system.discovery;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FinderState;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
@@ -63,9 +63,9 @@ public final class FinderTick {
 
                     boolean doFound = false;
                     for (ClueObject obj : data) {
-                        FinderState compo = obj.getComponent(ComponentType.FINDER_STATE);
+                        InteractState compo = obj.getComponent(ComponentType.INTERACT_STATE);
                         if (compo == null) continue;
-                        if (compo.isAccessible(player.getScoreboardName())) {
+                        if (compo.isAccessible(player)) {
                             doFound = true;
                             break;
                         }
