@@ -4,12 +4,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.system.renderer.PassType;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
+/**
+ * This is used as ALLOWED in EnumSelectorComponent api,
+ * but I don't want to waste memory doing this meaningless configuration feature
+ */
 public class RendererWidgetCollector extends ClueComponent {
     private final List<PassType> list;
 

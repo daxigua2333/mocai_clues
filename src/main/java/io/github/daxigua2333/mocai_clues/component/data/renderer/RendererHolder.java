@@ -1,10 +1,9 @@
-package io.github.daxigua2333.mocai_clues.component.world.renderer;
+package io.github.daxigua2333.mocai_clues.component.data.renderer;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BaseRendererData;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.jetbrains.annotations.Nullable;
 

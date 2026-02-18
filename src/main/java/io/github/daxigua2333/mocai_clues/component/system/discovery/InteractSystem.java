@@ -39,7 +39,7 @@ public final class InteractSystem {
         if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
         if (!event.getLevel().isClientSide()) {
             processInteractEvent(
-                    DataManager.Server.retrieveByBlockPos(event.getLevel(), event.getPos()),  // TODO: filter compo
+                    DataManager.Server.retrieveByBlockPos(event.getLevel(), event.getPos()),
                     InteractEntry.EntryType.CLICK_WITH_FINDER,
                     (ServerPlayer) event.getEntity()
             );
@@ -54,7 +54,7 @@ public final class InteractSystem {
         if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
         if (!event.getLevel().isClientSide()) {
             processInteractEvent(
-                    DataManager.Server.retrieveByEntity(event.getTarget()),  // TODO: filter compo
+                    DataManager.Server.retrieveByEntity(event.getTarget()),
                     InteractEntry.EntryType.CLICK_WITH_FINDER,
                     (ServerPlayer) event.getEntity()
             );

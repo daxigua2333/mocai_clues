@@ -4,8 +4,8 @@ import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentFamilyRegistry;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.system.renderer.PassType;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import net.minecraft.core.BlockPos;
 

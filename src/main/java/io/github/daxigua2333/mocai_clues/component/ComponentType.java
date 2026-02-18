@@ -13,9 +13,8 @@ import io.github.daxigua2333.mocai_clues.component.world.data.AttachedEntitySet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosSet;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.finder.*;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
-import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 
 import java.util.Map;
 

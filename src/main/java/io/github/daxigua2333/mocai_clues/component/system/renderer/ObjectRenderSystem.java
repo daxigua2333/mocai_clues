@@ -1,15 +1,14 @@
-package io.github.daxigua2333.mocai_clues.entry.client;
+package io.github.daxigua2333.mocai_clues.component.system.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
+import io.github.daxigua2333.mocai_clues.component.ComponentFamilyRegistry;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BaseRendererData;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.pass.BasePass;
+import io.github.daxigua2333.mocai_clues.component.system.renderer.pass.BasePass;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.BaseRendererData;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
 import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
@@ -42,6 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @OnlyIn(value = Dist.CLIENT)
 @EventBusSubscriber(modid = MoCaiClues.MODID, value = Dist.CLIENT)
 public class ObjectRenderSystem {
+    private static final ComponentFamilyRegistry.SystemFamily FAMILY = ComponentFamilyRegistry.SystemFamily.CHUNK_RENDER_SYSTEM;
+
     private static final Map<PassType, Set<ChunkPos>> DIRTY = new ConcurrentHashMap<>();
     private static final Map<PassType, Set<ChunkPos>> BUILDING = new ConcurrentHashMap<>();
     private static final Map<PassType, Map<ChunkPos, VertexBuffer>> BUFFERS = new ConcurrentHashMap<>();
@@ -119,33 +120,14 @@ public class ObjectRenderSystem {
 
     private static void markDirtyByObject(ClueObject obj) {
         // get types
-        Set<PassType> types = new HashSet<>();
         RendererHolder rCompo = obj.getComponent(ComponentType.RENDERER_HOLDER);
         if (rCompo != null) {
             for (BaseRendererData pass : rCompo.getImmutable()) {
-                types.add(pass.getPassType());
+                if (pass.getChunkPos(obj) == null) continue;
+                markDirty(pass.getPassType(), pass.getChunkPos(obj));
             }
         }
 
-        // get chunks
-        Set<ChunkPos> chunks = new HashSet<>();
-//        BlockPosSet pCompo = obj.getComponent(ComponentType.BLOCK_POS_SET);
-//        if (pCompo != null) {
-//            for (BlockPos pos : pCompo.getImmutable()) {
-//                chunks.add(new ChunkPos(pos));
-//            }
-//        }
-        BlockPosWithFace bfCompo = obj.getComponent(ComponentType.BLOCK_POS_WITH_FACE);
-        if (bfCompo != null && bfCompo.getPos() != null) {
-            chunks.add(new ChunkPos(bfCompo.getPos()));
-        }
-
-        // mark dirty per chunk per type
-        for (var type : types) {
-            for (var chunk : chunks) {
-                markDirty(type, chunk);
-            }
-        }
     }
 
 
@@ -325,7 +307,7 @@ public class ObjectRenderSystem {
                 VertexBuffer vbo = e2.getValue();
 
                 // Frustum Culling
-                // TODO: distance culling
+                // TODO: distance culling (now all synced data are rendered)
                 if (!frustum.isVisible(new AABB(pos.getMinBlockX(), -64, pos.getMinBlockZ(), pos.getMaxBlockX(), 320, pos.getMaxBlockZ()))) {
                     continue;
                 }

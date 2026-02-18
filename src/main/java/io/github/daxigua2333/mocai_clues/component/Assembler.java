@@ -10,10 +10,8 @@ import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
 import io.github.daxigua2333.mocai_clues.component.world.finder.FoundSource;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererHolder;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.RendererWidgetCollector;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.data.BlockOutlineData;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.BlockOutlineData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -41,9 +39,6 @@ public class Assembler {
         obj.addComponent(new DetailData(details));
         obj.addComponent(new BlockPosWithFace());
 
-        obj.addComponent(new RendererWidgetCollector(List.of(
-                PassType.BLOCK_OUTLINE
-        )));
         obj.addComponent(new RendererHolder(List.of(
                 new BlockOutlineData()
         )));
@@ -67,9 +62,6 @@ public class Assembler {
         obj.addComponent(new ItemClue(stack));
         obj.addComponent(new BlockPosWithFace());
 
-        obj.addComponent(new RendererWidgetCollector(List.of(
-                PassType.BLOCK_OUTLINE
-        )));
         obj.addComponent(new RendererHolder(List.of(
                 new BlockOutlineData()
         )));

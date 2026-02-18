@@ -1,7 +1,7 @@
-package io.github.daxigua2333.mocai_clues.component.world.renderer.pass;
+package io.github.daxigua2333.mocai_clues.component.system.renderer.pass;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
+import io.github.daxigua2333.mocai_clues.component.system.renderer.PassType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.ChunkPos;

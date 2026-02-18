@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.component.world.renderer.pass;
+package io.github.daxigua2333.mocai_clues.component.system.renderer.pass;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -7,8 +7,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.system.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
-import io.github.daxigua2333.mocai_clues.component.world.renderer.PassType;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;
@@ -96,7 +96,8 @@ public class BlockOutlinePass extends BasePass {
     public void addToMesh(BufferBuilder builder, ChunkPos chunkPos) {
         List<ClueObject> data = DataManager.Client.retrieveByChunkPos(Minecraft.getInstance().level, chunkPos).objects();
 
-        Set<BlockPos> poses = new HashSet<>();
+        // TODO: ensure family should be here.. so there must be something wrong
+        Set<BlockPos> poses = new HashSet<>(data.size());
         for (var obj : data) {
 //            BlockPosSet compo = obj.getComponent(ComponentType.BLOCK_POS_SET);
 //            if (compo == null) continue;
