@@ -6,11 +6,16 @@ import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.data.ModAttachmentRegistry;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
+import io.github.daxigua2333.mocai_clues.data.location.FromClueBook;
+import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLocation;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelInClueBook;
+import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpdatePayload;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -20,8 +25,15 @@ public class ClueBookScreen extends ClueBookScreenLayout {
 
     private static final int ENTRY_HEIGHT = 20;
 
-    public ClueBookScreen() {
+    private final ISerializableLocation location;
+
+    public ClueBookScreen(ISerializableLocation location) {
         super(Component.translatable(MoCaiClues.MODID + "screen.clue_book"));
+        this.location = location;
+    }
+
+    public ClueBookScreen(LocalPlayer player) {
+        this(new FromClueBook(player).getSerializable());
     }
 
     @Override
@@ -35,7 +47,11 @@ public class ClueBookScreen extends ClueBookScreenLayout {
                 PANEL_W - 36,
                 PANEL_H - 64,
                 top + PANEL_Y_OFFSET + 40,
-                left + PANEL_X_OFFSET + 20
+                left + PANEL_X_OFFSET + 20,
+                obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
+                        location,
+                        new ClueObjectUpdatePayload.Data(obj.getId())
+                ))
         );
 
         var list = new AutoUpdatedScrollableListWidget<>(

@@ -4,7 +4,9 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.guis.ClueBookScreen;
 import io.github.daxigua2333.mocai_clues.guis.widget.FixedTextureButton;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,27 +21,29 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 public final class ScreenInitHook {
     @SubscribeEvent
     public static void onScreenInit(ScreenEvent.Init.Post event) {
-        if (!(event.getScreen() instanceof InventoryScreen inv)) return;
-        // Top-left corner of the INVENTORY GUI background:
-        int left = inv.getGuiLeft();
-        int top  = inv.getGuiTop();
-        // Choose a position. These coordinates are relative to the inventory GUI.
-        // If you put it at left+2/top+2 it may overlap armor slots, so many mods place it just outside:
-        int x = left - 36;   // just to the left of the GUI
-        int y = top;     // near the top
-//        x = 4;
-//        y = 4;
-//        inv.addRenderableWidget(
-        event.addListener(
-//            Button.builder(Component.literal("My"), btn -> {
-//                Minecraft.getInstance().setScreen(new ClueBookScreen());
-//            })
-//            .pos(x, y)
-//            .size(20, 20)
-//            .build()
-                new FixedTextureButton(x, y, 32, 32, Component.empty(), btn -> {
-                    Minecraft.getInstance().setScreen(new ClueBookScreen());
-                }, ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "clue_book_open_button"))
-        );
+        Screen screen = event.getScreen();
+        // Check if the screen is EITHER Survival Inventory OR Creative Inventory
+        if (screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen) {
+
+            // Cast to AbstractContainerScreen to access getGuiLeft() and getGuiTop()
+            AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>) screen;
+
+            int left = gui.getGuiLeft();
+            int top = gui.getGuiTop();
+            // Calculate position
+            int x = left - 36;
+            int y = top;
+            // Optional: If you want to tweak the position specifically for Creative mode
+            // because of the tabs, you can add a check here:
+            if (screen instanceof CreativeModeInventoryScreen) {
+                // Creative GUI is often wider or has tabs on the left/top
+                // x += 10; // example adjustment
+            }
+            event.addListener(
+                    new FixedTextureButton(x, y, 32, 32, Component.empty(), btn -> {
+                        Minecraft.getInstance().setScreen(new ClueBookScreen(Minecraft.getInstance().player));
+                    }, ResourceLocation.fromNamespaceAndPath(MoCaiClues.MODID, "clue_book_open_button"))
+            );
+        }
     }
 }

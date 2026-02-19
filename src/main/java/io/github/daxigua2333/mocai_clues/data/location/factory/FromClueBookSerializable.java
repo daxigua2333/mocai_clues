@@ -18,7 +18,7 @@ public record FromClueBookSerializable(UUID entityId) implements ISerializableLo
 
     @Override
     public Type type() {
-        return Type.ENTITY;
+        return Type.CLUE_BOOK;
     }
 
     @Override

@@ -8,13 +8,17 @@ import io.github.daxigua2333.mocai_clues.component.system.discovery.InteractSyst
 import io.github.daxigua2333.mocai_clues.guis.widget.PlayerSender;
 import io.github.daxigua2333.mocai_clues.mixins.ScrollPanelAccessor;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -28,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class DetailPanelInClueBook extends FlexibleContainer {
 
@@ -37,6 +42,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
     private final List<AbstractWidget> header = new ArrayList<>();
     private final PlayerSender sender;
     private ScrollPage page;
+    private final Button deleteButton;
 
 
     @Override
@@ -50,6 +56,13 @@ public class DetailPanelInClueBook extends FlexibleContainer {
     protected void processDirty() {
         // rebuild page
 //        page.processDirty();
+        if (object == null) {
+            sender.visible = false;
+            deleteButton.visible = false;
+        } else {
+            sender.visible = true;
+            deleteButton.visible = true;
+        }
     }
 
     @Override
@@ -61,18 +74,43 @@ public class DetailPanelInClueBook extends FlexibleContainer {
 //        page.setPosition(x, y);  // TODO: idk why this is useless
     }
 
-    public DetailPanelInClueBook(Minecraft mc, int width, int height, int top, int left) {
+    public DetailPanelInClueBook(Minecraft mc, int width, int height, int top, int left,
+                                 Consumer<ClueObject> deleteCurrent) {
         super(left, top, width, height, Component.empty());
 
         page = new ScrollPage(mc, width, height, top, left);
 
         // init header
-        int y = top - 20;
-        sender = new PlayerSender(left, y, 10, 160, 20, info -> {
+        int y = top - 24;
+        sender = new PlayerSender(left, y, 10, 160, 16, info -> {
             if (object == null || info == null) return;
             PacketDistributor.sendToServer(new ShareCluePayload(object, info.getProfile().getId()));
         });
+
+        deleteButton = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.delete"), btn -> {
+            if (object == null) return;
+            ConfirmScreen confirm = new ConfirmScreen(
+                    (BooleanConsumer) confirmed -> {
+                        mc.popGuiLayer();
+                        if (confirmed) {
+                            deleteCurrent.accept(object);
+                            this.updateObject(null);
+                        }
+                    },
+                    Component.translatable(MoCaiClues.MODID + ".screen.confirm_delete.title"),
+                    Component.translatable(MoCaiClues.MODID + ".screen.confirm_delete.body"),
+                    Component.translatable(MoCaiClues.MODID + ".screen.delete"),
+                    CommonComponents.GUI_CANCEL
+            );
+
+            // Optional: disable buttons for N ticks to prevent misclicks.
+            confirm.setDelay(10);
+
+            mc.pushGuiLayer(confirm);
+        }).bounds(left+width-40, y+22, 40, 16).build();
+
         header.add(sender);
+        header.add(deleteButton);
 
         markDirty();
     }

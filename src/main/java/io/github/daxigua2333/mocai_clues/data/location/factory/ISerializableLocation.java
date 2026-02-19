@@ -19,7 +19,8 @@ public interface ISerializableLocation {
         ENTITY(FromEntityAttachmentSerializable.STREAM_CODEC),
 //        SERVER_SD(FromServerSavedDataSerializable.STREAM_CODEC),
 //        CLIENT_SD(FromClientSavedDataSerializable.STREAM_CODEC),
-        SD(FromSavedDataSerializable.STREAM_CODEC)
+        SD(FromSavedDataSerializable.STREAM_CODEC),
+        CLUE_BOOK(FromClueBookSerializable.STREAM_CODEC)
         ;
 
         private final StreamCodec<ByteBuf, ? extends ISerializableLocation> streamCodec;
