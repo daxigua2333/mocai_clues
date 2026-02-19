@@ -35,16 +35,11 @@ public final class ComponentFamilyRegistry {
 
     public static EnumSet<SystemFamily> getFamily(ClueType type) {
         switch (type) {
-            case MANUAL -> {
+            case MANUAL, ITEM -> {
                 return EnumSet.of(
                         SystemFamily.INTERACT_SYSTEM,
-                        SystemFamily.INTERACT_PASSIVE_SYSTEM
-                );
-            }
-            case ITEM -> {
-                return EnumSet.of(
-                        SystemFamily.INTERACT_SYSTEM,
-                        SystemFamily.INTERACT_PASSIVE_SYSTEM
+                        SystemFamily.INTERACT_PASSIVE_SYSTEM,
+                        SystemFamily.CHUNK_RENDER_SYSTEM
                 );
             }
             case null, default -> {

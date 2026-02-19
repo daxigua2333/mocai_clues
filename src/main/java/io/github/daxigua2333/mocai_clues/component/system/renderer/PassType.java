@@ -10,22 +10,26 @@ import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-/** registry for render pass */
+/**
+ * registry for render pass
+ */
 public enum PassType {
-    BLOCK_OUTLINE(new BlockOutlinePass()),
+    BLOCK_OUTLINE,
 //        FLASH_POINT,
     ;
 
-    private final BasePass PASS;
     public static final Codec<PassType> CODEC = EnumCodecProvider.createCodec(PassType.class);
 
-    PassType(BasePass pass) {
-        PASS = pass;
+    @OnlyIn(Dist.CLIENT)
+    private static class ClientLookup {
+        public static final BlockOutlinePass BLOCK_OUTLINE_PASS = new BlockOutlinePass();
     }
 
     @OnlyIn(value = Dist.CLIENT)
     public BasePass getPass() {
-        return PASS;
+        return switch (this) {
+            case BLOCK_OUTLINE -> ClientLookup.BLOCK_OUTLINE_PASS;
+        };
     }
 
 

@@ -14,6 +14,7 @@ import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithComple
 import io.github.daxigua2333.mocai_clues.data.ObjectsWithLocation;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.location.FromClueBook;
+import io.github.daxigua2333.mocai_clues.data.location.IRuntimeLocation;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -103,7 +104,7 @@ public final class InteractSystem {
             InteractResult rCompo = obj.getComponentOrThrow(ComponentType.INTERACT_RESULT);
             for (InteractResult.ResultType type : rCompo.getEnabled()) {
                 switch (type) {
-                    case SEND_ITEM -> sendItem(player, obj);
+                    case SEND_ITEM -> sendItem(player, obj, ol.location());
 //                    case SEND_MANUAL_CLUE -> sendManualClue(player, obj);
                     case SEND_TO_CLUE_BOOK -> sendToClueBook(player, obj);
                 }
@@ -114,10 +115,12 @@ public final class InteractSystem {
         }
     }
 
-    private static void sendItem(ServerPlayer player, ClueObject obj) {
+    private static void sendItem(ServerPlayer player, ClueObject obj, IRuntimeLocation location) {
         ItemClue iCompo = obj.getComponentOrThrow(ComponentType.ITEM_CLUE);
         ItemHandlerHelper.giveItemToPlayer(player, iCompo.getStack().copy());
-        // TODO: delete the clue or item or something
+
+        location.getHolder().remove(obj.getId());
+        location.markDirty();
     }
 
     public static void sendToClueBook(ServerPlayer player, ClueObject obj) {
