@@ -6,9 +6,9 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentFamilyRegistry;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.component.system.renderer.pass.BasePass;
-import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.data.renderer.BaseRendererData;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
+import io.github.daxigua2333.mocai_clues.component.system.renderer.pass.BasePass;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolder;
 import io.github.daxigua2333.mocai_clues.data.ObjectHolderClientSyncedEvent;
 import io.github.daxigua2333.mocai_clues.data.common.IndexManager;
@@ -28,9 +28,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -79,8 +79,7 @@ public class ObjectRenderSystem {
     public static void onDeltaSync(ObjectHolderClientSyncedEvent.Delta<ClueObject> event) {
         if (event.attachmentHolder instanceof LevelChunk chunk) {
             if (event.delta.cleared()) {
-                ObjectHolder<ClueObject> holder = event.prev;
-                var index = (ObjectHolder<ClueObject>.Index<PassType>) holder.getIndex(IndexManager.BY_PASS_TYPE);
+                var index = (ObjectHolder<ClueObject>.Index<PassType>) event.prev.getIndex(IndexManager.BY_PASS_TYPE);
                 if (index != null) {
                     index.keySet().forEach(pType -> markDirty(pType, chunk.getPos()));
                 }
@@ -123,8 +122,9 @@ public class ObjectRenderSystem {
         RendererHolder rCompo = obj.getComponent(ComponentType.RENDERER_HOLDER);
         if (rCompo != null) {
             for (BaseRendererData pass : rCompo.getImmutable()) {
-                if (pass.getChunkPos(obj) == null) continue;
-                markDirty(pass.getPassType(), pass.getChunkPos(obj));
+                ChunkPos p = pass.getChunkPos(obj);
+                if (p == null) continue;
+                markDirty(pass.getPassType(), p);
             }
         }
 
@@ -145,44 +145,71 @@ public class ObjectRenderSystem {
         mc.getProfiler().pop();
     }
 
-    // TODO: hook in chunk unloading, to clear unloaded batch vbo
-
+    // ======== LifeCycle ==========
+    @SubscribeEvent
+    public static void onChunkUnload(ChunkEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
+            ChunkPos pos = event.getChunk().getPos();
+            // Remove from dirty/building queues
+            for (PassType type : PassType.values()) {
+                if (DIRTY.containsKey(type)) DIRTY.get(type).remove(pos);
+                // Note: If it's currently BUILDING, the async task will finish,
+                // but uploadMesh checks if the chunk is still valid or we can simple let it upload and it gets cleaned next frame.
+                // However, we must ensure the VBO is destroyed.
+                Map<ChunkPos, VertexBuffer> map = BUFFERS.get(type);
+                if (map != null) {
+                    VertexBuffer vbo = map.remove(pos);
+                    if (vbo != null) vbo.close();
+                }
+            }
+        }
+    }
 
     // avoid leaking GPU buffers when leaving a world/server
     @SubscribeEvent
     public static void onLeave(ClientPlayerNetworkEvent.LoggingOut event) {
-        // close all vbo
-        BUFFERS.forEach((k, v) -> v.values().forEach(VertexBuffer::close));
-        BUFFERS.clear();
-        // close all bbb
-        for (int i = 0; i < POOL.size(); i++) {
-            try {
-                ByteBufferBuilder bbb = POOL.take();
-                bbb.close();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        // close others
-        BUILDING.clear();
-        DIRTY.clear();
+        cleanup();
     }
 
     @SubscribeEvent
     public static void onJoin(ClientPlayerNetworkEvent.LoggingIn event) {
-        for (int i = POOL.size(); i < POOL_SIZE; i++) {
+        cleanup();
+        for (int i = 0; i < POOL_SIZE; i++) {
             POOL.add(new ByteBufferBuilder(CAPACITY));
         }
     }
 
+    private static void cleanup() {
+        // close all vbo
+        BUFFERS.forEach((k, v) -> v.values().forEach(VertexBuffer::close));
+        BUFFERS.clear();
+        // close all bbb
+//        for (int i = 0; i < POOL.size(); i++) {
+//            try {
+//                ByteBufferBuilder bbb = POOL.take();
+//                bbb.close();
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+        List<ByteBufferBuilder> builders = new ArrayList<>();
+        POOL.drainTo(builders);
+        builders.forEach(ByteBufferBuilder::close);
+        // close others
+        BUILDING.clear();
+        DIRTY.clear();
+
+    }
+
+
     private static void processDirty() {
         for (var entry : DIRTY.entrySet()) {
             PassType pType = entry.getKey();
-            Set<ChunkPos> dirty_chunks = entry.getValue();
+            Set<ChunkPos> dirtyChunks = entry.getValue();
 
-            if (dirty_chunks.isEmpty()) continue;
+            if (dirtyChunks.isEmpty()) continue;
 
-            Iterator<ChunkPos> iterator = dirty_chunks.iterator();
+            Iterator<ChunkPos> iterator = dirtyChunks.iterator();
             while (iterator.hasNext()) {
                 ChunkPos chunkPos = iterator.next();
                 if (BUILDING.containsKey(pType) && BUILDING.get(pType).contains(chunkPos)) continue;
@@ -249,15 +276,21 @@ public class ObjectRenderSystem {
                     vbo.upload(mesh);
                     VertexBuffer.unbind();
                 } else {  // If empty mesh, close(clear) it
-                    VertexBuffer vbo = BUFFERS.getOrDefault(pType, new HashMap<>()).remove(chunkPos);
-                    if (vbo != null) {
-                        vbo.close();
+                    Map<ChunkPos, VertexBuffer> map = BUFFERS.get(pType);
+                    if (map != null) {
+                        VertexBuffer vbo = map.remove(chunkPos);
+                        if (vbo != null) {
+                            vbo.close();
+                        }
                     }
                 }
             }
         } finally {
             // ALWAYS remove from the building set, even if it crashed
             BUILDING.get(pType).remove(chunkPos);
+            if (mesh != null) {
+                mesh.close();
+            }
             if (pending.builder != null) {
                 POOL.offer(pending.builder);
             }
@@ -268,13 +301,14 @@ public class ObjectRenderSystem {
         PoseStack poseStack = event.getPoseStack();
         Matrix4f projection = event.getProjectionMatrix();
         Camera camera = event.getCamera();
+        Vec3 camPos = camera.getPosition();
         Frustum frustum = event.getFrustum();
 
         poseStack.pushPose();
-        Vec3 camPos = camera.getPosition();
         // Translate to chunk origin relative to camera
 //        poseStack.translate(pos.getMinBlockX() - camPos.x, -camPos.y, pos.getMinBlockZ() - camPos.z);
-        poseStack.mulPose(new Quaternionf(camera.rotation()).conjugate());
+//        poseStack.mulPose(new Quaternionf(camera.rotation()).conjugate());
+        poseStack.mulPose(event.getModelViewMatrix());
         poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
 
 //        Frustum frustum = new Frustum(poseStack.last().pose(), projection);
