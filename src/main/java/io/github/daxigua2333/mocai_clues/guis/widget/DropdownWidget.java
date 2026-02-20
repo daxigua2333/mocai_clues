@@ -6,7 +6,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,55 +52,75 @@ public class DropdownWidget<T> extends AbstractWidget {
         }
     }
 
+    @Nullable
     public T getSelected() {
         return options.get(selectedIndex);
     }
 
-//    public void setSelectedIndex(int index) {
-//        if (index >= 0 && index < options.size()) {
-//            this.selectedIndex = index;
-//            this.setMessage(labelFunc.apply(options.get(selectedIndex)));
-//        }
-//    }
+    private void setSelectedIndex(int index) {
+        if (index >= 0 && index < options.size()) {
+            this.selectedIndex = index;
+            this.setMessage(labelFunc.apply(options.get(selectedIndex)));
+            if (onChange != null) {
+                onChange.accept(options.get(selectedIndex));
+            }
+        }
+
+    }
 
     // ========= sync part =======
+//    private List<T> lastSnapshot = List.of();
     private void syncIfNeeded() {
-        options = List.copyOf(optionsSupplier.get());
+        List<T> current = List.copyOf(optionsSupplier.get());
+//        if (!current.equals(lastSnapshot)) {
+        if (!current.equals(options)) {
+
+            T selected = getSelected();
+//            lastSnapshot = current;
+            options = current;
+            for (int i = 0; i < current.size(); i++) {
+                if (current.get(i).equals(selected)) {
+                    setSelectedIndex(i);
+                }
+            }
+
+        }
     }
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         syncIfNeeded();
 
-        // manage z
         var pose = graphics.pose();
         pose.pushPose();
-        pose.translate(0,0,z);
+        pose.translate(0, 0, z);
 
-        // Draw "main" box
         int x = this.getX();
         int y = this.getY();
         int w = this.width;
         int h = this.baseHeight;
 
-        // background color (simple)
+        // --- Render Main Box ---
         int bgColor = this.isHoveredOrFocused() ? 0xFF666666 : 0xFF444444;
         graphics.fill(x, y, x + w, y + h, bgColor);
 
-        // border
+        // Borders
         graphics.fill(x, y, x + w, y + 1, 0xFF000000);
         graphics.fill(x, y + h - 1, x + w, y + h, 0xFF000000);
         graphics.fill(x, y, x + 1, y + h, 0xFF000000);
         graphics.fill(x + w - 1, y, x + w, y + h, 0xFF000000);
 
-        // current label
+        // Label
         var font = Minecraft.getInstance().font;
         Component currentLabel = options.isEmpty() ? Component.literal("") : labelFunc.apply(options.get(selectedIndex));
         int textX = x + 4;
         int textY = y + (h - font.lineHeight) / 2;
-        graphics.drawString(font, currentLabel, textX, textY, 0xFFFFFFFF, false);
 
-        // little ▼ arrow on the right
+        // Clip text if it's too long for the box
+        String clippedLabel = font.plainSubstrByWidth(currentLabel.getString(), w - 14);
+        graphics.drawString(font, clippedLabel, textX, textY, 0xFFFFFFFF, false);
+
+        // Arrow
         graphics.drawString(
                 font,
                 Component.literal(open ? "▲" : "▼"),
@@ -119,7 +138,7 @@ public class DropdownWidget<T> extends AbstractWidget {
                 int itemBottom = itemY + itemHeight;
 
                 boolean hovered = mouseX >= x && mouseX < x + w &&
-                                  mouseY >= itemY && mouseY < itemBottom;
+                        mouseY >= itemY && mouseY < itemBottom;
 
                 int itemBg = hovered ? 0xFF777777 : 0xFF555555;
                 graphics.fill(x, itemY, x + w, itemBottom, itemBg);
@@ -133,6 +152,7 @@ public class DropdownWidget<T> extends AbstractWidget {
 
             }
         }
+
         pose.popPose();
     }
 
@@ -147,7 +167,7 @@ public class DropdownWidget<T> extends AbstractWidget {
         int w = this.width;
         int h = this.baseHeight;
 
-        // Click on the main box -> toggle open/close
+        // Toggle Open/Close
         if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
             this.open = !this.open;
             this.updateHeightForOpenState();
@@ -155,28 +175,22 @@ public class DropdownWidget<T> extends AbstractWidget {
             return true;
         }
 
-        // If open, handle clicks in the list
+        // Handle List Clicks
         if (open) {
             int listTop = y + h;
             int listBottom = listTop + options.size() * itemHeight;
 
             if (mouseX >= x && mouseX < x + w && mouseY >= listTop && mouseY < listBottom) {
                 int index = (int) ((mouseY - listTop) / itemHeight);
-                if (index >= 0 && index < options.size()) {
-                    this.selectedIndex = index;
-                    this.setMessage(labelFunc.apply(options.get(selectedIndex)));
-                    if (onChange != null) {
-                        onChange.accept(options.get(selectedIndex));
-                    }
-                }
+                setSelectedIndex(index);
                 this.open = false;
                 this.updateHeightForOpenState();
                 return true;
             } else {
-                // Click outside closes it
+                // Click outside closes dropdown
                 this.open = false;
                 this.updateHeightForOpenState();
-                // Return false so other widgets can handle the click
+                // Return false to let other widgets process the click
             }
         }
 
@@ -193,6 +207,5 @@ public class DropdownWidget<T> extends AbstractWidget {
 
     @Override
     protected void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput narration) {
-        // For brevity: you can add narration text here if you want full accessibility support.
     }
 }

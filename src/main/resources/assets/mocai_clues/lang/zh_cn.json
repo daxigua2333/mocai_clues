@@ -3,6 +3,26 @@
   "item.mocai_clues.clue_wand": "猫头鹰的法杖",
   "item.mocai_clues.clue_finder": "放大镜",
 
+  "mocai_clues.enum.MANUAL": "手动攥写",
+  "mocai_clues.enum.ITEM": "物证",
+  "mocai_clues.enum.CLUE_BOOK": "线索簿",
+  "mocai_clues.enum.MANUAL.tooltip": "Manual Wrote Clue",
+  "mocai_clues.enum.ITEM.tooltip": "Item Clue",
+  "mocai_clues.enum.CLUE_BOOK.tooltip": "Clue Book",
+
+  "mocai_clues.enum.WALK_ON": "玩家经过",
+  "mocai_clues.enum.CLICK_WITH_FINDER": "使用放大镜",
+
+  "mocai_clues.enum.FLASH_DOT": "在方块表面渲染光点",
+  "mocai_clues.enum.ITEM_RENDERER": "在方块表面渲染物品",
+
+  "mocai_clues.enum.SEND_ITEM": "给玩家物品",
+  "mocai_clues.enum.SEND_TO_CLUE_BOOK": "写入线索簿",
+
+  "mocai_clues.enum.REMAINING": "剩余交互次数",
+  "mocai_clues.enum.ALLOWED_PLAYERS": "玩家白名单",
+
+
   "mocai_clues.configuration.title": "MoCai_Clues Configs",
   "mocai_clues.configuration.section.mocai_clues.common.toml": "MoCai_Clues Configs",
   "mocai_clues.configuration.section.mocai_clues.common.toml.title": "MoCai_Clues Configs",
@@ -32,7 +52,7 @@
 
 
   "mocai_clues.screen.attach": "附加到世界",
-  "mocai_clues.screen.share_with": "将线索分享给:",
+  "mocai_clues.screen.share_with": "分享给:",
   "mocai_clues.screen.share": "分享",
 
   "mocai_clues.screen.item_clue_type": "类型: 物证",
@@ -42,8 +62,9 @@
   "mocai_clues.screen.details": "详情:",
   "mocai_clues.screen.name": "名称:",
 
-  "mocai_clues.screen.interact_entry" : "Interact Behavior",
-  "mocai_clues.screen.passive_behavior": "Passive Behavior",
-  "mocai_clues.screen.interact_result": "Interact Result"
+  "mocai_clues.screen.interact_state": "状态",
+  "mocai_clues.screen.interact_entry" : "交互行为",
+  "mocai_clues.screen.passive_behavior": "被动行为",
+  "mocai_clues.screen.interact_result": "交互结果"
 
 }

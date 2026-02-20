@@ -126,18 +126,19 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout implements It
                     location,
                     new ClueObjectUpdatePayload.Data(defaultObj)));
 //            PacketDistributor.sendToServer(new ScreenCreateDefaultCluePayload(tab.getSelected(), location));
-        }).bounds(left + LIST_X_OFFSET + 13 + 60 + 4, top + LIST_Y_OFFSET + 11, 16, 16).build();
+        }).bounds(left + LIST_X_OFFSET + 13 + 48 + 2, top + LIST_Y_OFFSET + 12, 16, 16).build();
 
         tab = new DropdownWidget<>(
-                left + LIST_X_OFFSET + 13,
-                top + LIST_Y_OFFSET + 11,
+                left + LIST_X_OFFSET + 11,
+                top + LIST_Y_OFFSET + 12,
+//                10, 10,
                 2,
-                60,
+                50,
                 16,
                 0,
                 this.typeSupplier,
-//                Component::literal,
-                (type) -> Component.literal(type.toString()),  // TODO
+                (type) -> Component.translatable(MoCaiClues.MODID + ".enum." + type.toString()),
+//                type -> Component.translatable(MoCaiClues.MODID + ".enum." + type.toString() + ".tooltip"),
                 (clueType) -> {
                     list.updateDataSupplier(
                             () -> clueSupplier.apply(clueType)

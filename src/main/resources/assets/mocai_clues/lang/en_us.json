@@ -3,12 +3,22 @@
   "item.mocai_clues.clue_wand": "Clue Wand",
   "item.mocai_clues.clue_finder": "Clue Finder",
 
+  "mocai_clues.enum.MANUAL": "Manual",
+  "mocai_clues.enum.ITEM": "Item",
+  "mocai_clues.enum.CLUE_BOOK": "Clue Book",
+  "mocai_clues.enum.MANUAL.tooltip": "Manual Wrote Clue",
+  "mocai_clues.enum.ITEM.tooltip": "Item Clue",
+  "mocai_clues.enum.CLUE_BOOK.tooltip": "Clue Book",
+
   "mocai_clues.enum.WALK_ON": "Player Passed By",
   "mocai_clues.enum.CLICK_WITH_FINDER": "Click with Clue Finder",
+
   "mocai_clues.enum.FLASH_DOT": "Render flash dot on block face",
   "mocai_clues.enum.ITEM_RENDERER": "Render an item on block face",
+
   "mocai_clues.enum.SEND_ITEM": "Give item to player",
   "mocai_clues.enum.SEND_TO_CLUE_BOOK": "Send to clue book",
+
   "mocai_clues.enum.REMAINING": "Remaining interactions",
   "mocai_clues.enum.ALLOWED_PLAYERS": "Whitelisted players",
 

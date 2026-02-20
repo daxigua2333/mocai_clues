@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.guis.widget.editable;
 
 import io.github.daxigua2333.mocai_clues.guis.widget.container.FlexibleContainer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -30,7 +31,7 @@ public class CollapsibleCheckbox extends FlexibleContainer {
         this.onToggle = onToggle;
         this.children = children;
 
-        this.checkbox = Checkbox.builder(title, Minecraft.getInstance().font)
+        this.checkbox = Checkbox.builder(title.copy().withStyle(ChatFormatting.GRAY), Minecraft.getInstance().font)
                 .pos(x, y).selected(initialChecked)
                 .onValueChange((box, checked) -> {
                     setExpanded(checked);

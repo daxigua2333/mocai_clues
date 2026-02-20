@@ -82,12 +82,12 @@ public class DetailPanelInClueBook extends FlexibleContainer {
 
         // init header
         int y = top - 24;
-        sender = new PlayerSender(left, y, 10, 160, 16, info -> {
+        sender = new PlayerSender(left, y, 10, 160 - 16, 16, info -> {
             if (object == null || info == null) return;
             PacketDistributor.sendToServer(new ShareCluePayload(object, info.getProfile().getId()));
         });
 
-        deleteButton = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.delete"), btn -> {
+        deleteButton = Button.builder(Component.literal("❌"), btn -> {
             if (object == null) return;
             ConfirmScreen confirm = new ConfirmScreen(
                     (BooleanConsumer) confirmed -> {
@@ -107,7 +107,8 @@ public class DetailPanelInClueBook extends FlexibleContainer {
             confirm.setDelay(10);
 
             mc.pushGuiLayer(confirm);
-        }).bounds(left+width-40, y+22, 40, 16).build();
+        }).bounds(left + width - 16, y, 16, 16).build();
+//        }).bounds(left, y - 18, 16, 16).build();
 
         header.add(sender);
         header.add(deleteButton);
@@ -243,7 +244,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
             for (var w : this.children) {
                 w.setX(x);
                 w.setY(y);
-                w.setWidth(this.width);
+                w.setWidth(this.width - 6);
                 w.render(guiGraphics, mouseX, mouseY, this.lastPartialTick);  // update height is in this tick()
                 y += w.getHeight() + this.spacing;
             }

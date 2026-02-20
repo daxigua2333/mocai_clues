@@ -277,7 +277,7 @@ public class DetailPanelNew extends FlexibleContainer {
             for (var w : this.children) {
                 w.setX(x);
                 w.setY(y);
-                w.setWidth(this.width);
+                w.setWidth(this.width - 6);
                 w.render(guiGraphics, mouseX, mouseY, this.lastPartialTick);  // update height is in this tick()
                 y += w.getHeight() + this.spacing;
             }

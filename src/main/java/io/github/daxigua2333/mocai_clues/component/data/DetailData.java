@@ -41,10 +41,10 @@ public class DetailData extends ClueComponent {
     // ======= editable ===========
     @Override
     public List<AbstractWidget> getEditable(Runnable markDirty) {
-        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
-        if (sCompo != null && sCompo.isItemClue()) {
-            return List.of();
-        }
+//        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+//        if (sCompo != null && sCompo.isItemClue()) {
+//            return List.of();
+//        }
 
         var stringList = new StringListWidget(Minecraft.getInstance().font, 0, 0, 100, 100, this.details);
         stringList.setChangeListener(list -> this.details = list);
@@ -57,10 +57,10 @@ public class DetailData extends ClueComponent {
 
     @Override
     public List<AbstractWidget> getUneditable() {
-        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
-        if (sCompo != null && sCompo.isItemClue()) {
-            return List.of();
-        }
+//        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+//        if (sCompo != null && sCompo.isItemClue()) {
+//            return List.of();
+//        }
 
         return List.of(
                 new TextListWithIndexRow(0, 0, 100, 100, details, 2)

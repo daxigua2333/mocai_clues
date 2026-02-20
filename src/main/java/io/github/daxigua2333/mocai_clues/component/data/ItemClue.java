@@ -44,10 +44,10 @@ public class ItemClue extends ClueComponent {
     @Nullable
     @Override
     public List<AbstractWidget> getEditable(Runnable markDirty) {
-        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
-        if (sCompo != null && !sCompo.isItemClue()) {
-            return List.of();
-        }
+//        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+//        if (sCompo != null && !sCompo.isItemClue()) {
+//            return List.of();
+//        }
 
         return List.of(new ItemStackPickerWidget(0, 0, Component.empty(), () -> stack));
     }
@@ -55,10 +55,10 @@ public class ItemClue extends ClueComponent {
     @Nullable
     @Override
     public List<AbstractWidget> getUneditable() {
-        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
-        if (sCompo != null && !sCompo.isItemClue()) {
-            return List.of();
-        }
+//        SwitchBetweenItemOrNone sCompo = owner.getComponent(ComponentType.SWITCH_BETWEEN_ITEM_OR_NONE);
+//        if (sCompo != null && !sCompo.isItemClue()) {
+//            return List.of();
+//        }
 
         return List.of(new ItemStackSlotWidget(0, 0, () -> stack));
     }
