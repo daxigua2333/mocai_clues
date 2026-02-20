@@ -79,12 +79,12 @@ public class ModPayloadRegistry {
                     ItemStack stack = player.getMainHandItem();
                     if (stack.getItem() == ModItemsRegistry.CLUE_WAND_ITEM.get()) {
                         // update(...) will set the component (creates it if needed) and returns the old/updated value
-                        stack.update(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE, current -> {
+                        stack.update(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.values()[0], current -> {
                             // If the component was missing current could be null - guard
-                            WandMode cur = current == null ? WandMode.CREATE : current;
+                            WandMode cur = current == null ? WandMode.values()[0] : current;
                             return cur.next();
                         });
-                        WandMode newMode = stack.getOrDefault(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE);
+                        WandMode newMode = stack.getOrDefault(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.values()[0]);
                         // show simple chat feedback (server -> client message to the player)
                         player.displayClientMessage(Component.literal("Wand mode: " + newMode.toString()), true);
                     }

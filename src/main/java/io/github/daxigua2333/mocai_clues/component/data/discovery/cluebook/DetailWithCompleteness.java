@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.component.world.finder;
+package io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

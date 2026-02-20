@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.system.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import net.minecraft.world.level.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 

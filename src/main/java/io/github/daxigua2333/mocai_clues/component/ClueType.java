@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 public enum ClueType {
-    // TODO
     MANUAL,
     ITEM,
     CLUE_BOOK,

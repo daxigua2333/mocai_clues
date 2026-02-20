@@ -29,11 +29,6 @@ public class ModDataComponentsRegistry {
             .networkSynchronized(WAND_MODE_STREAM)      // sync to client
         );
 
-    public static final Supplier<DataComponentType<AttachingObject>> ATTACHING_OBJECT =
-        DATA_COMPONENTS.registerComponentType("attaching_object", builder -> builder
-            .persistent(AttachingObject.CODEC)
-            .networkSynchronized(AttachingObject.STREAM_CODEC)
-        );
 
 
 

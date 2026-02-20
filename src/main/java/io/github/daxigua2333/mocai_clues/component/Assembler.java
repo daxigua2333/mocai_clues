@@ -7,9 +7,9 @@ import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
-import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
-import io.github.daxigua2333.mocai_clues.component.world.finder.FoundSource;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook.DetailWithCompleteness;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook.FoundSource;
 import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.data.renderer.BlockOutlineData;
 import net.minecraft.core.BlockPos;
@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-// TODO: combine with FamilyRegistry
 public class Assembler {
     public static ClueObject createDefaultByType(ClueType type) {
         return switch (type) {

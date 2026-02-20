@@ -10,7 +10,7 @@ import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.data.ObjectsWithLocation;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import net.minecraft.client.Minecraft;

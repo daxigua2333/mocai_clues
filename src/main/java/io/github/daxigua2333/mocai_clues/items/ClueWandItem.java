@@ -1,18 +1,6 @@
 package io.github.daxigua2333.mocai_clues.items;
 
-import io.github.daxigua2333.mocai_clues.data_attachments.ClueContainer;
-import io.github.daxigua2333.mocai_clues.data_attachments.statics.ClueContainerAttachmentHelper;
-import io.github.daxigua2333.mocai_clues.items.components.ModDataComponentsRegistry;
-import io.github.daxigua2333.mocai_clues.items.components.WandMode;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 
 
 public class ClueWandItem extends Item {
@@ -45,60 +33,5 @@ public class ClueWandItem extends Item {
 //        return false;
 //    }
 
-    @Override
-    public InteractionResult useOn(UseOnContext context) {
-        Level level = context.getLevel();
-        BlockPos clickedPos = context.getClickedPos();
-        Direction clickedFace = context.getClickedFace();
-        Player player = context.getPlayer();
-        ItemStack stack = context.getItemInHand();
-
-        WandMode mode = stack.getOrDefault(ModDataComponentsRegistry.WAND_MODE.get(), WandMode.CREATE);
-        switch (mode) {
-            case CREATE:
-                if (!level.isClientSide()) {
-                    if (ClueContainerAttachmentHelper.containsKey(level, clickedPos)) {
-                        if (player != null) {
-                            player.sendSystemMessage(Component.literal(clickedPos.toShortString() + " already has data"));  // TODO: lang
-                        }
-                    } else {
-                        ClueContainerAttachmentHelper.getOrCreate(level, clickedPos);
-                        if (player != null) {
-                            player.sendSystemMessage(Component.literal("Attached data at " + clickedPos.toShortString()));
-                        }
-                    }
-                }
-                return InteractionResult.sidedSuccess(level.isClientSide());
-            case DELETE:
-                if (!level.isClientSide()) {
-                    ClueContainerAttachmentHelper.remove(level, clickedPos);
-                    if (player != null) {
-                        player.sendSystemMessage(Component.literal("Removed data at " + clickedPos.toShortString()));  // TODO: lang
-                    }
-                }
-                return InteractionResult.sidedSuccess(level.isClientSide());
-//            case QUERY:
-//                if (!level.isClientSide()) {
-//                    // TODO: the nomi gui
-//                }
-            case CREATE_INFINITY:
-                if (!level.isClientSide()) {
-                    if (ClueContainerAttachmentHelper.containsKey(level, clickedPos)) {
-                        if (player != null) {
-                            player.sendSystemMessage(Component.literal(clickedPos.toShortString() + " already has data"));  // TODO: lang
-                        }
-                    } else {
-                        ClueContainer container = ClueContainerAttachmentHelper.getOrCreate(level, clickedPos);
-                        container.setInfinite(true);
-                        if (player != null) {
-                            player.sendSystemMessage(Component.literal("Attached data at " + clickedPos.toShortString()));
-                        }
-                    }
-                }
-                return InteractionResult.sidedSuccess(level.isClientSide());
-            case null, default:
-                return InteractionResult.PASS;
-        }
-    }
 
 }

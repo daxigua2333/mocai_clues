@@ -3,7 +3,7 @@ package io.github.daxigua2333.mocai_clues.entry.client;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.data.ObjectsWithLocation;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.location.factory.FromSavedDataSerializable;

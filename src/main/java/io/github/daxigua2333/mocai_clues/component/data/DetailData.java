@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class DetailData extends ClueComponent {
-    private List<String> details;  // TODO: info merge
+    private List<String> details;
 
     @Override
     public ComponentType type() {
@@ -49,7 +49,7 @@ public class DetailData extends ClueComponent {
         var stringList = new StringListWidget(Minecraft.getInstance().font, 0, 0, 100, 100, this.details);
         stringList.setChangeListener(list -> this.details = list);
 
-        return List.of(   // TODO
+        return List.of(
                 new ScaledTextRow(0, 0, 100, 100, Component.translatable(MoCaiClues.MODID + ".screen.details"), 1.1f),
                 stringList
         );

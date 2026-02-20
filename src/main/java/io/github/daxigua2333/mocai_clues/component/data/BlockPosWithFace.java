@@ -1,4 +1,4 @@
-package io.github.daxigua2333.mocai_clues.component.world.data;
+package io.github.daxigua2333.mocai_clues.component.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

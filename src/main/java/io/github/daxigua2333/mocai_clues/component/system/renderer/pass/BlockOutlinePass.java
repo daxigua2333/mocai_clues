@@ -8,7 +8,7 @@ import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.system.renderer.PassType;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.items.ModItemsRegistry;
 import net.minecraft.client.Minecraft;

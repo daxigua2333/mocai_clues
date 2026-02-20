@@ -1,12 +1,12 @@
 package io.github.daxigua2333.mocai_clues.items.components;
 
 public enum WandMode {
-    CREATE,
-    DELETE,
-//    QUERY;  // TODO
-    CREATE_INFINITY,
+//    CREATE,
+//    DELETE,
+//    QUERY;
+//    CREATE_INFINITY,
     EDITOR,
-    ATTACH,
+//    ATTACH,
     ;
     public WandMode next() {
         WandMode[] vals = values();

@@ -10,7 +10,7 @@ import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
-import io.github.daxigua2333.mocai_clues.component.world.finder.DetailWithCompleteness;
+import io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook.DetailWithCompleteness;
 import io.github.daxigua2333.mocai_clues.data.ObjectsWithLocation;
 import io.github.daxigua2333.mocai_clues.data.common.DataManager;
 import io.github.daxigua2333.mocai_clues.data.location.FromClueBook;

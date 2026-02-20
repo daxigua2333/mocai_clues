@@ -7,7 +7,7 @@ import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
-import io.github.daxigua2333.mocai_clues.component.world.data.BlockPosWithFace;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLocation;
 import io.github.daxigua2333.mocai_clues.guis.whitelist.ItemClueHolder;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
