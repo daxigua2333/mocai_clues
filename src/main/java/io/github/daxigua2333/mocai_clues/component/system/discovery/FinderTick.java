@@ -42,6 +42,7 @@ public final class FinderTick {
                     // finder in hand
                     boolean inHand = ItemStack.isSameItem(player.getMainHandItem(), stack) ||
                             ItemStack.isSameItem(player.getOffhandItem(), stack);
+                    if (!inHand) return returnWithUpdate(false);
 
                     // finder hit predicate
                     HitResult hr = Minecraft.getInstance().hitResult;  // TODO: performance issues: merge the rayTrace ticker
@@ -72,7 +73,7 @@ public final class FinderTick {
                     }
 
 //                    if (inHand && !data.isEmpty()) {
-                    if (inHand && doFound) {
+                    if (doFound) {
 //                        MoCaiClues.LOGGER.debug("{}", prevDoFound);
                         if (!prevDoFound) player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
                         return returnWithUpdate(true);

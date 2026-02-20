@@ -1,5 +1,6 @@
 package io.github.daxigua2333.mocai_clues.guis.widget.editable;
 
+import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.guis.widget.container.FlexibleContainer;
 import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ItemStackSlotWidget;
 import io.github.daxigua2333.mocai_clues.networks.C2SOpenItemPickerMenuPayload;
@@ -34,7 +35,7 @@ public final class ItemStackPickerWidget extends FlexibleContainer {
 //        this.value = initial.copy();
         this.valueSupplier = valueSupplier;
         this.slotWidget = new ItemStackSlotWidget(x, y, valueSupplier);
-        this.button = Button.builder(Component.literal("Pick..."), b -> {
+        this.button = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.pick_item"), b -> {
             PacketDistributor.sendToServer(new C2SOpenItemPickerMenuPayload(getValue()));
 //            Minecraft.getInstance().setScreen(
 //            Minecraft.getInstance().pushGuiLayer(

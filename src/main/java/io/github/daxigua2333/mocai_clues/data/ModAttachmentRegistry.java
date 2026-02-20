@@ -47,6 +47,7 @@ public final class ModAttachmentRegistry {
                     .serialize(CLUE_HOLDER_CODEC)
 //                    .sync(FootprintMainMap.STREAM_CODEC)
                     .sync(new ObjectHolderSyncHandler<>(ClueObject::getId, ClueObject.CODEC, ClueObject.STREAM_CODEC))
+                    .copyOnDeath()
                     .build()
     );
 

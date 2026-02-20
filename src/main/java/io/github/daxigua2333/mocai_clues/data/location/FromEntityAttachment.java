@@ -28,7 +28,7 @@ public class FromEntityAttachment extends BaseRuntimeLocation {
 //        return Type.ENTITY;
 //    }
 
-    // TODO: null behavior
+    // TODO: null behavior, but entity death will auto delete the Attachment, so whatever
 
     @Override
     public ObjectHolder<ClueObject> getHolder() {

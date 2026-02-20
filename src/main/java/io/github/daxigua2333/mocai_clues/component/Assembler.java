@@ -43,7 +43,7 @@ public class Assembler {
         )));
 
         obj.addComponent(new InteractState(EnumSet.of(InteractState.StateType.REMAINING, InteractState.StateType.ALLOWED_PLAYERS)));
-        obj.addComponent(new InteractEntry(InteractEntry.EntryType.CLICK_WITH_FINDER));
+        obj.addComponent(new InteractEntry(EnumSet.of(InteractEntry.EntryType.CLICK_WITH_FINDER, InteractEntry.EntryType.WALK_ON)));
         obj.addComponent(new InteractResult(InteractResult.ResultType.SEND_TO_CLUE_BOOK));
         obj.addComponent(new InteractPassiveBehavior(InteractPassiveBehavior.BehaviorType.FLASH_DOT));
 

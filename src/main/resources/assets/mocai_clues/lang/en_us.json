@@ -56,6 +56,8 @@
   "mocai_clues.screen.item_clue_type": "Type: Item Clue",
   "mocai_clues.screen.non_item_clue_type": "Type: Non-Item Clue",
   "mocai_clues.screen.is_item_clue": "Whether is Item Clue",
+  "mocai_clues.screen.pick_item": "Pick Item",
+  "mocai_clues.screen.item_clue": "Item Clue",
 
   "mocai_clues.screen.details": "Details:",
   "mocai_clues.screen.name": "Name:",
