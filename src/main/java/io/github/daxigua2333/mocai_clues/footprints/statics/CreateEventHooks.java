@@ -49,6 +49,7 @@ public final class CreateEventHooks {
 
     @SubscribeEvent
     public static void onPlayerJump(LivingEvent.LivingJumpEvent event) {
+        if (!HookToggle.isEnabled()) {return;}
         LivingEntity living = event.getEntity();
         if (!(living instanceof ServerPlayer player)) return;
         if (player.level().isClientSide()) return;
