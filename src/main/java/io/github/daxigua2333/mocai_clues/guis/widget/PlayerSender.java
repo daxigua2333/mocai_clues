@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerSender extends AbstractContainerWidget {
@@ -22,10 +23,13 @@ public class PlayerSender extends AbstractContainerWidget {
 
     private static final Font FONT = Minecraft.getInstance().font;
     private static final Component PREFIX = Component.translatable(MoCaiClues.MODID + ".screen.share_with");
-    private final DropdownWidget<PlayerInfo> dropdown;
+    private final ScrollableDropdownWidget<PlayerInfo> dropdown;
     private final Button button;
 
     private static final int BUTTON_WIDTH = 30;
+
+    public record row(UUID playerId, Component name) {
+    }
 
     public PlayerSender(
             int x, int y, int z, int width, int height,
@@ -33,7 +37,7 @@ public class PlayerSender extends AbstractContainerWidget {
         super(x, y, width, height, Component.empty());
 
         int prefixWidth = FONT.width(PREFIX);
-        dropdown = new DropdownWidget<>(x + prefixWidth + 2, y, z, width - prefixWidth - BUTTON_WIDTH - 4, height, 0,
+        dropdown = new ScrollableDropdownWidget<>(x + prefixWidth + 2, y, z, width - prefixWidth - BUTTON_WIDTH - 4, 0,
                 () -> {
                     var mc = Minecraft.getInstance();
                     ClientPacketListener conn = mc.getConnection();
@@ -43,6 +47,7 @@ public class PlayerSender extends AbstractContainerWidget {
                             .toList();
                 },
                 info -> {
+                    if (info == null) return Component.empty();
                     var tabName = info.getTabListDisplayName();
                     if (tabName == null) {  // single player
                         return Component.literal(info.getProfile().getName());
@@ -50,6 +55,7 @@ public class PlayerSender extends AbstractContainerWidget {
                         return info.getTabListDisplayName();
                     }
                 },
+                info -> info.getProfile().getId(),
                 info -> selected = info);
 
         button = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.share"),

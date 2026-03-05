@@ -5,13 +5,13 @@ import io.github.daxigua2333.mocai_clues.component.Assembler;
 import io.github.daxigua2333.mocai_clues.component.ClueObject;
 import io.github.daxigua2333.mocai_clues.component.ClueType;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
-import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.data.location.factory.ISerializableLocation;
 import io.github.daxigua2333.mocai_clues.guis.whitelist.ItemClueHolder;
 import io.github.daxigua2333.mocai_clues.guis.widget.AutoUpdatedScrollableListWidget;
-import io.github.daxigua2333.mocai_clues.guis.widget.DropdownWidget;
+import io.github.daxigua2333.mocai_clues.guis.widget.ScrollableDropdownWidget;
 import io.github.daxigua2333.mocai_clues.guis.widget.container.DetailPanelNew;
 import io.github.daxigua2333.mocai_clues.networks.ClueObjectUpdatePayload;
 import net.minecraft.client.Minecraft;
@@ -20,7 +20,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -37,7 +39,7 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout implements It
     private static final int ENTRY_HEIGHT = 20;
 
     private Button createButton;
-    private DropdownWidget<ClueType> tab;
+    private ScrollableDropdownWidget<ClueType> tab;
     private AutoUpdatedScrollableListWidget<ClueObject> list;
     private DetailPanelNew details;
 
@@ -128,18 +130,20 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout implements It
 //            PacketDistributor.sendToServer(new ScreenCreateDefaultCluePayload(tab.getSelected(), location));
         }).bounds(left + LIST_X_OFFSET + 13 + 48 + 2, top + LIST_Y_OFFSET + 12, 16, 16).build();
 
-        tab = new DropdownWidget<>(
+        tab = new ScrollableDropdownWidget<>(
                 left + LIST_X_OFFSET + 11,
                 top + LIST_Y_OFFSET + 12,
-//                10, 10,
                 2,
                 50,
-                16,
                 0,
                 this.typeSupplier,
-                (type) -> Component.translatable(MoCaiClues.MODID + ".enum." + type.toString()),
+                type -> {
+                    if (type == null) return Component.empty();
+                    return Component.translatable(MoCaiClues.MODID + ".enum." + type.toString());
+                },
+                type -> UUID.nameUUIDFromBytes(type.name().getBytes(StandardCharsets.UTF_8)),
 //                type -> Component.translatable(MoCaiClues.MODID + ".enum." + type.toString() + ".tooltip"),
-                (clueType) -> {
+                clueType -> {
                     list.updateDataSupplier(
                             () -> clueSupplier.apply(clueType)
                     );

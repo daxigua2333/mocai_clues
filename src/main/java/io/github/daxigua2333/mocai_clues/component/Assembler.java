@@ -28,6 +28,7 @@ public class Assembler {
             case ITEM -> createItemClue();
             case FOOTPRINT -> throw new RuntimeException("Unimplemented");
             case CLUE_BOOK -> throw new RuntimeException("Can't create default Object of CLUE_BOOK type");
+            default -> throw new RuntimeException("Unimplemented");
         };
     }
 
@@ -43,7 +44,9 @@ public class Assembler {
         )));
 
         obj.addComponent(new InteractState(EnumSet.of(InteractState.StateType.REMAINING, InteractState.StateType.ALLOWED_PLAYERS)));
-        obj.addComponent(new InteractEntry(EnumSet.of(InteractEntry.EntryType.CLICK_WITH_FINDER, InteractEntry.EntryType.WALK_ON)));
+        obj.addComponent(new InteractEntry(
+                EnumSet.of(InteractEntry.EntryType.CLICK_WITH_FINDER, InteractEntry.EntryType.WALK_ON),
+                EnumSet.of(InteractEntry.EntryType.CLICK_WITH_FINDER)));
         obj.addComponent(new InteractResult(InteractResult.ResultType.SEND_TO_CLUE_BOOK));
         obj.addComponent(new InteractPassiveBehavior(InteractPassiveBehavior.BehaviorType.FLASH_DOT));
 

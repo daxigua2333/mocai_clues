@@ -37,7 +37,7 @@ public class StringListWidget extends FlexibleContainer {
 
         // Add button (we re-position it in relayout()).
         this.addButton = Button.builder(Component.literal("+"),
-            btn -> addRow("")
+                btn -> addRow("")
         ).bounds(x, y, 40, rowHeight).build();
         this.children.add(this.addButton);
 
@@ -53,12 +53,16 @@ public class StringListWidget extends FlexibleContainer {
         markDirty();
     }
 
-    /** Optional: called whenever rows are added/removed or text changes. */
+    /**
+     * Optional: called whenever rows are added/removed or text changes.
+     */
     public void setChangeListener(Consumer<List<String>> changeListener) {
         this.changeListener = changeListener;
     }
 
-    /** Current list contents. */
+    /**
+     * Current list contents.
+     */
     public List<String> getValues() {
         List<String> values = new ArrayList<>(rows.size());
         for (Row row : rows) {
@@ -67,7 +71,9 @@ public class StringListWidget extends FlexibleContainer {
         return values;
     }
 
-    /** Replace all rows with the given values. */
+    /**
+     * Replace all rows with the given values.
+     */
     public void setValues(List<String> newValues) {
         for (Row row : rows) {
             children.remove(row.editBox);
@@ -88,7 +94,9 @@ public class StringListWidget extends FlexibleContainer {
         onChanged();
     }
 
-    /** Optional per-field character limit. */
+    /**
+     * Optional per-field character limit.
+     */
     public void setMaxLength(int maxLength) {
         this.maxLength = maxLength;
         for (Row row : rows) {
@@ -108,10 +116,10 @@ public class StringListWidget extends FlexibleContainer {
 
     private void addRow(String initialValue) {
         EditBox editBox = new EditBox(
-            this.font,
-            this.getX(), this.getY(),
-            100, rowHeight,
-            Component.empty()
+                this.font,
+                this.getX(), this.getY(),
+                100, rowHeight,
+                Component.empty()
         );
         editBox.setMaxLength(this.maxLength);
         editBox.setValue(initialValue);
@@ -120,8 +128,8 @@ public class StringListWidget extends FlexibleContainer {
 
         Row row = new Row(editBox);
 
-        Button deleteButton = Button.builder(Component.literal("X"),
-            btn -> removeRow(row)
+        Button deleteButton = Button.builder(Component.literal("❌"),
+                btn -> removeRow(row)
         ).bounds(this.getX(), this.getY(), 20, rowHeight).build();
 
         row.deleteButton = deleteButton;

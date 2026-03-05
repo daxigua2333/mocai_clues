@@ -48,13 +48,13 @@ public class Config {
                     .defineInRange("footprintRenderDistance", 64, 1, 256);
             FOOTPRINT_R = builder
                     .comment("footprint color: R")
-                    .defineInRange("footprintR", 0, 0, 255);
+                    .defineInRange("footprintR", 255, 0, 255);
             FOOTPRINT_G = builder
                     .comment("footprint color: G")
-                    .defineInRange("footprintG", 0, 0, 255);
+                    .defineInRange("footprintG", 255, 0, 255);
             FOOTPRINT_B = builder
                     .comment("footprint color: B")
-                    .defineInRange("footprintB", 0, 0, 255);
+                    .defineInRange("footprintB", 255, 0, 255);
             builder.pop();
 
             builder.push("discovery");

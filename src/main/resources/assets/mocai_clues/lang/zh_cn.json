@@ -3,7 +3,7 @@
   "item.mocai_clues.clue_wand": "猫头鹰的法杖",
   "item.mocai_clues.clue_finder": "放大镜",
 
-  "mocai_clues.enum.MANUAL": "手动攥写",
+  "mocai_clues.enum.MANUAL": "手动撰写",
   "mocai_clues.enum.ITEM": "物证",
   "mocai_clues.enum.CLUE_BOOK": "线索簿",
   "mocai_clues.enum.MANUAL.tooltip": "Manual Wrote Clue",

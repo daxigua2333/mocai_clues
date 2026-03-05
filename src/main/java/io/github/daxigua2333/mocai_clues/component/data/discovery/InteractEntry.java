@@ -22,7 +22,7 @@ public class InteractEntry extends EnumSelectorComponent<InteractEntry.EntryType
     }
 
 
-    private InteractEntry(EnumSet<EntryType> allowed, EnumSet<EntryType> enabled) {
+    public InteractEntry(EnumSet<EntryType> allowed, EnumSet<EntryType> enabled) {
         super(EntryType.class, allowed, enabled);
     }
 
