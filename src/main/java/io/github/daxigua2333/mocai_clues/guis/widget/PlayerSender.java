@@ -1,6 +1,8 @@
 package io.github.daxigua2333.mocai_clues.guis.widget;
 
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
+import io.github.daxigua2333.mocai_clues.integration.CmagicCompat;
+import io.github.daxigua2333.mocai_clues.integration.DependencyManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,27 +15,28 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerSender extends AbstractContainerWidget {
-    private @Nullable PlayerInfo selected;
+    private @Nullable PlayerData selected;
 
     private static final Font FONT = Minecraft.getInstance().font;
     private static final Component PREFIX = Component.translatable(MoCaiClues.MODID + ".screen.share_with");
-    private final ScrollableDropdownWidget<PlayerInfo> dropdown;
+    private final ScrollableDropdownWidget<PlayerData> dropdown;
     private final Button button;
 
     private static final int BUTTON_WIDTH = 30;
 
-    public record row(UUID playerId, Component name) {
+    public record PlayerData(UUID playerId, Component name) {
     }
 
     public PlayerSender(
             int x, int y, int z, int width, int height,
-            Consumer<@Nullable PlayerInfo> onSend) {
+            Consumer<@Nullable PlayerData> onSend) {
         super(x, y, width, height, Component.empty());
 
         int prefixWidth = FONT.width(PREFIX);
@@ -42,21 +45,29 @@ public class PlayerSender extends AbstractContainerWidget {
                     var mc = Minecraft.getInstance();
                     ClientPacketListener conn = mc.getConnection();
                     if (mc.player == null || conn == null) return Collections.emptyList();
-                    return conn.getOnlinePlayers().stream()
-                            .filter(info -> !info.getProfile().getId().equals(mc.player.getUUID()))
-                            .toList();
-                },
-                info -> {
-                    if (info == null) return Component.empty();
-                    var tabName = info.getTabListDisplayName();
-                    if (tabName == null) {  // single player
-                        return Component.literal(info.getProfile().getName());
-                    } else {
-                        return info.getTabListDisplayName();
+                    List<PlayerData> result = new ArrayList<>(conn.getOnlinePlayers().size());
+                    for (PlayerInfo info : conn.getOnlinePlayers()) {
+                        if (info.getProfile().getId().equals(mc.player.getUUID())) {
+                            continue;
+                        }
+                        result.add(new PlayerData(
+                                info.getProfile().getId(),
+                                info.getTabListDisplayName() == null ? Component.literal(info.getProfile().getName()) : info.getTabListDisplayName()
+                        ));
                     }
+                    if (DependencyManager.isLoaded(DependencyManager.Mod.C_MAGIC)) {
+                        if (CmagicCompat.isPerforming()) {
+                            return result.stream().filter(data -> CmagicCompat.getAllMajoDecoName().contains(data.name)).toList();
+                        }
+                    }
+                    return result;
                 },
-                info -> info.getProfile().getId(),
-                info -> selected = info);
+                data -> {
+                    if (data == null) return Component.empty();
+                    return data.name();
+                },
+                PlayerData::playerId,
+                data -> selected = data);
 
         button = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.share"),
                         btn -> onSend.accept(selected))

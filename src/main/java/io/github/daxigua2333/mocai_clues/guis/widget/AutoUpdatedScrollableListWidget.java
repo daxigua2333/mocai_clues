@@ -5,8 +5,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,7 +166,7 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
 
             // Highlight selected/hovered rows
             if (hovered || selected) {
-                int bg = selected ? 0x60000000 : 0x30000000;
+                int bg = selected ? 0x40000000 : 0x30000000;
                 gfx.fill(left, top, left + width, top + height, bg);
             }
 
@@ -170,8 +174,9 @@ public class AutoUpdatedScrollableListWidget<T> extends ObjectSelectionList<Auto
             int y = top + 4;
 
             // Title (single line)
-            String clippedText = font.plainSubstrByWidth(label.getString(), width);
-            gfx.drawString(font, clippedText, x, y, 0x000000, false);
+            FormattedText truncated = font.getSplitter().headByWidth(label, width, Style.EMPTY);
+            FormattedCharSequence visualText = Language.getInstance().getVisualOrder(truncated);
+            gfx.drawString(font, visualText, x, y, 0x000000, false);
         }
 
         @Override

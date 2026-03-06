@@ -155,7 +155,8 @@ dependencies {
 //    localRuntime "blank:${depend1_id}-${depend1_version}-${minecraft_version}-Neoforge"
 
     compileOnly "com.pltaube.cmagic:SystemOpera:1.0.2-1.21.1-Neoforge"
-    localRuntime "com.pltaube.cmagic:SystemOpera:1.0.2-1.21.1-Neoforge"
+//    localRuntime "com.pltaube.cmagic:SystemOpera:1.0.2-1.21.1-Neoforge"
+
 //    compileOnly "com.pltaube.cmagic:cmagic:1.0.2-1.21.1-Neoforge"
 //    localRuntime "com.pltaube.cmagic:cmagic:1.0.2-1.21.1-Neoforge"
 

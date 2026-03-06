@@ -7,7 +7,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -151,7 +155,7 @@ public class ScrollableDropdownWidget<T> extends FlexibleContainer {
             int h = this.height;
 
             // --- Render Main Box ---
-            int bgColor = this.isHoveredOrFocused() ? 0xFF666666 : 0xFF555555;
+            int bgColor = 0xFF666666;
             graphics.fill(x, y, x + w, y + h, bgColor);
             // Borders
             graphics.fill(x, y, x + w, y + 1, 0xFF000000);
@@ -165,8 +169,9 @@ public class ScrollableDropdownWidget<T> extends FlexibleContainer {
             int textX = x + 4;
             int textY = y + (h - font.lineHeight) / 2;
             // Clip text if it's too long for the box
-            String clippedLabel = font.plainSubstrByWidth(currentLabel.getString(), w - 14);
-            graphics.drawString(font, clippedLabel, textX, textY, 0xFFFFFFFF, false);
+            FormattedText truncated = font.getSplitter().headByWidth(currentLabel, w - 14, Style.EMPTY);
+            FormattedCharSequence visualText = Language.getInstance().getVisualOrder(truncated);
+            graphics.drawString(font, visualText, textX, textY, 0x000000, false);
             // Arrow
             graphics.drawString(
                     font,

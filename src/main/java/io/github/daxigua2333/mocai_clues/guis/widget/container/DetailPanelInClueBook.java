@@ -82,9 +82,9 @@ public class DetailPanelInClueBook extends FlexibleContainer {
 
         // init header
         int y = top - 24;
-        sender = new PlayerSender(left, y, 10, 160 - 16, 16, info -> {
-            if (object == null || info == null) return;
-            PacketDistributor.sendToServer(new ShareCluePayload(object, info.getProfile().getId()));
+        sender = new PlayerSender(left, y, 10, 160 - 16, 16, playerData -> {
+            if (object == null || playerData == null) return;
+            PacketDistributor.sendToServer(new ShareCluePayload(object, playerData.playerId()));
         });
 
         deleteButton = Button.builder(Component.literal("❌"), btn -> {
