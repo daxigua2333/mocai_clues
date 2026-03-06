@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.attachment.AttachmentSyncHandler;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -39,7 +40,8 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
 //    }
 
     @Override
-    public void write(RegistryFriendlyByteBuf buf, ObjectHolder<T> attachment, boolean initialSync) {
+    public void write(RegistryFriendlyByteBuf buf, @NotNull ObjectHolder<T> attachment, boolean initialSync) {
+        buf.writeBoolean(initialSync);
         if (initialSync) {
             // First time this attachment is synced to this client: send full map.
             attachment.encodeFull(buf);
@@ -52,11 +54,12 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
     }
 
     @Override
-    public ObjectHolder<T> read(IAttachmentHolder holder,
+    public ObjectHolder<T> read(@NotNull IAttachmentHolder holder,
                                 RegistryFriendlyByteBuf buf,
                                 ObjectHolder<T> previousValue) {
-        if (previousValue == null) {
-            // Client had no prior data for this attachment, so we expect a full payload.
+        boolean isInit = buf.readBoolean();
+        if (isInit) {
+            // full payload.
             ObjectHolder<T> map = new ObjectHolder<>(idGetter, elementCodec, elementStreamCodec);
             map.decodeFull(buf);
 
@@ -65,7 +68,11 @@ public final class ObjectHolderSyncHandler<T> implements AttachmentSyncHandler<O
             NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Full<>(holder, map));
             return map;
         } else {
-            // Client already has data; apply delta.
+            // apply delta
+            if (previousValue == null) {  // if not init, manually init it
+                previousValue = new ObjectHolder<>(idGetter, elementCodec, elementStreamCodec);
+                IndexManager.Client.attachmentHolderEnsure(previousValue);
+            }
             ObjectHolder.DeltaPayload<T> delta = ObjectHolder.DeltaPayload.deltaStreamCodec(elementStreamCodec).decode(buf);
             NeoForge.EVENT_BUS.post(new ObjectHolderClientSyncedEvent.Delta<>(holder, previousValue, delta));
 
