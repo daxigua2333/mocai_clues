@@ -49,7 +49,7 @@ public class CollapsibleCheckbox extends FlexibleContainer {
             w.active = checked;
             if (!checked) w.setFocused(checked);
         }
-        if (!checked && getFocused() instanceof EditBoxRow<?>) {
+        if (!checked && getFocused() instanceof EditBoxWithBacking<?>) {
             setFocused(checkbox);
         }
     }

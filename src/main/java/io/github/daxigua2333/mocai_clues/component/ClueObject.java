@@ -58,6 +58,14 @@ public class ClueObject {
         this(other.id, type, new EnumMap<>(ComponentType.class));
     }
 
+    public ClueObject(UUID id, ClueType type) {
+        this(id, type, new EnumMap<>(ComponentType.class));
+    }
+
+    public ClueObject copy() {  // full copy
+        return new ClueObject(id, type, components);
+    }
+
 
     // ===== getter setter ====
     public UUID getId() {

@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ClueComponent;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
-import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxWithBacking;
 import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.ScaledTextRow;
 import io.github.daxigua2333.mocai_clues.guis.widget.uneditable.SplitLineRow;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -52,7 +52,7 @@ public class InfoData extends ClueComponent {
     public List<AbstractWidget> getEditable(Runnable markDirty) {
         return List.of(
                 new ScaledTextRow(0, 0, 100, 100, Component.translatable(MoCaiClues.MODID + ".screen.name"), 1.1f),
-                EditBoxRow.stringBox(0, 0, 100, 20, 2, 2,
+                EditBoxWithBacking.stringBox(0, 0, 100, 20,
 //                        EditBoxRow.MutableValue.of(this.name),
                         () -> this.name, (str) -> this.name = str,
                         v -> true,

@@ -9,17 +9,14 @@ import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
 import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook.DetailWithCompleteness;
-import io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook.FoundSource;
 import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
 import io.github.daxigua2333.mocai_clues.component.data.renderer.BlockOutlineData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 
 public class Assembler {
     public static ClueObject createDefaultByType(ClueType type) {
@@ -82,8 +79,8 @@ public class Assembler {
 
 
     // ====== clue book =========
-    // copy: meta(id name), source(switch case), detail with completeness(switch case)
-    public static ClueObject createClueBookClueWithoutSource(ClueObject old, DetailWithCompleteness dCompo) {
+    // copy: meta(id name), detail with completeness(switch case)
+    public static ClueObject createClueBookClue(ClueObject old, DetailWithCompleteness dCompo) {
         ClueObject copy = new ClueObject(old, ClueType.CLUE_BOOK);
         copy.addComponent(new InfoData(old.getComponent(ComponentType.INFO_DATA)));
         copy.addComponent(dCompo);
@@ -91,31 +88,10 @@ public class Assembler {
         return copy;
     }
 
-    // TODO: route issue again....
-    public static ClueObject createClueBookClue(ClueObject old, BlockPos pos, DetailWithCompleteness dCompo) {
-        ClueObject copy = createClueBookClueWithoutSource(old, dCompo);
-        // 3. set source
-        var sCompo = new FoundSource();
-        sCompo.setSource(pos);
-        copy.addComponent(sCompo);
-        return copy;
-    }
-
-    public static ClueObject createClueBookClue(ClueObject old, Entity entity, DetailWithCompleteness dCompo) {
-        ClueObject copy = createClueBookClueWithoutSource(old, dCompo);
-        // 3. set source
-        var sCompo = new FoundSource();
-        sCompo.setSource(entity);
-        copy.addComponent(sCompo);
-        return copy;
-    }
-
-    public static ClueObject createClueBookClue(ClueObject old, Player player, DetailWithCompleteness dCompo) {
-        ClueObject copy = createClueBookClueWithoutSource(old, dCompo);
-        // 3. set source
-        var sCompo = new FoundSource();
-        sCompo.setSource(player);
-        copy.addComponent(sCompo);
+    public static ClueObject createClueBookClue(ClueObject old, UUID cluebookUUID, DetailWithCompleteness dCompo) {
+        ClueObject copy = new ClueObject(cluebookUUID, ClueType.CLUE_BOOK);
+        copy.addComponent(new InfoData(old.getComponent(ComponentType.INFO_DATA)));
+        copy.addComponent(dCompo);
         return copy;
     }
 

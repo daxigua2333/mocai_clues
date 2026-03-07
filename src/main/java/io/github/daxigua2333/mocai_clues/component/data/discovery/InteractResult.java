@@ -1,14 +1,20 @@
 package io.github.daxigua2333.mocai_clues.component.data.discovery;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.EnumSelectorComponent;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxWithBacking;
 import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class InteractResult extends EnumSelectorComponent<InteractResult.ResultType> {
     public enum ResultType {
@@ -21,9 +27,15 @@ public class InteractResult extends EnumSelectorComponent<InteractResult.ResultT
         public static final Codec<ResultType> CODEC = EnumCodecProvider.createCodec(ResultType.class);
     }
 
+    private UUID clueBookUUID;
 
-    private InteractResult(EnumSet<ResultType> allowed, EnumSet<ResultType> enabled) {
+    private InteractResult(EnumSet<ResultType> allowed, EnumSet<ResultType> enabled, UUID clueBookUUID) {
         super(ResultType.class, allowed, enabled);
+        this.clueBookUUID = clueBookUUID;
+    }
+
+    public InteractResult(EnumSet<ResultType> allowed, EnumSet<ResultType> enabled) {
+        this(allowed, enabled, UUID.randomUUID());
     }
 
     /**
@@ -41,12 +53,24 @@ public class InteractResult extends EnumSelectorComponent<InteractResult.ResultT
         enable(type);
     }
 
+
+    public UUID getClueBookUUID() {
+        return clueBookUUID;
+    }
+
+
     @Override
     public ComponentType type() {
         return ComponentType.INTERACT_RESULT;
     }
 
-    public static final Codec<InteractResult> CODEC = createCodec(ResultType.class, ResultType.CODEC, InteractResult::new);
+    public static final Codec<InteractResult> CODEC = RecordCodecBuilder.create(inst -> {
+        Codec<EnumSet<ResultType>> setCodec = EnumSelectorComponent.getSetCodec(ResultType.class, ResultType.CODEC);
+        return EnumSelectorComponent.commonFields(inst, setCodec)
+                .and(UUIDUtil.CODEC.optionalFieldOf("clueBookUUID").forGetter(obj -> Optional.of(obj.getClueBookUUID())))
+                .apply(inst, (allowed, enabled, idOpt) -> new InteractResult(allowed, enabled, idOpt.orElse(UUID.randomUUID())));
+    });
+
 
     @Override
     protected String getHeaderKey() {
@@ -55,6 +79,13 @@ public class InteractResult extends EnumSelectorComponent<InteractResult.ResultT
 
     @Override
     protected List<AbstractWidget> getEditableWidget(ResultType type) {
-        return List.of();
+        return switch (type) {
+            case SEND_TO_CLUE_BOOK -> List.of(
+                    EditBoxWithBacking.uuidBox(0, 0, 0, 20,
+                            () -> clueBookUUID, id -> clueBookUUID = id,
+                            v -> true, Component.literal("UUID"))
+            );
+            case SEND_ITEM -> List.of();
+        };
     }
 }

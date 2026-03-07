@@ -1,6 +1,7 @@
 package io.github.daxigua2333.mocai_clues.component;
 
 import com.mojang.serialization.Codec;
+import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.data.DetailData;
 import io.github.daxigua2333.mocai_clues.component.data.InfoData;
 import io.github.daxigua2333.mocai_clues.component.data.ItemClue;
@@ -8,10 +9,8 @@ import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractPassiveBehavior;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractResult;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.InteractState;
-import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
-import io.github.daxigua2333.mocai_clues.component.data.BlockPosWithFace;
 import io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook.DetailWithCompleteness;
-import io.github.daxigua2333.mocai_clues.component.data.discovery.cluebook.FoundSource;
+import io.github.daxigua2333.mocai_clues.component.data.renderer.RendererHolder;
 
 import java.util.Map;
 
@@ -28,7 +27,6 @@ public enum ComponentType {
     RENDERER_HOLDER,
 
     // discovery
-    FOUND_SOURCE,
     DETAIL_WITH_COMPLETENESS,
     INTERACT_STATE,
     INTERACT_ENTRY,
@@ -46,7 +44,6 @@ public enum ComponentType {
                         case INFO_DATA -> InfoData.CODEC;
                         case DETAIL_DATA -> DetailData.CODEC;
                         case RENDERER_HOLDER -> RendererHolder.CODEC;
-                        case FOUND_SOURCE -> FoundSource.CODEC;
                         case DETAIL_WITH_COMPLETENESS -> DetailWithCompleteness.CODEC;
                         case ITEM_CLUE -> ItemClue.CODEC;
                         case BLOCK_POS_WITH_FACE -> BlockPosWithFace.CODEC;

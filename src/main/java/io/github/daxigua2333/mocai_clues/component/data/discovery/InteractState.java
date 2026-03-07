@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.mocai_clues.MoCaiClues;
 import io.github.daxigua2333.mocai_clues.component.ComponentType;
 import io.github.daxigua2333.mocai_clues.component.data.EnumSelectorComponent;
-import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxRow;
+import io.github.daxigua2333.mocai_clues.guis.widget.editable.EditBoxWithBacking;
 import io.github.daxigua2333.mocai_clues.guis.widget.editable.StringListWidget;
 import io.github.daxigua2333.mocai_clues.utils.EnumCodecProvider;
 import net.minecraft.client.Minecraft;
@@ -100,7 +100,7 @@ public class InteractState extends EnumSelectorComponent<InteractState.StateType
         stringList.setChangeListener(list -> this.allowedPlayers = list);
 
         return switch (type) {
-            case REMAINING -> List.of(EditBoxRow.intBox(0, 0, 100, 20, 4, 4,
+            case REMAINING -> List.of(EditBoxWithBacking.intBox(0, 0, 100, 20,
                     () -> this.remaining, i -> this.remaining = i,
                     v -> true,
                     Component.literal("String")));

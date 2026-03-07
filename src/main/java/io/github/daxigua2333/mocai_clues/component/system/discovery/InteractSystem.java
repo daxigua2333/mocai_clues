@@ -125,34 +125,12 @@ public final class InteractSystem {
 
     public static void sendToClueBook(ServerPlayer player, ClueObject obj) {
         // generate the copy in clue book
-        ClueObject copy;
-        // TODO: FoundSource
-//        if (location.data() instanceof ObjectHolderLocation.BlockPosWithFace data) {  // chunk
-//            copy = Assembler.createClueBookClue(obj, data.pos());
-//        } else if (location.data() instanceof BlockPos pos) {
-//            copy = Assembler.createClueBookClue(obj, pos);
-//        } else if (location.data() instanceof UUID data) {  // entity
-//            Entity e = ((ServerLevel) player.level()).getEntity(data);
-//            copy = Assembler.createClueBookClue(obj, e);
-//        } else if (location.data() instanceof Player from) {  // player share
-//            FoundSource fCompo = obj.getComponent(ComponentType.FOUND_SOURCE);
-//            if (fCompo == null) throw new RuntimeException("Invalid shared obj: no FoundSource component.");
-//            fCompo.setSource(from);
-//            copy = obj;
-//        } else {
-//            throw new RuntimeException("Invalid ObjectHolderLocation.");
-//        }
-
-        // DetailsWithCompleteness
-        DetailWithCompleteness dCompo = switch (obj.type()) {
-            case MANUAL -> generateFromManual(obj);
-            case CLUE_BOOK ->
-                    ((DetailWithCompleteness) obj.getComponentOrThrow(ComponentType.DETAIL_WITH_COMPLETENESS)).copy();
+        ClueObject copy = switch (obj.type()) {
+            case MANUAL -> createFromManual(obj);
+            case CLUE_BOOK -> obj.copy();
             case null, default ->
                     throw new RuntimeException("Unimplemented ClueBook detail component converter of ClueObject#" + obj.getId());
         };
-        copy = Assembler.createClueBookClueWithoutSource(obj, dCompo);
-
 
         FromClueBook location = new FromClueBook(player);
         var holder = location.getHolder();
@@ -173,16 +151,19 @@ public final class InteractSystem {
         location.markDirty(copy);
     }
 
-    private static DetailWithCompleteness generateFromManual(ClueObject old) {
-        var result = new DetailWithCompleteness();
-
-        DetailData dCompo = old.getComponent(ComponentType.DETAIL_DATA);
-        if (dCompo == null)
-            throw new RuntimeException("Invalid manual ClueObject: has no detail component, id#" + old.getId());
+    // ======== Create with: DetailsWithCompleteness + clue book UUID
+    private static ClueObject createFromManual(ClueObject old) {
+        // DetailsWithCompleteness
+        var compo = new DetailWithCompleteness();
+        DetailData dCompo = old.getComponentOrThrow(ComponentType.DETAIL_DATA);
         for (String s : dCompo.getDetails()) {
-            result.add(s, 1f);
+            compo.add(s, 1f);
         }
-        return result;
 
+        // clue book UUID
+        InteractResult rCompo = old.getComponentOrThrow(ComponentType.INTERACT_RESULT);
+        UUID cluebookUUID = rCompo.getClueBookUUID();
+
+        return Assembler.createClueBookClue(old, cluebookUUID, compo);
     }
 }

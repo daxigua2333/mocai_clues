@@ -24,7 +24,7 @@ public class StringListWidget extends FlexibleContainer {
 
     private int rowHeight = 20;
     private int rowSpacing = 4;
-    private int maxLength = 256;
+    private int maxLength = 512;
 
     private Consumer<List<String>> changeListener;
 
