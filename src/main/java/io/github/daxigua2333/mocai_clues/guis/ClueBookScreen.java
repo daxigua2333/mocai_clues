@@ -45,8 +45,8 @@ public class ClueBookScreen extends ClueBookScreenLayout {
         var details = new DetailPanelInClueBook(
                 Minecraft.getInstance(),
                 PANEL_W - 36,
-                PANEL_H - 64,
-                top + PANEL_Y_OFFSET + 40,
+                PANEL_H - 84,
+                top + PANEL_Y_OFFSET + 20,
                 left + PANEL_X_OFFSET + 20,
                 obj -> PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
                         location,

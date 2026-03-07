@@ -52,6 +52,7 @@
   "mocai_clues.screen.attach": "attaching",
   "mocai_clues.screen.share_with": "share with:",
   "mocai_clues.screen.share": "share",
+  "mocai_clues.screen.share_with_all": "share with all",
 
   "mocai_clues.screen.item_clue_type": "Type: Item Clue",
   "mocai_clues.screen.non_item_clue_type": "Type: Non-Item Clue",

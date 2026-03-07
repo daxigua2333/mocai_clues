@@ -69,8 +69,8 @@ public class DetailPanelInClueBook extends FlexibleContainer {
     protected void reLayout() {
         int x = getX();
         int y = getY();
-        sender.setPosition(x, y - 20);
-        page = new ScrollPage(Minecraft.getInstance(), width, height, y, x);
+        sender.setPosition(x, y);
+        page = new ScrollPage(Minecraft.getInstance(), width, height, y + 40, x);
 //        page.setPosition(x, y);  // TODO: idk why this is useless
     }
 
@@ -81,8 +81,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
         page = new ScrollPage(mc, width, height, top, left);
 
         // init header
-        int y = top - 24;
-        sender = new PlayerSender(left, y, 10, 160 - 16, 16, playerData -> {
+        sender = new PlayerSender(left, top, 10, 160, 16, playerData -> {
             if (object == null || playerData == null) return;
             PacketDistributor.sendToServer(new ShareCluePayload(object, playerData.playerId()));
         });
@@ -107,7 +106,7 @@ public class DetailPanelInClueBook extends FlexibleContainer {
             confirm.setDelay(10);
 
             mc.pushGuiLayer(confirm);
-        }).bounds(left + width - 16, y, 16, 16).build();
+        }).bounds(left, top + 16 + 2, 16, 16).build();
 //        }).bounds(left, y - 18, 16, 16).build();
 
         header.add(sender);

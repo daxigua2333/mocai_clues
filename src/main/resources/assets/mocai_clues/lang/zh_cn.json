@@ -54,6 +54,7 @@
   "mocai_clues.screen.attach": "附加到世界",
   "mocai_clues.screen.share_with": "分享给:",
   "mocai_clues.screen.share": "分享",
+  "mocai_clues.screen.share_with_all": "分享给所有",
 
   "mocai_clues.screen.item_clue_type": "类型: 物证",
   "mocai_clues.screen.non_item_clue_type": "类型: 非物证",

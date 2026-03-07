@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class PlayerSender extends AbstractContainerWidget {
     private @Nullable PlayerData selected;
@@ -28,8 +29,10 @@ public class PlayerSender extends AbstractContainerWidget {
     private static final Component PREFIX = Component.translatable(MoCaiClues.MODID + ".screen.share_with");
     private final ScrollableDropdownWidget<PlayerData> dropdown;
     private final Button button;
+    private final Button sendToAllButton;
 
     private static final int BUTTON_WIDTH = 30;
+    private static final int SEND_TO_ALL_BUTTON_WIDTH = 60;
 
     public record PlayerData(UUID playerId, Component name) {
     }
@@ -40,28 +43,31 @@ public class PlayerSender extends AbstractContainerWidget {
         super(x, y, width, height, Component.empty());
 
         int prefixWidth = FONT.width(PREFIX);
+
+        Supplier<List<PlayerData>> optionsSupplier = () -> {
+            var mc = Minecraft.getInstance();
+            ClientPacketListener conn = mc.getConnection();
+            if (mc.player == null || conn == null) return Collections.emptyList();
+            List<PlayerData> result = new ArrayList<>(conn.getOnlinePlayers().size());
+            for (PlayerInfo info : conn.getOnlinePlayers()) {
+                if (info.getProfile().getId().equals(mc.player.getUUID())) {
+                    continue;
+                }
+                result.add(new PlayerData(
+                        info.getProfile().getId(),
+                        info.getTabListDisplayName() == null ? Component.literal(info.getProfile().getName()) : info.getTabListDisplayName()
+                ));
+            }
+            if (DependencyManager.isLoaded(DependencyManager.Mod.C_MAGIC)) {
+                if (CmagicCompat.isPerforming()) {
+                    return result.stream().filter(data -> CmagicCompat.getAllMajoDecoName().contains(data.name)).toList();
+                }
+            }
+            return result;
+        };
+
         dropdown = new ScrollableDropdownWidget<>(x + prefixWidth + 2, y, z, width - prefixWidth - BUTTON_WIDTH - 4, 0,
-                () -> {
-                    var mc = Minecraft.getInstance();
-                    ClientPacketListener conn = mc.getConnection();
-                    if (mc.player == null || conn == null) return Collections.emptyList();
-                    List<PlayerData> result = new ArrayList<>(conn.getOnlinePlayers().size());
-                    for (PlayerInfo info : conn.getOnlinePlayers()) {
-                        if (info.getProfile().getId().equals(mc.player.getUUID())) {
-                            continue;
-                        }
-                        result.add(new PlayerData(
-                                info.getProfile().getId(),
-                                info.getTabListDisplayName() == null ? Component.literal(info.getProfile().getName()) : info.getTabListDisplayName()
-                        ));
-                    }
-                    if (DependencyManager.isLoaded(DependencyManager.Mod.C_MAGIC)) {
-                        if (CmagicCompat.isPerforming()) {
-                            return result.stream().filter(data -> CmagicCompat.getAllMajoDecoName().contains(data.name)).toList();
-                        }
-                    }
-                    return result;
-                },
+                optionsSupplier,
                 data -> {
                     if (data == null) return Component.empty();
                     return data.name();
@@ -71,9 +77,13 @@ public class PlayerSender extends AbstractContainerWidget {
 
         button = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.share"),
                         btn -> onSend.accept(selected))
-                .bounds(x + width + -BUTTON_WIDTH, y, BUTTON_WIDTH, height)
+                .bounds(x + width - BUTTON_WIDTH, y, BUTTON_WIDTH, height)
                 .build();
 
+        sendToAllButton = Button.builder(Component.translatable(MoCaiClues.MODID + ".screen.share_with_all"),
+                        btn -> optionsSupplier.get().forEach(data -> onSend.accept(data)))
+                .bounds(x + width - SEND_TO_ALL_BUTTON_WIDTH, y + height + 2, SEND_TO_ALL_BUTTON_WIDTH, height)
+                .build();
     }
 
     @Override
@@ -81,6 +91,7 @@ public class PlayerSender extends AbstractContainerWidget {
         graphics.drawString(FONT, PREFIX, getX(), getY() + height / 2 - FONT.lineHeight / 2, 0x00000000, false);
         dropdown.render(graphics, mouseX, mouseY, partialTick);
         button.render(graphics, mouseX, mouseY, partialTick);
+        sendToAllButton.render(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -90,6 +101,6 @@ public class PlayerSender extends AbstractContainerWidget {
 
     @Override
     public List<? extends GuiEventListener> children() {
-        return List.of(dropdown, button);
+        return List.of(dropdown, button, sendToAllButton);
     }
 }
