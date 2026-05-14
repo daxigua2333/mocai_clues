@@ -1,0 +1,77 @@
+package io.github.daxigua2333.cmagic_clue;
+
+import com.mojang.logging.LogUtils;
+import io.github.daxigua2333.cmagic_clue.blocks.ModBlocksRegistry;
+import io.github.daxigua2333.cmagic_clue.data.ModAttachmentRegistry;
+import io.github.daxigua2333.cmagic_clue.data_attachments.ModDataAttachmentRegistry;
+import io.github.daxigua2333.cmagic_clue.footprints.ModFootprintRegistry;
+import io.github.daxigua2333.cmagic_clue.guis.ModMenuTypeRegistry;
+import io.github.daxigua2333.cmagic_clue.items.ModItemsRegistry;
+import io.github.daxigua2333.cmagic_clue.items.components.ModDataComponentsRegistry;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.slf4j.Logger;
+
+// The value here should match an entry in the META-INF/neoforge.mods.toml file
+@Mod(CMagicClue.MODID)
+public class CMagicClue {
+    public static final String MODID = "cmagic_clue";
+    public static final Logger LOGGER = LogUtils.getLogger();
+
+
+    public CMagicClue(IEventBus modEventBus, ModContainer modContainer) {
+        // Register the commonSetup method for modloading
+        modEventBus.addListener(this::commonSetup);
+
+        // Register the Deferred Register to the mod event bus
+        ModBlocksRegistry.register(modEventBus);
+        ModItemsRegistry.register(modEventBus);
+        ModCreativeTabRegistry.register(modEventBus);
+        ModDataComponentsRegistry.register(modEventBus);
+        ModDataAttachmentRegistry.register(modEventBus);
+        ModMenuTypeRegistry.register(modEventBus);
+        ModFootprintRegistry.register(modEventBus);
+        ModAttachmentRegistry.register(modEventBus);
+
+        // Register ourselves for server and other game events we are interested in.
+        // Note that this is necessary if and only if we want *this* class (MoCaiClues) to respond directly to events.
+        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
+        NeoForge.EVENT_BUS.register(this);
+
+        // Register the item to a creative tab
+        modEventBus.addListener(this::addCreative);
+
+        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
+//        modContainer.registerConfig(ModConfig.Type.STARTUP, Config.STARTUP_SPEC);
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        ModCommands.register(event);
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        // Some common setup code
+        LOGGER.info("HELLO FROM COMMON SETUP");
+
+    }
+
+    // Add the example block item to the building blocks tab
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+//        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+//            event.accept(EXAMPLE_BLOCK_ITEM);
+//        }
+    }
+
+
+}

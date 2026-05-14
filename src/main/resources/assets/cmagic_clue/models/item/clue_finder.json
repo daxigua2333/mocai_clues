@@ -1,0 +1,12 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "cmagic_clue:item/clue_finder_default"
+  },
+  "overrides": [
+    {
+      "predicate": { "cmagic_clue:found": 1 },
+      "model": "cmagic_clue:item/clue_finder_found"
+    }
+  ]
+}
