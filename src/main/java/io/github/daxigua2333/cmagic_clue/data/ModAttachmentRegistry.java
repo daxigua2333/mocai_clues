@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import io.github.daxigua2333.cmagic_clue.CMagicClue;
 import io.github.daxigua2333.cmagic_clue.component.ClueObject;
 import io.github.daxigua2333.cmagic_clue.data.common.IndexManager;
+import io.github.daxigua2333.cmagic_clue.decal.DecalLayerHolder;
+import io.github.daxigua2333.cmagic_clue.decal.DecalSyncHandler;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -50,6 +52,16 @@ public final class ModAttachmentRegistry {
                     .copyOnDeath()
                     .build()
     );
+
+
+    public static final Supplier<AttachmentType<DecalLayerHolder>> DECAL_LAYER_HOLDER = ATTACHMENTS_TYPES.register(
+            "decal_layer_holder",
+            () -> AttachmentType.builder(DecalLayerHolder::new)
+                    .serialize(DecalLayerHolder.CODEC)
+                    .sync(new DecalSyncHandler())
+                    .build()
+    );
+
 
     public static void register(IEventBus bus) {
         ATTACHMENTS_TYPES.register(bus);

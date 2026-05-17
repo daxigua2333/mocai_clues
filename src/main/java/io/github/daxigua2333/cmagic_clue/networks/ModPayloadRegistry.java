@@ -1,6 +1,7 @@
 package io.github.daxigua2333.cmagic_clue.networks;
 
 import io.github.daxigua2333.cmagic_clue.CMagicClue;
+import io.github.daxigua2333.cmagic_clue.decal.DecalSyncPayload;
 import io.github.daxigua2333.cmagic_clue.guis.widget.container.DetailPanelInClueBook;
 import io.github.daxigua2333.cmagic_clue.items.ModItemsRegistry;
 import io.github.daxigua2333.cmagic_clue.items.components.ModDataComponentsRegistry;
@@ -70,6 +71,29 @@ public class ModPayloadRegistry {
 //                S2COpenItemPickerMenuPayload.STREAM_CODEC,
 //                S2COpenItemPickerMenuPayload::handle
 //        );
+
+
+        registrar.playToClient(
+                DecalSyncPayload.PushLayer.TYPE,
+                DecalSyncPayload.PushLayer.STREAM_CODEC,
+                DecalSyncPayload.PushLayer::handle
+        );
+        registrar.playToClient(
+                DecalSyncPayload.PopLayer.TYPE,
+                DecalSyncPayload.PopLayer.STREAM_CODEC,
+                DecalSyncPayload.PopLayer::handle
+        );
+        registrar.playToClient(
+                DecalSyncPayload.ClearLayer.TYPE,
+                DecalSyncPayload.ClearLayer.STREAM_CODEC,
+                DecalSyncPayload.ClearLayer::handle
+        );
+        registrar.playToClient(
+                DecalSyncPayload.UpdateTopLayer.TYPE,
+                DecalSyncPayload.UpdateTopLayer.STREAM_CODEC,
+                DecalSyncPayload.UpdateTopLayer::handle
+        );
+
     }
 
 
