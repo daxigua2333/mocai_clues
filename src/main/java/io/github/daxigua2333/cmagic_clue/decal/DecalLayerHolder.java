@@ -127,7 +127,7 @@ public class DecalLayerHolder {
 
         ArrayDeque<DecalDataUnit> deque = getBacking().computeIfAbsent(blockFace, k -> new ArrayDeque<>());
         // just simply push static type decal to stack
-        deque.push(dataUnit);
+        deque.addLast(dataUnit);
         PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PushLayer(chunkPos, blockFace, dataUnit));
     }
 
@@ -139,13 +139,13 @@ public class DecalLayerHolder {
         ArrayDeque<DecalDataUnit> deque = getBacking().computeIfAbsent(blockFace, k -> new ArrayDeque<>());
 
         // if top layer is dynamic, update it; else push a new one
-        if (deque.peek() != null && deque.peek().type() == DecalDataUnit.Type.DYNAMIC) {
-            deque.pop();
-            deque.push(dataUnit);
+        if (deque.peekLast() != null && deque.peekLast().type() == DecalDataUnit.Type.DYNAMIC) {
+            deque.removeLast();
+            deque.addLast(dataUnit);
             PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.UpdateTopLayer(chunkPos, blockFace, dataUnit));
 
         } else {
-            deque.push(dataUnit);
+            deque.addLast(dataUnit);
             PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PushLayer(chunkPos, blockFace, dataUnit));
         }
     }
@@ -159,18 +159,18 @@ public class DecalLayerHolder {
         ArrayDeque<DecalDataUnit> deque = getBacking().computeIfAbsent(blockFace, k -> new ArrayDeque<>());
 
         // if top layer is dynamic, update it; else push a new one
-        if (deque.peek() != null && deque.peek().type() == DecalDataUnit.Type.DYNAMIC) {
-            byte[] meta = (byte[]) deque.peek().meta();
+        if (deque.peekLast() != null && deque.peekLast().type() == DecalDataUnit.Type.DYNAMIC) {
+            byte[] meta = (byte[]) deque.peekLast().meta();
             System.arraycopy(pixelData, 0, meta, startIndex, BYTE_PER_PIXEL);
 
-            PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.UpdateTopLayer(chunkPos, blockFace, deque.peek()));
+            PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.UpdateTopLayer(chunkPos, blockFace, deque.peekLast()));
 
         } else {
             byte[] meta = new byte[BYTE_PER_PIXEL * DYNAMIC_LAYER_SIZE];
             System.arraycopy(pixelData, 0, meta, startIndex, BYTE_PER_PIXEL);
 
             DecalDataUnit dataUnit = new DecalDataUnit(DecalDataUnit.Type.DYNAMIC, meta);
-            deque.push(dataUnit);
+            deque.addLast(dataUnit);
             PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PushLayer(chunkPos, blockFace, dataUnit));
         }
     }
@@ -180,7 +180,7 @@ public class DecalLayerHolder {
         ChunkPos chunkPos = new ChunkPos(pos);
 
         ArrayDeque<DecalDataUnit> deque = getBacking().computeIfAbsent(blockFace, k -> new ArrayDeque<>());
-        deque.pop();
+        deque.removeLast();
         PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PopLayer(chunkPos, blockFace));
 
     }
@@ -223,12 +223,12 @@ public class DecalLayerHolder {
 
     public void pushLayerFromServerSync(BlockFace blockFace, DecalDataUnit sUnit, DecalAtlas atlas) {
         ArrayDeque<DecalDataUnit> deque = getBacking().computeIfAbsent(blockFace, k -> new ArrayDeque<>());
-        deque.push(DecalDataUnit.covertS2C(sUnit, atlas));
+        deque.addLast(DecalDataUnit.covertS2C(sUnit, atlas));
     }
 
     public void popLayerFromServerSync(BlockFace blockFace, DecalAtlas atlas) {
         ArrayDeque<DecalDataUnit> deque = getBacking().get(blockFace);  // just let it throw if it s out of sync
-        DecalDataUnit cUnit = deque.pop();
+        DecalDataUnit cUnit = deque.removeLast();
         atlas.freeDynamic((AtlasRegion) cUnit.meta());
     }
 
@@ -243,7 +243,7 @@ public class DecalLayerHolder {
 
     public void updateTopLayerFromServerSync(BlockFace blockFace, DecalDataUnit sUnit, DecalAtlas atlas) {
         ArrayDeque<DecalDataUnit> deque = getBacking().get(blockFace);  // just let it throw if it s out of sync
-        DecalDataUnit cUnit = deque.peek();
+        DecalDataUnit cUnit = deque.peekLast();
         atlas.updateDynamic((AtlasRegion) cUnit.meta(), (byte[]) sUnit.meta());
 
     }
