@@ -214,8 +214,8 @@ public class DecalLayerHolder {
     }
 
     public void clientClose(DecalAtlas atlas) {
-        for (var entry : getBacking().entrySet()) {
-            for (DecalDataUnit unit : entry.getValue()) {
+        for (var deque : getBacking().values()) {
+            for (DecalDataUnit unit : deque) {
                 atlas.freeDynamic((AtlasRegion) unit.meta());
             }
         }

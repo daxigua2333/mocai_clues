@@ -54,19 +54,17 @@ public final class DecalAtlasRegistry {
 
             @Override
             protected void apply(Void object, ResourceManager resourceManager, ProfilerFiller profiler) {
-                // Safely close the old one if it's a reload
-                if (ATLAS != null) {
-                    ATLAS.close();
+                // first create
+                if (ATLAS == null) {
+                    ATLAS = new DecalAtlas(ATLAS_ID);
+                    ATLAS.register(Minecraft.getInstance().getTextureManager());
                 }
-
-                ATLAS = new DecalAtlas(ATLAS_ID);
 
                 List<ResourceLocation> list = new ArrayList<>(StaticTextures.values().length);
                 for (StaticTextures e : StaticTextures.values()) list.add(e.getId());
+
+                ATLAS.freeStatic();
                 ATLAS.initStatic(resourceManager, list);
-
-
-                ATLAS.register(Minecraft.getInstance().getTextureManager());
             }
         });
     }

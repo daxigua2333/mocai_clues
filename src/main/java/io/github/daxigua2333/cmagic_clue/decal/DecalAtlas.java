@@ -41,6 +41,22 @@ public class DecalAtlas extends DynamicTexture {
     }
 
     /**
+     * Export for debug purpose
+     */
+    public void export() {
+        try {
+            Path debugPath = FMLPaths.GAMEDIR.get().resolve("debug_atlas.png");
+            if (this.getPixels() != null) {
+                this.getPixels().writeToFile(debugPath);
+            }
+            CMagicClue.LOGGER.info("Successfully exported debug atlas to: {}", debugPath.toAbsolutePath());
+        } catch (Exception e) {
+            CMagicClue.LOGGER.error("Failed to write debug atlas to disk", e);
+        }
+
+    }
+
+    /**
      * Registers this atlas to the Minecraft TextureManager.
      */
     public void register(TextureManager textureManager) {
@@ -98,17 +114,16 @@ public class DecalAtlas extends DynamicTexture {
                 CMagicClue.LOGGER.error("", e);
             }
         }
-
-        try {
-            Path debugPath = FMLPaths.GAMEDIR.get().resolve("debug_atlas.png");
-            backingImage.writeToFile(debugPath);
-            CMagicClue.LOGGER.info("Successfully exported debug atlas to: {}", debugPath.toAbsolutePath());
-        } catch (Exception e) {
-            CMagicClue.LOGGER.error("Failed to write debug atlas to disk", e);
-        }
-
+//        export();
         // Upload the entire static stitched image to VRAM once
         this.upload();
+    }
+
+    public void freeStatic() {
+        for (AtlasRegion region : staticRegions.values()) {
+            freeDynamic(region);
+        }
+        staticRegions.clear();
     }
 
     /**
@@ -179,6 +194,7 @@ public class DecalAtlas extends DynamicTexture {
                 GRID_SIZE, GRID_SIZE,
                 false, false, false, false
         );
+//        export();
     }
 
 

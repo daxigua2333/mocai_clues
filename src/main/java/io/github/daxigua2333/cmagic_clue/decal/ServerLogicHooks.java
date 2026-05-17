@@ -62,7 +62,7 @@ public class ServerLogicHooks {
      * @return The exact Vec3 coordinate of the hit, or null if looking at air.
      */
     @Nullable
-    public static BlockHitResult getPlayerLookHitPosition(ServerPlayer player) {
+    private static BlockHitResult getPlayerLookHitPosition(ServerPlayer player) {
         Level level = player.level();
 
         Vec3 eyePosition = player.getEyePosition();

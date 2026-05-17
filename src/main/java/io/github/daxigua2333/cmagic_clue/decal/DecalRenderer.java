@@ -93,8 +93,12 @@ public class DecalRenderer {
     }
 
     private static void cleanup() {
-        // close all vbo
+        // close all vbo and its allocated texture
         BUFFERS.values().forEach(VertexBuffer::close);
+        BUFFERS.keySet().forEach(chunkPos -> {
+            LevelChunk chunk = Minecraft.getInstance().level.getChunk(chunkPos.x, chunkPos.z);
+            chunk.getData(ModAttachmentRegistry.DECAL_LAYER_HOLDER).clientClose(DecalAtlasRegistry.ATLAS);
+        });
         BUFFERS.clear();
         // close all bbb
         List<ByteBufferBuilder> builders = new ArrayList<>();
