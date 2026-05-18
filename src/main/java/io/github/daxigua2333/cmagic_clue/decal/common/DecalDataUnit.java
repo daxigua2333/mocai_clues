@@ -77,10 +77,12 @@ public record DecalDataUnit(Type type, Object meta) {
         switch (sUnit.type) {
             case STATIC -> {
                 region = atlas.getStaticRegion((ResourceLocation) sUnit.meta());
+                return new DecalDataUnit(Type.STATIC, region);
             }
             case DYNAMIC -> {
                 region = atlas.allocateDynamic();
                 atlas.updateDynamic(region, (byte[]) sUnit.meta());
+                return new DecalDataUnit(Type.DYNAMIC, region);
             }
             default -> {
                 throw new RuntimeException();
@@ -88,6 +90,6 @@ public record DecalDataUnit(Type type, Object meta) {
         }
 
 //        return new DecalDataUnit(Type.CLIENT, new AtlasRLWithUV(atlas.getLocation(), region));
-        return new DecalDataUnit(Type.CLIENT, region);
+//        return new DecalDataUnit(Type.CLIENT, region);
     }
 }

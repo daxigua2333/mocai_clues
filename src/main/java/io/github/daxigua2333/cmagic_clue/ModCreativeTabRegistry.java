@@ -19,6 +19,7 @@ public class ModCreativeTabRegistry {
             .displayItems((parameters, output) -> {
                 output.accept(ModItemsRegistry.CLUE_WAND_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
                 output.accept(ModItemsRegistry.CLUE_FINDER_ITEM.get());
+                output.accept(ModItemsRegistry.DECAL_PAINTER.get());
 //            output.accept(ModBlocksRegistry.INVISIBLE_THIN_PLANE_ITEM.get());
             }).build());
 

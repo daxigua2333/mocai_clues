@@ -228,7 +228,7 @@ public class DecalAtlas extends DynamicTexture {
     /**
      * 2D Shelf/Grid Allocation logic.
      * Finds the first available contiguous block of gridsX * gridsY.
-     * ATTENTION: expensive!!  TODO: optimize it... or not, because radius allocation only happens at client start...
+     * ATTENTION: expensive!!
      */
     @Nullable
     private GridPos allocateSpace(int gridsW, int gridsH) {

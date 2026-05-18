@@ -26,6 +26,7 @@ import java.util.Random;
 public class ServerLogicHooks {
 
     private static final Random random = new Random();
+    private static final double REACH_DISTANCE = 256;
 
     @SubscribeEvent
     public static void onEntityHurt(LivingDamageEvent.Pre event) {
@@ -70,6 +71,7 @@ public class ServerLogicHooks {
         Vec3 eyePosition = player.getEyePosition();
         Vec3 lookVector = player.getLookAngle();
         double reachDistance = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
+//        double reachDistance = REACH_DISTANCE;
         Vec3 endPosition = eyePosition.add(
                 lookVector.x * reachDistance,
                 lookVector.y * reachDistance,

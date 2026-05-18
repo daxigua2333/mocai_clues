@@ -128,6 +128,8 @@ public class DecalLayerHolder {
         ArrayDeque<DecalDataUnit> deque = getBacking().computeIfAbsent(blockFace, k -> new ArrayDeque<>());
         // just simply push static type decal to stack
         deque.addLast(dataUnit);
+
+        level.getChunk(pos).setUnsaved(true);
         PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PushLayer(chunkPos, blockFace, dataUnit));
     }
 
@@ -142,10 +144,13 @@ public class DecalLayerHolder {
         if (deque.peekLast() != null && deque.peekLast().type() == DecalDataUnit.Type.DYNAMIC) {
             deque.removeLast();
             deque.addLast(dataUnit);
-            PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.UpdateTopLayer(chunkPos, blockFace, dataUnit));
 
+            level.getChunk(pos).setUnsaved(true);
+            PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.UpdateTopLayer(chunkPos, blockFace, dataUnit));
         } else {
             deque.addLast(dataUnit);
+
+            level.getChunk(pos).setUnsaved(true);
             PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PushLayer(chunkPos, blockFace, dataUnit));
         }
     }
@@ -163,14 +168,16 @@ public class DecalLayerHolder {
             byte[] meta = (byte[]) deque.peekLast().meta();
             System.arraycopy(pixelData, 0, meta, startIndex, DecalMisc.BYTE_PER_PIXEL);
 
+            level.getChunk(pos).setUnsaved(true);
             PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.UpdateTopLayer(chunkPos, blockFace, deque.peekLast()));
-
         } else {
             byte[] meta = new byte[DecalMisc.GRID_BYTE_ARRAY_LENGTH];
             System.arraycopy(pixelData, 0, meta, startIndex, DecalMisc.BYTE_PER_PIXEL);
 
             DecalDataUnit dataUnit = new DecalDataUnit(DecalDataUnit.Type.DYNAMIC, meta);
             deque.addLast(dataUnit);
+
+            level.getChunk(pos).setUnsaved(true);
             PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PushLayer(chunkPos, blockFace, dataUnit));
         }
     }
@@ -181,8 +188,9 @@ public class DecalLayerHolder {
 
         ArrayDeque<DecalDataUnit> deque = getBacking().computeIfAbsent(blockFace, k -> new ArrayDeque<>());
         deque.removeLast();
-        PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PopLayer(chunkPos, blockFace));
 
+        level.getChunk(pos).setUnsaved(true);
+        PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.PopLayer(chunkPos, blockFace));
     }
 
     public void clearLayerAt(ServerLevel level, BlockPos pos, Direction face) {
@@ -191,6 +199,8 @@ public class DecalLayerHolder {
 
         if (!getBacking().containsKey(blockFace)) return;
         getBacking().get(blockFace).clear();
+
+        level.getChunk(pos).setUnsaved(true);
         PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.ClearLayer(chunkPos, blockFace));
     }
 
@@ -200,7 +210,7 @@ public class DecalLayerHolder {
             Vector3f[] coordinates = entry.getKey().getFaceVertices(layerOffset);
 
             for (DecalDataUnit unit : entry.getValue()) {
-                if (unit.type() != DecalDataUnit.Type.CLIENT) throw new RuntimeException();
+//                if (unit.type() != DecalDataUnit.Type.CLIENT) throw new RuntimeException();
                 if (unit.meta() instanceof AtlasRegion region) {
                     // add position-uv vertex
                     builder.addVertex(coordinates[0]).setUv(region.getU0(), region.getV0());
@@ -216,7 +226,9 @@ public class DecalLayerHolder {
     public void closeDynamic(DecalAtlas atlas) {
         for (var deque : getBacking().values()) {
             for (DecalDataUnit unit : deque) {
-                atlas.freeDynamic((AtlasRegion) unit.meta());
+                if (unit.type() == DecalDataUnit.Type.DYNAMIC) {
+                    atlas.freeDynamic((AtlasRegion) unit.meta());
+                }
             }
         }
     }
