@@ -2,6 +2,10 @@ package io.github.daxigua2333.cmagic_clue.decal;
 
 import io.github.daxigua2333.cmagic_clue.CMagicClue;
 import io.github.daxigua2333.cmagic_clue.data.ModAttachmentRegistry;
+import io.github.daxigua2333.cmagic_clue.decal.client.DecalAtlasRegistry;
+import io.github.daxigua2333.cmagic_clue.decal.client.DecalRenderer;
+import io.github.daxigua2333.cmagic_clue.decal.common.BlockFace;
+import io.github.daxigua2333.cmagic_clue.decal.common.DecalDataUnit;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -118,6 +122,24 @@ public class DecalSyncPayload {
                     holder.updateTopLayerFromServerSync(payload.blockFace, payload.dataUnit, DecalAtlasRegistry.ATLAS);
 
                     // dont update vbo here because vertex uv doesnt change
+                }
+            });
+        }
+
+    }
+
+    public record ExportAtlas() implements CustomPacketPayload {
+        public static final Type<ExportAtlas> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(CMagicClue.MODID, "decal_export_atlas_payload"));
+        public static final StreamCodec<ByteBuf, ExportAtlas> STREAM_CODEC = StreamCodec.unit(new ExportAtlas());
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+
+        public static void handle(ExportAtlas payload, IPayloadContext context) {
+            context.enqueueWork(() -> {
+                if (context.player().level() instanceof ClientLevel level) {
+                    DecalAtlasRegistry.ATLAS.export();
                 }
             });
         }

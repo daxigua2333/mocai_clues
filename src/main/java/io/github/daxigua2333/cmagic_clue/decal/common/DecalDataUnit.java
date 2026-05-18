@@ -1,14 +1,17 @@
-package io.github.daxigua2333.cmagic_clue.decal;
+package io.github.daxigua2333.cmagic_clue.decal.common;
 
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
+import io.github.daxigua2333.cmagic_clue.decal.client.DecalAtlas;
 import io.github.daxigua2333.cmagic_clue.utils.EnumCodecProvider;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.nio.ByteBuffer;
 
@@ -25,14 +28,12 @@ public record DecalDataUnit(Type type, Object meta) {
     public DecalDataUnit {
 //        if (type == Type.CLIENT && !(meta instanceof AtlasRLWithUV)
         if (type == Type.CLIENT && !(meta instanceof AtlasRegion)
-                || type == Type.STATIC && !(meta instanceof ResourceLocation)
-                || type == Type.DYNAMIC && !(meta instanceof byte[])) {
+                || type == Type.STATIC && !(meta instanceof ResourceLocation || meta instanceof AtlasRegion)
+                || type == Type.DYNAMIC && !(meta instanceof byte[] || meta instanceof AtlasRegion)) {
             throw new IllegalArgumentException(
                     "Invalid type in DecalDataUnit. Unit type: " + type + ". Meta type: " + (meta == null ? "null" : meta.getClass().getName())
             );
         }
-        if (type == Type.DYNAMIC && ((byte[]) meta).length != DecalLayerHolder.BYTE_PER_PIXEL * DecalLayerHolder.DYNAMIC_LAYER_SIZE)
-            throw new RuntimeException("Wrong dynamic layer size.");
     }
 
     public static final Codec<DecalDataUnit> CODEC = Type.CODEC.dispatch(
@@ -70,6 +71,7 @@ public record DecalDataUnit(Type type, Object meta) {
         };
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static DecalDataUnit covertS2C(DecalDataUnit sUnit, DecalAtlas atlas) {
         AtlasRegion region;
         switch (sUnit.type) {

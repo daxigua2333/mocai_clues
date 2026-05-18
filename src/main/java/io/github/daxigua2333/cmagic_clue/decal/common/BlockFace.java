@@ -1,4 +1,4 @@
-package io.github.daxigua2333.cmagic_clue.decal;
+package io.github.daxigua2333.cmagic_clue.decal.common;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

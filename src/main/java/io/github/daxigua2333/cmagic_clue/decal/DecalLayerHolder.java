@@ -3,6 +3,12 @@ package io.github.daxigua2333.cmagic_clue.decal;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.daxigua2333.cmagic_clue.decal.client.DecalAtlas;
+import io.github.daxigua2333.cmagic_clue.decal.client.DecalAtlasRegistry;
+import io.github.daxigua2333.cmagic_clue.decal.common.AtlasRegion;
+import io.github.daxigua2333.cmagic_clue.decal.common.BlockFace;
+import io.github.daxigua2333.cmagic_clue.decal.common.DecalDataUnit;
+import io.github.daxigua2333.cmagic_clue.decal.common.DecalMisc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,9 +22,6 @@ import org.joml.Vector3f;
 import java.util.*;
 
 public class DecalLayerHolder {
-
-    public static int BYTE_PER_PIXEL = 4;  // RGBA
-    public static int DYNAMIC_LAYER_SIZE = 16 * 16;
 
     private final Map<BlockFace, ArrayDeque<DecalDataUnit>> backing;
 
@@ -80,43 +83,40 @@ public class DecalLayerHolder {
 
     //    public static final StreamCodec<ByteBuf, DecalLayerHolder> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
     // This should only be used when syncing because the decoder is client-side specific
-    public static StreamCodec<FriendlyByteBuf, DecalLayerHolder> syncCodec(DecalAtlas atlas) {
-        return StreamCodec.of(
-                (buf, data) -> {
-                    buf.writeVarInt(data.getBacking().size());
-                    for (var entry : data.getBacking().entrySet()) {
-                        BlockFace.STREAM_CODEC.encode(buf, entry.getKey());
+    public static final StreamCodec<FriendlyByteBuf, DecalLayerHolder> SYNC_CODEC = StreamCodec.of(
+            (buf, data) -> {
+                buf.writeVarInt(data.getBacking().size());
+                for (var entry : data.getBacking().entrySet()) {
+                    BlockFace.STREAM_CODEC.encode(buf, entry.getKey());
 
-                        ArrayDeque<DecalDataUnit> deque = entry.getValue();
-                        buf.writeVarInt(deque.size());
-                        for (var unit : deque) {
-                            DecalDataUnit.STREAM_CODEC.encode(buf, unit);
-                        }
+                    ArrayDeque<DecalDataUnit> deque = entry.getValue();
+                    buf.writeVarInt(deque.size());
+                    for (var unit : deque) {
+                        DecalDataUnit.STREAM_CODEC.encode(buf, unit);
                     }
-                },
-                buf -> {
-                    int mapSize = buf.readVarInt();
-                    Map<BlockFace, ArrayDeque<DecalDataUnit>> map = new HashMap<>(mapSize);
-                    for (int i = 0; i < mapSize; i++) {
-                        BlockFace key = BlockFace.STREAM_CODEC.decode(buf);
-
-                        int dequeSize = buf.readVarInt();
-                        ArrayDeque<DecalDataUnit> deque = new ArrayDeque<>(dequeSize);
-                        for (int j = 0; j < dequeSize; j++) {
-                            DecalDataUnit sUnit = DecalDataUnit.STREAM_CODEC.decode(buf);
-                            DecalDataUnit cUnit = DecalDataUnit.covertS2C(sUnit, atlas);
-
-                            deque.add(cUnit);
-                        }
-
-                        map.put(key, deque);
-                    }
-
-                    return new DecalLayerHolder(map);
                 }
-        );
-    }
+            },
+            buf -> {
+                int mapSize = buf.readVarInt();
+                Map<BlockFace, ArrayDeque<DecalDataUnit>> map = new HashMap<>(mapSize);
+                for (int i = 0; i < mapSize; i++) {
+                    BlockFace key = BlockFace.STREAM_CODEC.decode(buf);
 
+                    int dequeSize = buf.readVarInt();
+                    ArrayDeque<DecalDataUnit> deque = new ArrayDeque<>(dequeSize);
+                    for (int j = 0; j < dequeSize; j++) {
+                        DecalDataUnit sUnit = DecalDataUnit.STREAM_CODEC.decode(buf);
+                        DecalDataUnit cUnit = DecalDataUnit.covertS2C(sUnit, DecalAtlasRegistry.ATLAS);
+
+                        deque.add(cUnit);
+                    }
+
+                    map.put(key, deque);
+                }
+
+                return new DecalLayerHolder(map);
+            }
+    );
 
     // =========== server logic ==============
     // push a static layer
@@ -152,7 +152,7 @@ public class DecalLayerHolder {
 
     // push a one-pixel change
     public void pushOnePixelLayerAt(ServerLevel level, BlockPos pos, Direction face, byte[] pixelData, int startIndex) {
-        if (pixelData.length != BYTE_PER_PIXEL)
+        if (pixelData.length != DecalMisc.BYTE_PER_PIXEL)
             throw new RuntimeException("Wrong pixel format. Data length:" + pixelData.length);
         BlockFace blockFace = new BlockFace(pos, face);
         ChunkPos chunkPos = new ChunkPos(pos);
@@ -161,13 +161,13 @@ public class DecalLayerHolder {
         // if top layer is dynamic, update it; else push a new one
         if (deque.peekLast() != null && deque.peekLast().type() == DecalDataUnit.Type.DYNAMIC) {
             byte[] meta = (byte[]) deque.peekLast().meta();
-            System.arraycopy(pixelData, 0, meta, startIndex, BYTE_PER_PIXEL);
+            System.arraycopy(pixelData, 0, meta, startIndex, DecalMisc.BYTE_PER_PIXEL);
 
             PacketDistributor.sendToPlayersTrackingChunk(level, chunkPos, new DecalSyncPayload.UpdateTopLayer(chunkPos, blockFace, deque.peekLast()));
 
         } else {
-            byte[] meta = new byte[BYTE_PER_PIXEL * DYNAMIC_LAYER_SIZE];
-            System.arraycopy(pixelData, 0, meta, startIndex, BYTE_PER_PIXEL);
+            byte[] meta = new byte[DecalMisc.GRID_BYTE_ARRAY_LENGTH];
+            System.arraycopy(pixelData, 0, meta, startIndex, DecalMisc.BYTE_PER_PIXEL);
 
             DecalDataUnit dataUnit = new DecalDataUnit(DecalDataUnit.Type.DYNAMIC, meta);
             deque.addLast(dataUnit);
@@ -213,7 +213,7 @@ public class DecalLayerHolder {
         }
     }
 
-    public void clientClose(DecalAtlas atlas) {
+    public void closeDynamic(DecalAtlas atlas) {
         for (var deque : getBacking().values()) {
             for (DecalDataUnit unit : deque) {
                 atlas.freeDynamic((AtlasRegion) unit.meta());

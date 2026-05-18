@@ -1,8 +1,7 @@
 package io.github.daxigua2333.cmagic_clue.decal;
 
-import net.minecraft.network.FriendlyByteBuf;
+import io.github.daxigua2333.cmagic_clue.decal.client.DecalRenderer;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.attachment.AttachmentSyncHandler;
@@ -14,21 +13,12 @@ public class DecalSyncHandler implements AttachmentSyncHandler<DecalLayerHolder>
     public DecalSyncHandler() {
     }
 
-    private static StreamCodec<FriendlyByteBuf, DecalLayerHolder> SYNC_CODEC;
-
-    private static StreamCodec<FriendlyByteBuf, DecalLayerHolder> getSyncCodec() {
-        if (SYNC_CODEC == null && DecalAtlasRegistry.ATLAS != null) {
-            SYNC_CODEC = DecalLayerHolder.syncCodec(DecalAtlasRegistry.ATLAS);
-        }
-        return SYNC_CODEC;
-    }
-
     @Override
     public void write(RegistryFriendlyByteBuf buf, DecalLayerHolder attachment, boolean initialSync) {
         // Here we only process initial sync, for delta sync we ll use custom packet
         buf.writeBoolean(initialSync);
         if (initialSync) {
-            getSyncCodec().encode(buf, attachment);
+            DecalLayerHolder.SYNC_CODEC.encode(buf, attachment);
         }
     }
 
@@ -36,7 +26,7 @@ public class DecalSyncHandler implements AttachmentSyncHandler<DecalLayerHolder>
     public @Nullable DecalLayerHolder read(IAttachmentHolder holder, RegistryFriendlyByteBuf buf, @Nullable DecalLayerHolder previousValue) {
         boolean initialSync = buf.readBoolean();
         if (initialSync) {
-            DecalLayerHolder decoded = getSyncCodec().decode(buf);
+            DecalLayerHolder decoded = DecalLayerHolder.SYNC_CODEC.decode(buf);
 
             // dirty build VBO
             if (holder instanceof LevelChunk chunk) {

@@ -1,9 +1,11 @@
-package io.github.daxigua2333.cmagic_clue.decal;
+package io.github.daxigua2333.cmagic_clue.decal.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.github.daxigua2333.cmagic_clue.CMagicClue;
 import io.github.daxigua2333.cmagic_clue.data.ModAttachmentRegistry;
+import io.github.daxigua2333.cmagic_clue.decal.DecalLayerHolder;
+import io.github.daxigua2333.cmagic_clue.decal.common.DecalMisc;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -43,8 +45,6 @@ public class DecalRenderer {
     private static final BlockingQueue<ByteBufferBuilder> POOL = new ArrayBlockingQueue<>(POOL_SIZE);
     private static final int CAPACITY = 65536 / 2;
 
-    // To make the layer slightly outward away from the block, preventing z-fighting
-    private static final float LAYER_FLOAT_OFFSET = 0.001f;
 
     public static void markDirty(ChunkPos pos) {
         DIRTY.add(pos);
@@ -55,7 +55,7 @@ public class DecalRenderer {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
 
         Minecraft mc = Minecraft.getInstance();
-        mc.getProfiler().push(CMagicClue.MODID + ":render");
+        mc.getProfiler().push(CMagicClue.MODID + ":decal_render");
 
         processDirty();
         render(event);
@@ -74,7 +74,7 @@ public class DecalRenderer {
             if (vbo != null) vbo.close();
 
             DecalLayerHolder holder = event.getChunk().getData(ModAttachmentRegistry.DECAL_LAYER_HOLDER);
-            holder.clientClose(DecalAtlasRegistry.ATLAS);
+            holder.closeDynamic(DecalAtlasRegistry.ATLAS);
         }
     }
 
@@ -97,7 +97,7 @@ public class DecalRenderer {
         BUFFERS.values().forEach(VertexBuffer::close);
         BUFFERS.keySet().forEach(chunkPos -> {
             LevelChunk chunk = Minecraft.getInstance().level.getChunk(chunkPos.x, chunkPos.z);
-            chunk.getData(ModAttachmentRegistry.DECAL_LAYER_HOLDER).clientClose(DecalAtlasRegistry.ATLAS);
+            chunk.getData(ModAttachmentRegistry.DECAL_LAYER_HOLDER).closeDynamic(DecalAtlasRegistry.ATLAS);
         });
         BUFFERS.clear();
         // close all bbb
@@ -169,7 +169,7 @@ public class DecalRenderer {
             if (level == null) throw new RuntimeException();
             LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
             DecalLayerHolder holder = chunk.getData(ModAttachmentRegistry.DECAL_LAYER_HOLDER);
-            holder.addToMesh(builder, LAYER_FLOAT_OFFSET);
+            holder.addToMesh(builder, DecalMisc.LAYER_FLOAT_OFFSET);
 
             // Finalize meshes
 //            result = builder.buildOrThrow();  // this shit only add a null check to #build()....
@@ -227,9 +227,6 @@ public class DecalRenderer {
         Frustum frustum = event.getFrustum();
 
         poseStack.pushPose();
-        // Translate to chunk origin relative to camera
-//        poseStack.translate(pos.getMinBlockX() - camPos.x, -camPos.y, pos.getMinBlockZ() - camPos.z);
-//        poseStack.mulPose(new Quaternionf(camera.rotation()).conjugate());
         poseStack.mulPose(event.getModelViewMatrix());
         poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
 

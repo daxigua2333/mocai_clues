@@ -1,13 +1,17 @@
-package io.github.daxigua2333.cmagic_clue.decal;
+package io.github.daxigua2333.cmagic_clue.decal.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.daxigua2333.cmagic_clue.CMagicClue;
+import io.github.daxigua2333.cmagic_clue.decal.common.AtlasRegion;
+import io.github.daxigua2333.cmagic_clue.decal.common.DecalMisc;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLPaths;
 
 import javax.annotation.Nullable;
@@ -23,12 +27,13 @@ import java.util.Map;
  * A specialized 4096x4096 Texture Atlas divided into 16x16 grids.
  * Handles both static batch-loading on init and dynamic runtime grid allocation/updating.
  */
+@OnlyIn(Dist.CLIENT)
 public class DecalAtlas extends DynamicTexture {
 
-    public static final int ATLAS_SIZE = 4096;
-    public static final int GRID_SIZE = 16;
-    public static final int GRID_COUNT = ATLAS_SIZE / GRID_SIZE; // 256
-    public static final int TOTAL_GRIDS = GRID_COUNT * GRID_COUNT; // 65,536
+    private static final int ATLAS_SIZE = DecalMisc.ATLAS_SIZE;
+    private static final int GRID_SIZE = DecalMisc.ATLAS_GRID_SIZE;
+    private static final int GRID_COUNT = ATLAS_SIZE / GRID_SIZE; // 256
+    private static final int TOTAL_GRIDS = GRID_COUNT * GRID_COUNT; // 65,536
 
     private final BitSet usedGrids = new BitSet(TOTAL_GRIDS);
     private final Map<ResourceLocation, AtlasRegion> staticRegions = new HashMap<>();

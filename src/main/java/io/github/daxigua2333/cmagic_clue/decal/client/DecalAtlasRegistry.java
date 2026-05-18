@@ -1,4 +1,4 @@
-package io.github.daxigua2333.cmagic_clue.decal;
+package io.github.daxigua2333.cmagic_clue.decal.client;
 
 import io.github.daxigua2333.cmagic_clue.CMagicClue;
 import net.minecraft.client.Minecraft;
@@ -19,7 +19,7 @@ import java.util.List;
  */
 @EventBusSubscriber(modid = CMagicClue.MODID, value = Dist.CLIENT)
 public final class DecalAtlasRegistry {
-    public static DecalAtlas ATLAS;
+    public static DecalAtlas ATLAS;  // singleton
     public static final ResourceLocation ATLAS_ID = ResourceLocation.fromNamespaceAndPath(
             CMagicClue.MODID, "textures/atlas/layer_atlas.png");
 

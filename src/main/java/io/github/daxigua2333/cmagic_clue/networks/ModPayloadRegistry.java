@@ -93,6 +93,12 @@ public class ModPayloadRegistry {
                 DecalSyncPayload.UpdateTopLayer.STREAM_CODEC,
                 DecalSyncPayload.UpdateTopLayer::handle
         );
+        registrar.playToClient(
+                DecalSyncPayload.ExportAtlas.TYPE,
+                DecalSyncPayload.ExportAtlas.STREAM_CODEC,
+                DecalSyncPayload.ExportAtlas::handle
+        );
+
 
     }
 

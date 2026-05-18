@@ -1,4 +1,4 @@
-package io.github.daxigua2333.cmagic_clue.decal;
+package io.github.daxigua2333.cmagic_clue.decal.common;
 
 
 /**
