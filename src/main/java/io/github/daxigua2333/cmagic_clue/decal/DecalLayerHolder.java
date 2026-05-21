@@ -1,6 +1,7 @@
 package io.github.daxigua2333.cmagic_clue.decal;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.daxigua2333.cmagic_clue.decal.client.DecalAtlas;
@@ -9,6 +10,7 @@ import io.github.daxigua2333.cmagic_clue.decal.common.AtlasRegion;
 import io.github.daxigua2333.cmagic_clue.decal.common.BlockFace;
 import io.github.daxigua2333.cmagic_clue.decal.common.DecalDataUnit;
 import io.github.daxigua2333.cmagic_clue.decal.common.DecalMisc;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,6 +18,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
@@ -205,7 +208,7 @@ public class DecalLayerHolder {
     }
 
     // ========== client logic ================
-    public void addToMesh(BufferBuilder builder, float layerOffset) {
+    public void addToMesh(VertexConsumer builder, float layerOffset) {
         for (var entry : backing.entrySet()) {
             Vector3f[] coordinates = entry.getKey().getFaceVertices(layerOffset);
 
@@ -217,6 +220,50 @@ public class DecalLayerHolder {
                     builder.addVertex(coordinates[1]).setUv(region.getU0(), region.getV1());
                     builder.addVertex(coordinates[2]).setUv(region.getU1(), region.getV1());
                     builder.addVertex(coordinates[3]).setUv(region.getU1(), region.getV0());
+                }
+
+            }
+        }
+    }
+
+    public void addToMesh(VertexConsumer builder, PoseStack.Pose pose, float layerOffset, Level level) {
+        for (var entry : backing.entrySet()) {
+            Vector3f[] coordinates = entry.getKey().getFaceVertices(layerOffset);
+            Vector3f normal = entry.getKey().getNormal();
+            int packedLight = LevelRenderer.getLightColor(level, entry.getKey().getAdjacentPos());
+//            int packedLight = LightTexture.FULL_BRIGHT/2;
+
+
+            for (DecalDataUnit unit : entry.getValue()) {
+//                if (unit.type() != DecalDataUnit.Type.CLIENT) throw new RuntimeException();
+                if (unit.meta() instanceof AtlasRegion region) {
+                    builder.addVertex(pose, coordinates[0])
+                            .setColor(255, 255, 255, 255)
+                            .setUv(region.getU0(), region.getV0())
+//                            .setOverlay(OverlayTexture.NO_OVERLAY)
+                            .setLight(packedLight)
+                            .setNormal(pose, normal.x, normal.y, normal.z);
+
+                    builder.addVertex(pose, coordinates[1])
+                            .setColor(255, 255, 255, 255)
+                            .setUv(region.getU0(), region.getV1())
+//                            .setOverlay(OverlayTexture.NO_OVERLAY)
+                            .setLight(packedLight)
+                            .setNormal(pose, 0, 1f, 0);
+
+                    builder.addVertex(pose, coordinates[2])
+                            .setColor(255, 255, 255, 255)
+                            .setUv(region.getU1(), region.getV1())
+//                            .setOverlay(OverlayTexture.NO_OVERLAY)
+                            .setLight(packedLight)
+                            .setNormal(pose, normal.x, normal.y, normal.z);
+
+                    builder.addVertex(pose, coordinates[3])
+                            .setColor(255, 255, 255, 255)
+                            .setUv(region.getU1(), region.getV0())
+//                            .setOverlay(OverlayTexture.NO_OVERLAY)
+                            .setLight(packedLight)
+                            .setNormal(pose, normal.x, normal.y, normal.z);
                 }
             }
 

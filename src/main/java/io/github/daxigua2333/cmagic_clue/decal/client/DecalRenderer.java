@@ -9,6 +9,7 @@ import io.github.daxigua2333.cmagic_clue.decal.common.DecalMisc;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -52,13 +53,14 @@ public class DecalRenderer {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
 
         Minecraft mc = Minecraft.getInstance();
         mc.getProfiler().push(CMagicClue.MODID + ":decal_render");
 
         processDirty();
         render(event);
+//        dynamicRender(event);
 
         mc.getProfiler().pop();
     }
@@ -136,7 +138,7 @@ public class DecalRenderer {
             VertexFormat.Mode.QUADS,
             256,
             false,
-            false,  // no sort
+            false,  // no sort, because it s already a stack
             RenderType.CompositeState.builder()
                     // Any textured translucent shader is fine; this one is commonly used.
                     .setShaderState(RenderStateShard.POSITION_TEX_SHADER)
@@ -147,9 +149,33 @@ public class DecalRenderer {
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE) // <- no depth write
                     .setCullState(RenderStateShard.NO_CULL)
                     // Optional, but helps when coplanar with block faces.
-//                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
                     .setLightmapState(RenderStateShard.NO_LIGHTMAP)
                     .setOverlayState(RenderStateShard.NO_OVERLAY)
+//                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
+                    .setLayeringState(RenderStateShard.NO_LAYERING)
+                    .createCompositeState(false)
+    );
+
+    public static final RenderType DYNAMIC_DECAL_RENDER_TYPE = RenderType.create(
+            CMagicClue.MODID + ":decal",
+            DefaultVertexFormat.BLOCK,
+            VertexFormat.Mode.QUADS,
+            256,
+            false,
+            false,  // no sort, because it s already a stack
+            RenderType.CompositeState.builder()
+                    // Any textured translucent shader is fine; this one is commonly used.
+                    .setShaderState(RenderStateShard.RENDERTYPE_TRANSLUCENT_SHADER)
+                    .setTextureState(new RenderStateShard.TextureStateShard(DecalAtlasRegistry.ATLAS_ID, false, false))
+                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                    // Keep depth test (so it can be occluded), but disable depth *write* to avoid z-fighting.
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .setWriteMaskState(RenderStateShard.COLOR_WRITE) // <- no depth write
+                    .setCullState(RenderStateShard.NO_CULL)
+                    // Optional, but helps when coplanar with block faces.
+                    .setLightmapState(RenderStateShard.LIGHTMAP)
+                    .setOverlayState(RenderStateShard.NO_OVERLAY)
+//                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
                     .setLayeringState(RenderStateShard.NO_LAYERING)
                     .createCompositeState(false)
     );
@@ -231,8 +257,6 @@ public class DecalRenderer {
         poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
 
         DECAL_RENDER_TYPE.setupRenderState();
-        RenderSystem.depthMask(false);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
         for (var entry : BUFFERS.entrySet()) {
 
@@ -249,11 +273,38 @@ public class DecalRenderer {
             VertexBuffer.unbind();
         }
 
-        RenderSystem.depthMask(true);
         DECAL_RENDER_TYPE.clearRenderState();
 
         poseStack.popPose();
     }
 
+
+    private static void dynamicRender(RenderLevelStageEvent event) {
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        Minecraft mc = Minecraft.getInstance();
+        PoseStack poseStack = event.getPoseStack();
+        Camera camera = event.getCamera();
+        Vec3 camPos = camera.getPosition();
+
+        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+//        RenderType rType = RenderType.entityDecal(DecalAtlasRegistry.ATLAS_ID);
+        RenderType rType = DYNAMIC_DECAL_RENDER_TYPE;
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(rType);
+
+        poseStack.pushPose();
+        poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
+
+        for (ChunkPos chunkPos : BUFFERS.keySet()) {
+            LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
+            DecalLayerHolder holder = chunk.getData(ModAttachmentRegistry.DECAL_LAYER_HOLDER);
+
+            holder.addToMesh(vertexConsumer, poseStack.last(), DecalMisc.LAYER_FLOAT_OFFSET, level);
+        }
+
+        poseStack.popPose();
+        bufferSource.endBatch(rType);
+    }
 
 }

@@ -20,7 +20,7 @@ public record BlockFace(BlockPos pos, Direction face) {
     public static final StreamCodec<ByteBuf, BlockFace> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
 
 
-        public Vector3f[] getFaceVertices(float offset) {
+    public Vector3f[] getFaceVertices(float offset) {
         // We use the Direction's step (normal vector) to dynamically apply the offset.
         // E.g. UP has a stepY of 1, so it adds to Y. DOWN has a stepY of -1, so it subtracts.
         float x = pos.getX() + face.getStepX() * offset;
@@ -64,5 +64,21 @@ public record BlockFace(BlockPos pos, Direction face) {
                     new Vector3f(x + 1, y + 1, z)
             };
         };
+    }
+
+    /**
+     * Returns the normal of the face as a Vector3f.
+     * Use it when building vertices like: .setNormal(normal.x(), normal.y(), normal.z())
+     */
+    public Vector3f getNormal() {
+        return new Vector3f(face.getStepX(), face.getStepY(), face.getStepZ());
+    }
+
+    /**
+     * Returns the BlockPos adjacent to this face.
+     * E.g. if the face is UP, returns pos.relative(Direction.UP) which is y + 1.
+     */
+    public BlockPos getAdjacentPos() {
+        return pos.relative(face);
     }
 }

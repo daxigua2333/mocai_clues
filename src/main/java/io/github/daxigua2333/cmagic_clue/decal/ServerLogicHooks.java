@@ -46,7 +46,7 @@ public class ServerLogicHooks {
         BlockHitResult bhr = getPlayerLookHitPosition(player);
 
         if (bhr != null) {
-            byte[] redColor = new byte[]{0, 0, 0, (byte) 255}; // TODO: palette
+            byte[] redColor = new byte[]{0, 0, (byte) 255, (byte) 255}; // TODO: palette
 
             int bytesPerPixel = DecalMisc.BYTE_PER_PIXEL;
             int startIndex = calModifiedPixelIndexAtVec3(bhr.getBlockPos(), bhr.getDirection(), bhr.getLocation(), bytesPerPixel);

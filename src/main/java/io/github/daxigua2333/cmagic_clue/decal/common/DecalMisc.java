@@ -8,7 +8,7 @@ public final class DecalMisc {
     public static int GRID_BYTE_ARRAY_LENGTH = BYTE_PER_PIXEL * ATLAS_GRID_SIZE * ATLAS_GRID_SIZE;
 
     // To make the layer slightly outward away from the block, preventing z-fighting
-    public static final float LAYER_FLOAT_OFFSET = 0.001f;
+    public static final float LAYER_FLOAT_OFFSET = 0.01f;
 
 
 }
