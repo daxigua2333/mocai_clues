@@ -38,6 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @OnlyIn(value = Dist.CLIENT)
 @EventBusSubscriber(modid = CMagicClue.MODID, value = Dist.CLIENT)
 public class DecalRenderer {
+    private static final boolean doDynamicalRenderMode = true;
+
     private static final Set<ChunkPos> DIRTY = ConcurrentHashMap.newKeySet();
     private static final Set<ChunkPos> BUILDING = ConcurrentHashMap.newKeySet();
     private static final Map<ChunkPos, VertexBuffer> BUFFERS = new ConcurrentHashMap<>();
@@ -59,8 +61,11 @@ public class DecalRenderer {
         mc.getProfiler().push(CMagicClue.MODID + ":decal_render");
 
         processDirty();
-        render(event);
-//        dynamicRender(event);
+        if (!doDynamicalRenderMode) {
+            render(event);
+        } else {
+            dynamicRender(event);
+        }
 
         mc.getProfiler().pop();
     }
@@ -112,6 +117,7 @@ public class DecalRenderer {
     }
 
     private static void processDirty() {
+        if (doDynamicalRenderMode) return;
         if (DIRTY.isEmpty()) return;
 
         Iterator<ChunkPos> iterator = DIRTY.iterator();
@@ -162,7 +168,7 @@ public class DecalRenderer {
             VertexFormat.Mode.QUADS,
             256,
             false,
-            false,  // no sort, because it s already a stack
+            true,
             RenderType.CompositeState.builder()
                     // Any textured translucent shader is fine; this one is commonly used.
                     .setShaderState(RenderStateShard.RENDERTYPE_TRANSLUCENT_SHADER)
@@ -177,6 +183,7 @@ public class DecalRenderer {
                     .setOverlayState(RenderStateShard.NO_OVERLAY)
 //                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
                     .setLayeringState(RenderStateShard.NO_LAYERING)
+//                    .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
                     .createCompositeState(false)
     );
 
@@ -296,7 +303,7 @@ public class DecalRenderer {
         poseStack.pushPose();
         poseStack.translate(-camPos.x, -camPos.y, -camPos.z);
 
-        for (ChunkPos chunkPos : BUFFERS.keySet()) {
+        for (ChunkPos chunkPos : DIRTY) {
             LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
             DecalLayerHolder holder = chunk.getData(ModAttachmentRegistry.DECAL_LAYER_HOLDER);
 
