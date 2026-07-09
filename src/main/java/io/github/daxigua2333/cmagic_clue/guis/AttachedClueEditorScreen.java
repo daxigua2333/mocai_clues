@@ -127,7 +127,6 @@ public class AttachedClueEditorScreen extends ClueBookScreenLayout implements It
             PacketDistributor.sendToServer(new ClueObjectUpdatePayload(
                     location,
                     new ClueObjectUpdatePayload.Data(defaultObj)));
-//            PacketDistributor.sendToServer(new ScreenCreateDefaultCluePayload(tab.getSelected(), location));
         }).bounds(left + LIST_X_OFFSET + 13 + 48 + 2, top + LIST_Y_OFFSET + 12, 16, 16).build();
 
         tab = new ScrollableDropdownWidget<>(

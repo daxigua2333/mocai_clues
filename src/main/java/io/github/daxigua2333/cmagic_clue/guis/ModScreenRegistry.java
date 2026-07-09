@@ -19,7 +19,6 @@ public class ModScreenRegistry {
     // screen register
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenuTypeRegistry.CLUE_INVENTORY_MENU.get(), ClueInventoryScreen::new);
 
         event.register(ModMenuTypeRegistry.WHITELIST_MENU.get(), new MenuScreens.ScreenConstructor<WhitelistMenu, SingleSlotWhitelistScreen>() {
             @Override
