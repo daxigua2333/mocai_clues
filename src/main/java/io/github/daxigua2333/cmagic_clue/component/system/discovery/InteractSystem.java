@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -37,32 +38,85 @@ public final class InteractSystem {
 
     @SubscribeEvent
     private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
-        if (!event.getLevel().isClientSide()) {
-            processInteractEvent(
-                    DataManager.Server.retrieveByBlockPos(event.getLevel(), event.getPos()),
-                    InteractEntry.EntryType.CLICK_WITH_FINDER,
-                    (ServerPlayer) event.getEntity()
-            );
+        var level = event.getLevel();
+        var pos = event.getPos();
+        Player player = event.getEntity();
+        boolean canInteract = false;
+        InteractEntry.EntryType entryType = event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())
+                ? InteractEntry.EntryType.CLICK_WITH_FINDER
+                : InteractEntry.EntryType.REGULAR_RIGHT_CLICK;
+
+        if (!level.isClientSide()) {
+            ObjectsWithLocation data = DataManager.Server.retrieveByBlockPos(level, pos);
+            if (canInteract(data, entryType, player)) {
+                canInteract = true;
+                processInteractEvent(data, entryType, (ServerPlayer) player);
+            }
+        } else {
+            canInteract = canInteract(DataManager.Client.retrieveByBlockPos(level, pos), entryType, player);
         }
 
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
+        if (entryType == InteractEntry.EntryType.REGULAR_RIGHT_CLICK) {
+            event.setCanceled(false);
+            event.setCancellationResult(InteractionResult.PASS);
+            return;
+        }
+        // ONLY cancel and bypass normal interaction if data exists
+        if (canInteract) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide()));
+        } else {
+            event.setCanceled(false);
+            event.setCancellationResult(InteractionResult.PASS);
+        }
     }
 
     @SubscribeEvent
     private static void onRightClickEntity(PlayerInteractEvent.EntityInteract event) {
-        if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
-        if (!event.getLevel().isClientSide()) {
-            processInteractEvent(
-                    DataManager.Server.retrieveByEntity(event.getTarget()),
-                    InteractEntry.EntryType.CLICK_WITH_FINDER,
-                    (ServerPlayer) event.getEntity()
-            );
+        var level = event.getLevel();
+        Player player = event.getEntity();
+        boolean canInteract = false;
+        InteractEntry.EntryType entryType = event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())
+                ? InteractEntry.EntryType.CLICK_WITH_FINDER
+                : InteractEntry.EntryType.REGULAR_RIGHT_CLICK;
+
+        if (!level.isClientSide()) {
+            ObjectsWithLocation data = DataManager.Server.retrieveByEntity(event.getTarget());
+            if (canInteract(data, entryType, player)) {
+                canInteract = true;
+                processInteractEvent(data, entryType, (ServerPlayer) player);
+            }
+        } else {
+            canInteract = canInteract(DataManager.Client.retrieveByEntity(event.getTarget()), entryType, player);
         }
 
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
+        if (entryType == InteractEntry.EntryType.REGULAR_RIGHT_CLICK) {
+            event.setCanceled(false);
+            event.setCancellationResult(InteractionResult.PASS);
+            return;
+        }
+        // ONLY cancel and bypass normal interaction if data exists
+        if (canInteract) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide()));
+        } else {
+            event.setCanceled(false);
+            event.setCancellationResult(InteractionResult.PASS);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        Level level = event.getLevel();
+        if (level.isClientSide()) {
+            return;
+        }
+        if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START) {
+            processInteractEvent(DataManager.Server.retrieveByBlockPos(level, event.getPos()), InteractEntry.EntryType.REGULAR_LEFT_CLICK, (ServerPlayer) event.getEntity());
+        }
+
+        // DO NOT cancel the event, and do not set useBlock/useItem to DENY.
+        // This ensures the player starts mining the block normally.
     }
 
     private final static Map<UUID, BlockPos> prevPos = new HashMap<>();
@@ -101,18 +155,44 @@ public final class InteractSystem {
                 continue;
             }
 
+            // perform the interactions
             InteractResult rCompo = obj.getComponentOrThrow(ComponentType.INTERACT_RESULT);
             for (InteractResult.ResultType type : rCompo.getEnabled()) {
                 switch (type) {
                     case SEND_ITEM -> sendItem(player, obj, ol.location());
 //                    case SEND_MANUAL_CLUE -> sendManualClue(player, obj);
                     case SEND_TO_CLUE_BOOK -> sendToClueBook(player, obj);
+                    case SEND_TO_CHAT_BOX -> sendToChatBox(player, obj);
                 }
             }
 
             bCompo.onFound();
             ol.location().markDirty(obj);
         }
+    }
+
+    private static boolean canInteract(ObjectsWithLocation ol, InteractEntry.EntryType entryType, Player player) {
+        boolean success = false;
+        for (ClueObject obj : ol.objects()) {
+            if (!obj.hasFamily(FAMILY)) {
+                continue;
+            }
+
+            // do have active behavior check
+            InteractEntry eCompo = obj.getComponentOrThrow(ComponentType.INTERACT_ENTRY);
+            if (!eCompo.isEnabled(entryType)) {
+                continue;
+            }
+            // FinderState accessibility check
+            InteractState bCompo = obj.getComponentOrThrow(ComponentType.INTERACT_STATE);
+            if (!bCompo.isAccessible(player)) {
+                continue;
+            }
+
+            // perform the interactions
+            success = true;
+        }
+        return success;
     }
 
     private static void sendItem(ServerPlayer player, ClueObject obj, IRuntimeLocation location) {
@@ -150,6 +230,14 @@ public final class InteractSystem {
         // setUnsaved
         location.markDirty(copy);
     }
+
+    public static void sendToChatBox(ServerPlayer player, ClueObject obj) {
+        DetailData dCompo = obj.getComponentOrThrow(ComponentType.DETAIL_DATA);
+        for (String text : dCompo.getDetails()) {
+            player.sendSystemMessage(Component.literal(text));
+        }
+    }
+
 
     // ======== Create with: DetailsWithCompleteness + clue book UUID
     private static ClueObject createFromManual(ClueObject old) {

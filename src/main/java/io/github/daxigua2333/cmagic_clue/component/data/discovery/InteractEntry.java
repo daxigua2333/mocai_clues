@@ -14,6 +14,8 @@ public class InteractEntry extends EnumSelectorComponent<InteractEntry.EntryType
     public enum EntryType {
         WALK_ON,
         CLICK_WITH_FINDER,
+        REGULAR_RIGHT_CLICK,
+        REGULAR_LEFT_CLICK,
 //        CLICK_BLOCK_WITH_FINDER,
 //        CLICK_ENTITY_WITH_FINDER,
         ;

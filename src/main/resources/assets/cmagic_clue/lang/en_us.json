@@ -12,12 +12,15 @@
 
   "cmagic_clue.enum.WALK_ON": "Player Passed By",
   "cmagic_clue.enum.CLICK_WITH_FINDER": "Click with Clue Finder",
+  "cmagic_clue.enum.REGULAR_RIGHT_CLICK": "Regular right click",
+  "cmagic_clue.enum.REGULAR_LEFT_CLICK": "Regular left click",
 
   "cmagic_clue.enum.FLASH_DOT": "Render flash dot on block face",
   "cmagic_clue.enum.ITEM_RENDERER": "Render an item on block face",
 
   "cmagic_clue.enum.SEND_ITEM": "Give item to player",
   "cmagic_clue.enum.SEND_TO_CLUE_BOOK": "Send to clue book",
+  "cmagic_clue.enum.SEND_TO_CHAT_BOX": "Send to chat box",
 
   "cmagic_clue.enum.REMAINING": "Remaining interactions",
   "cmagic_clue.enum.ALLOWED_PLAYERS": "Whitelisted players",

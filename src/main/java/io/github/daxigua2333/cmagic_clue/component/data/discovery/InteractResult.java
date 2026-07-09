@@ -20,6 +20,7 @@ public class InteractResult extends EnumSelectorComponent<InteractResult.ResultT
     public enum ResultType {
         SEND_ITEM,
         SEND_TO_CLUE_BOOK,
+        SEND_TO_CHAT_BOX,
 //        SEND_MANUAL_CLUE,
 //        SEND_FOOTPRINT_CLUE,
         ;
@@ -85,7 +86,7 @@ public class InteractResult extends EnumSelectorComponent<InteractResult.ResultT
                             () -> clueBookUUID, id -> clueBookUUID = id,
                             v -> true, Component.literal("UUID"))
             );
-            case SEND_ITEM -> List.of();
+            case SEND_ITEM, SEND_TO_CHAT_BOX -> List.of();
         };
     }
 }

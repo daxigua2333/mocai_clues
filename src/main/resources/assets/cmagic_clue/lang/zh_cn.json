@@ -12,12 +12,15 @@
 
   "cmagic_clue.enum.WALK_ON": "玩家经过",
   "cmagic_clue.enum.CLICK_WITH_FINDER": "使用放大镜",
+  "cmagic_clue.enum.REGULAR_RIGHT_CLICK": "常规右击",
+  "cmagic_clue.enum.REGULAR_LEFT_CLICK": "常规左击",
 
   "cmagic_clue.enum.FLASH_DOT": "在方块表面渲染光点",
   "cmagic_clue.enum.ITEM_RENDERER": "在方块表面渲染物品",
 
   "cmagic_clue.enum.SEND_ITEM": "给玩家物品",
   "cmagic_clue.enum.SEND_TO_CLUE_BOOK": "写入线索簿",
+  "cmagic_clue.enum.SEND_TO_CHAT_BOX": "发送到聊天框",
 
   "cmagic_clue.enum.REMAINING": "剩余交互次数",
   "cmagic_clue.enum.ALLOWED_PLAYERS": "玩家白名单",

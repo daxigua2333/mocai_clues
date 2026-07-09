@@ -1,5 +1,6 @@
 package io.github.daxigua2333.cmagic_clue.component;
 
+import io.github.daxigua2333.cmagic_clue.component.data.BlockPosWithFace;
 import io.github.daxigua2333.cmagic_clue.component.data.DetailData;
 import io.github.daxigua2333.cmagic_clue.component.data.InfoData;
 import io.github.daxigua2333.cmagic_clue.component.data.ItemClue;
@@ -7,10 +8,9 @@ import io.github.daxigua2333.cmagic_clue.component.data.discovery.InteractEntry;
 import io.github.daxigua2333.cmagic_clue.component.data.discovery.InteractPassiveBehavior;
 import io.github.daxigua2333.cmagic_clue.component.data.discovery.InteractResult;
 import io.github.daxigua2333.cmagic_clue.component.data.discovery.InteractState;
-import io.github.daxigua2333.cmagic_clue.component.data.BlockPosWithFace;
 import io.github.daxigua2333.cmagic_clue.component.data.discovery.cluebook.DetailWithCompleteness;
-import io.github.daxigua2333.cmagic_clue.component.data.renderer.RendererHolder;
 import io.github.daxigua2333.cmagic_clue.component.data.renderer.BlockOutlineData;
+import io.github.daxigua2333.cmagic_clue.component.data.renderer.RendererHolder;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -42,9 +42,12 @@ public class Assembler {
 
         obj.addComponent(new InteractState(EnumSet.of(InteractState.StateType.REMAINING, InteractState.StateType.ALLOWED_PLAYERS)));
         obj.addComponent(new InteractEntry(
-                EnumSet.of(InteractEntry.EntryType.CLICK_WITH_FINDER, InteractEntry.EntryType.WALK_ON),
+                EnumSet.of(InteractEntry.EntryType.CLICK_WITH_FINDER, InteractEntry.EntryType.WALK_ON, InteractEntry.EntryType.REGULAR_RIGHT_CLICK, InteractEntry.EntryType.REGULAR_LEFT_CLICK),
                 EnumSet.of(InteractEntry.EntryType.CLICK_WITH_FINDER)));
-        obj.addComponent(new InteractResult(InteractResult.ResultType.SEND_TO_CLUE_BOOK));
+        obj.addComponent(new InteractResult(
+                EnumSet.of(InteractResult.ResultType.SEND_TO_CLUE_BOOK, InteractResult.ResultType.SEND_TO_CHAT_BOX),
+                EnumSet.of(InteractResult.ResultType.SEND_TO_CLUE_BOOK)
+        ));
         obj.addComponent(new InteractPassiveBehavior(InteractPassiveBehavior.BehaviorType.FLASH_DOT));
 
         return obj;
