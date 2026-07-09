@@ -24,36 +24,36 @@ public final class ModCommands {
     public static void register(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
-        dispatcher.register(
-                Commands.literal("footprint")
-                        // who can use it? permission level 0 = everyone, 2 = operator
-                        .requires(source -> source.hasPermission(2))
-                        .then(Commands.literal("create")
-                                .then(Commands.argument("count", IntegerArgumentType.integer())
-                                        .executes(ModCommands::createFootprints)
-                                )
-                        )
-        );
-
-        dispatcher.register(
-                Commands.literal("footprint")
-                        .requires(source -> source.hasPermission(2))
-                        .then(Commands.literal("delete")
-                                .executes(ModCommands::deleteFootprints))
-        );
-
-        dispatcher.register(
-                Commands.literal("footprint")
-                        .requires(source -> source.hasPermission(2))
-                        .then(Commands.literal("start")
-                                .executes( ctx -> {HookToggle.set(true); return 1;}))
-        );
-        dispatcher.register(
-                Commands.literal("footprint")
-                        .requires(source -> source.hasPermission(2))
-                        .then(Commands.literal("stop")
-                                .executes( ctx -> {HookToggle.set(false); return 1;}))
-        );
+//        dispatcher.register(
+//                Commands.literal("footprint")
+//                        // who can use it? permission level 0 = everyone, 2 = operator
+//                        .requires(source -> source.hasPermission(2))
+//                        .then(Commands.literal("create")
+//                                .then(Commands.argument("count", IntegerArgumentType.integer())
+//                                        .executes(ModCommands::createFootprints)
+//                                )
+//                        )
+//        );
+//
+//        dispatcher.register(
+//                Commands.literal("footprint")
+//                        .requires(source -> source.hasPermission(2))
+//                        .then(Commands.literal("delete")
+//                                .executes(ModCommands::deleteFootprints))
+//        );
+//
+//        dispatcher.register(
+//                Commands.literal("footprint")
+//                        .requires(source -> source.hasPermission(2))
+//                        .then(Commands.literal("start")
+//                                .executes( ctx -> {HookToggle.set(true); return 1;}))
+//        );
+//        dispatcher.register(
+//                Commands.literal("footprint")
+//                        .requires(source -> source.hasPermission(2))
+//                        .then(Commands.literal("stop")
+//                                .executes( ctx -> {HookToggle.set(false); return 1;}))
+//        );
 
     }
 

@@ -51,10 +51,10 @@ public class Config {
                     .defineInRange("footprintR", 255, 0, 255);
             FOOTPRINT_G = builder
                     .comment("footprint color: G")
-                    .defineInRange("footprintG", 255, 0, 255);
+                    .defineInRange("footprintG", 215, 0, 255);
             FOOTPRINT_B = builder
                     .comment("footprint color: B")
-                    .defineInRange("footprintB", 255, 0, 255);
+                    .defineInRange("footprintB", 0, 0, 255);
             builder.pop();
 
             builder.push("discovery");
