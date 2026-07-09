@@ -2,7 +2,6 @@
   "required": true,
   "package": "io.github.daxigua2333.cmagic_clue.mixins",
   "mixins": [
-    "ServerLevelMixin",
     "WidgetContainerFocusMixin",
     "ScrollPanelAccessor"
   ],

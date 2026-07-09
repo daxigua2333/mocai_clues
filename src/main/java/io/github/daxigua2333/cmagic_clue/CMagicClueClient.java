@@ -23,8 +23,6 @@ public class CMagicClueClient {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
-        CMagicClue.LOGGER.info("HELLO FROM CLIENT SETUP");
-        CMagicClue.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         event.enqueueWork(FinderTick::registerTextureChange);
     }
 

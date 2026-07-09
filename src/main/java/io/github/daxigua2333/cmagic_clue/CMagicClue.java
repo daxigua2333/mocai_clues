@@ -3,7 +3,6 @@ package io.github.daxigua2333.cmagic_clue;
 import com.mojang.logging.LogUtils;
 import io.github.daxigua2333.cmagic_clue.blocks.ModBlocksRegistry;
 import io.github.daxigua2333.cmagic_clue.data.ModAttachmentRegistry;
-import io.github.daxigua2333.cmagic_clue.footprints.ModFootprintRegistry;
 import io.github.daxigua2333.cmagic_clue.guis.ModMenuTypeRegistry;
 import io.github.daxigua2333.cmagic_clue.items.ModItemsRegistry;
 import io.github.daxigua2333.cmagic_clue.items.components.ModDataComponentsRegistry;
@@ -35,7 +34,6 @@ public class CMagicClue {
         ModCreativeTabRegistry.register(modEventBus);
         ModDataComponentsRegistry.register(modEventBus);
         ModMenuTypeRegistry.register(modEventBus);
-        ModFootprintRegistry.register(modEventBus);
         ModAttachmentRegistry.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
