@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -36,15 +37,54 @@ import java.util.UUID;
 public final class InteractSystem {
     private static final ComponentFamilyRegistry.SystemFamily FAMILY = ComponentFamilyRegistry.SystemFamily.INTERACT_SYSTEM;
 
+
+    private static final Map<UUID, Integer> LAST_RIGHT_CLICK = new HashMap<>();
+    private static final int DELTA = 5;
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    private static void onRegularClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        Player player = event.getEntity();
+
+        if (!event.getLevel().isClientSide()
+                && LAST_RIGHT_CLICK.computeIfAbsent(player.getUUID(), k -> 0) + DELTA < event.getLevel().getServer().getTickCount()) {
+            LAST_RIGHT_CLICK.put(player.getUUID(), event.getLevel().getServer().getTickCount());
+            processInteractEvent(
+                    DataManager.Server.retrieveByBlockPos(event.getLevel(), event.getPos()),
+                    InteractEntry.EntryType.REGULAR_RIGHT_CLICK,
+                    (ServerPlayer) player
+            );
+        }
+
+        event.setCanceled(false);
+        event.setCancellationResult(InteractionResult.PASS);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    private static void onRegularClickEntity(PlayerInteractEvent.EntityInteract event) {
+        Player player = event.getEntity();
+
+        if (!event.getLevel().isClientSide()
+                && LAST_RIGHT_CLICK.computeIfAbsent(player.getUUID(), k -> 0) + DELTA < event.getLevel().getServer().getTickCount()) {
+            LAST_RIGHT_CLICK.put(player.getUUID(), event.getLevel().getServer().getTickCount());
+            processInteractEvent(
+                    DataManager.Server.retrieveByEntity(event.getTarget()),
+                    InteractEntry.EntryType.REGULAR_RIGHT_CLICK,
+                    (ServerPlayer) event.getEntity()
+            );
+        }
+
+        event.setCanceled(false);
+        event.setCancellationResult(InteractionResult.PASS);
+    }
+
     @SubscribeEvent
     private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
         var level = event.getLevel();
         var pos = event.getPos();
         Player player = event.getEntity();
         boolean canInteract = false;
-        InteractEntry.EntryType entryType = event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())
-                ? InteractEntry.EntryType.CLICK_WITH_FINDER
-                : InteractEntry.EntryType.REGULAR_RIGHT_CLICK;
+        InteractEntry.EntryType entryType = InteractEntry.EntryType.CLICK_WITH_FINDER;
 
         if (!level.isClientSide()) {
             ObjectsWithLocation data = DataManager.Server.retrieveByBlockPos(level, pos);
@@ -56,11 +96,6 @@ public final class InteractSystem {
             canInteract = canInteract(DataManager.Client.retrieveByBlockPos(level, pos), entryType, player);
         }
 
-        if (entryType == InteractEntry.EntryType.REGULAR_RIGHT_CLICK) {
-            event.setCanceled(false);
-            event.setCancellationResult(InteractionResult.PASS);
-            return;
-        }
         // ONLY cancel and bypass normal interaction if data exists
         if (canInteract) {
             event.setCanceled(true);
@@ -73,12 +108,11 @@ public final class InteractSystem {
 
     @SubscribeEvent
     private static void onRightClickEntity(PlayerInteractEvent.EntityInteract event) {
+        if (!event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())) return;
         var level = event.getLevel();
         Player player = event.getEntity();
         boolean canInteract = false;
-        InteractEntry.EntryType entryType = event.getItemStack().is(ModItemsRegistry.CLUE_FINDER_ITEM.get())
-                ? InteractEntry.EntryType.CLICK_WITH_FINDER
-                : InteractEntry.EntryType.REGULAR_RIGHT_CLICK;
+        InteractEntry.EntryType entryType = InteractEntry.EntryType.CLICK_WITH_FINDER;
 
         if (!level.isClientSide()) {
             ObjectsWithLocation data = DataManager.Server.retrieveByEntity(event.getTarget());
@@ -90,11 +124,6 @@ public final class InteractSystem {
             canInteract = canInteract(DataManager.Client.retrieveByEntity(event.getTarget()), entryType, player);
         }
 
-        if (entryType == InteractEntry.EntryType.REGULAR_RIGHT_CLICK) {
-            event.setCanceled(false);
-            event.setCancellationResult(InteractionResult.PASS);
-            return;
-        }
         // ONLY cancel and bypass normal interaction if data exists
         if (canInteract) {
             event.setCanceled(true);
@@ -138,7 +167,8 @@ public final class InteractSystem {
     }
 
 
-    private static void processInteractEvent(ObjectsWithLocation ol, InteractEntry.EntryType entryType, ServerPlayer player) {
+    private static void processInteractEvent(ObjectsWithLocation ol, InteractEntry.EntryType
+            entryType, ServerPlayer player) {
         for (ClueObject obj : ol.objects()) {
             if (!obj.hasFamily(FAMILY)) {
                 continue;
