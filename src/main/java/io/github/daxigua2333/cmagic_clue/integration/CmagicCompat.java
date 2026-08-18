@@ -28,8 +28,8 @@ public class CmagicCompat {
     }
 
     public static Set<MutableComponent> getAllMajoDecoName() {
-        Set<MutableComponent> result = new HashSet<>(Majos.MAJOS.size());
-        for (Majo majo : Majos.MAJOS.values()) {
+        Set<MutableComponent> result = new HashSet<>(Majos.getMajos().size());
+        for (Majo majo : Majos.getMajos()) {
             result.add(majo.getDecoName());
         }
         return result;
